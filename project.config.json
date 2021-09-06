@@ -1,0 +1,13 @@
+{
+  "miniprogramRoot": "./dist",
+  "projectname": "photographer",
+  "description": "photographer",
+  "appid": "wxc977689ba90af367",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  },  
+  "compileType": "miniprogram"
+}

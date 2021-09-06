@@ -1,0 +1,113 @@
+.messagetab{
+  &.at-tab-bar{
+      .at-badge__dot{
+        right:-22px;
+        top: 0;
+      }
+      border-bottom:1px solid #EFEFEF;
+
+  }
+
+  .at-tab-bar__item{
+
+    position: relative;
+    &.at-tab-bar__item--active{
+      &:after{
+        width:25px;
+        height:8px;
+        background:rgba(255,196,16,1);
+        border-radius:4px;
+        left: 45%;
+        position: absolute;
+        bottom:-7px;
+        content:'';
+        display: block;
+      }
+    }
+
+  }
+}
+
+
+.list{
+  .item{
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+
+    padding: 10rpx 20rpx ;
+    margin-bottom: 20rpx;
+    .image{
+      position: relative;
+      margin-right:15px;
+      Image{
+        //  border:1px dashed #999;
+        width: 133px;
+        height: 133px;
+        border-radius: 50%;
+      }
+      .dot{
+        position: absolute;
+        display: block;
+        width: 27px;
+        height: 27px;
+        background: #F73432;
+        border: 2px solid #FFFFFF;
+        border-radius: 50%;
+        right:0;
+        bottom:10px; 
+      }
+    }
+    .title{
+      flex:1.1;
+      padding-left: 12rpx;
+      .h{
+        font-size: 32rpx;
+        color: #333;
+        display: block;
+      }
+      .p{
+        display: block;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        word-break: break-all;
+        font-size: 24rpx;
+        color: #828282;
+        margin-top: 8rpx;
+        width: 400rpx;
+      }
+    }
+    .time{
+      color: #A2A2A2;
+      font-size: 26rpx;
+    }
+  }
+}
+
+
+.detail{
+  .header{
+    padding:30px 37px;
+    border-bottom: 1px solid #F9F9F9;
+    .title{
+      font-size:32px;
+      font-weight: 500;
+      margin-bottom: 28px;
+
+    }
+    .time{
+      display: flex;
+      color: #A1A1A1;
+      font-size:25px;
+      justify-content: space-between;
+    }
+  }
+  .content{
+    padding:45px 37px;
+    text-indent: 2em;
+    font-size: 28px;
+    color: #818181;
+    line-height: 44px;
+  }
+}

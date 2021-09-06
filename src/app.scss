@@ -1,0 +1,39 @@
+.at-tab-bar--fixed{
+  .at-tab-bar__item:nth-child(3){
+    .at-tab-bar__inner-img{
+      width:78px;
+    }
+  }
+}
+
+.at-button{
+  height:80px;
+  line-height:80px;
+  background:rgba(0,0,0,1);
+  border-radius:4px;
+
+}
+
+.noData{
+  text-align: center;
+  font-size: 28px;
+  color: #9AA0B4;
+  font-weight:bold;
+
+  Image{
+    width:330px;
+    margin-bottom: 15px;
+  }
+}
+.at-curtain__btn-close--bottom {
+  z-index: 0 !important;
+}
+
+
+.shareButton{
+  background-color: transparent;
+  border: none;
+  &:after{
+      border: none;
+  }
+}

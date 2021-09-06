@@ -1,0 +1,38 @@
+//:global{
+.shareButton {
+  background-color: #1e1e1e;
+  border: none;
+  color: #fff;
+  &:after {
+    border: none;
+  }
+  &.detailBtn {
+    background-color: transparent !important;
+    color: #000 !important;
+    font-size: 22px;
+    line-height: 1;
+    height: 76px;
+    &:before {
+      content: '';
+      background-image: url(../images/icon/share.png);
+      background-size: 100%;
+      background-repeat: no-repeat;
+      background-size: 100%;
+      width: 36px;
+      height: 36px;
+      display: block;
+      content: '';
+      margin: 0 auto 10px;
+    }
+  }
+  &.sharePover {
+    background-color: #ffc40f;
+    border-color: #ffc40f;
+    font-size: 34px;
+    margin-bottom: 20px;
+    height: 70px;
+    line-height: 70px;
+    border-radius: 4px;
+  }
+}
+//}
