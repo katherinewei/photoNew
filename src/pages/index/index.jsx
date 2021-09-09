@@ -5,7 +5,6 @@ import {
   timeString,
   setAccessToken,
   getImageUrl,
-  typeS,
   setUserId,
   getToken,
   setUserInfo,
@@ -14,7 +13,7 @@ import {
 import { ImageUrl } from '../../config'
 import './index.scss'
 import {
-  AtButton,
+  AtButton ,
   AtIcon,
   AtFab,
   AtTabBar,
@@ -27,12 +26,15 @@ import {
   AtModalContent,
   AtModalAction,
   AtRadio,
+  AtFloatLayout 
 } from 'taro-ui'
-import Tabs from '../../components/tab'
-
+import NavBar from '../../components/Navbar/index'
 export default class Index extends Component {
   config = {
-    navigationBarTitleText: '拍好照',
+    navigationBarTitleText: '首页',
+    usingComponents: {
+      'navbar': '../../components/Navbar/index', // 书写第三方组件的相对路径
+    },
   }
 
   componentWillMount() {
@@ -44,189 +46,38 @@ export default class Index extends Component {
 
     this.setState({
       loading: true,
-      current: 0,
+      current: 1,
+      subCur:1,
       value: '',
-      isOpened: false,
-      isOpenedArea: false,
-      records: [],
-      Photographers: [],
-      makeup: 0,
-      cloth: 0,
-      type: 0,
-      price: 0,
-      area: ['广东省', '广州市'],
-      notfirstYz: {},
-      priceModal: false,
-      likeBtn: true, // 想拍
+      records: [{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'}],
       currentSearch: {},
-      country: [],
-      countryed: '',
-      province:[],
-      provinceed: '',
-      city:[],
-      cityed: '',
-      districted:'',
-      showDistrict:false
-      // initArea:[0,0], //默认地区
-    })
+      visible:false,
+      tabs:[
+       { label:'写真约拍',value:1,list:[{value:1,label:'个人写真'},{value:2,label:'情侣写真'},{value:3,label:'证件形象'},{value:4,label:'儿童写真'},{value:5,label:'汉服古风'},{value:6,label:'Cosplay'},{value:7,label:'毕业照'},{value:8,label:'全家福'}]},
+       { label:'婚纱摄影',value:2,list:[{value:1,label:'婚纱写真'},{value:2,label:'婚纱旅拍'},{value:3,label:'登记跟拍'},{value:4,label:'婚礼现场'}]},
+       { label:'商务公关',value:3,list:[{value:1,label:'公关活动'},{value:2,label:'赛事记录'},{value:3,label:'会议论坛'},{value:4,label:'工程开发记录'}]},
+       { label:'商业广告',value:4,list:[{value:1,label:'产品广告'},{value:2,label:'空间建筑'},{value:3,label:'美食静场'}]}
 
+      ]  
+    })
+       
     Taro.showShareMenu({
       withShareTicket: true,
       menus: ['shareAppMessage', 'shareTimeline'],
     })
   }
 
-  onChangeCity(value) {
-    if (value.detail.column == 0) {
-      const val = value.detail.value
-      const { areas } = this.state
-      Area[0].children.map((province, i) => {
-        if (i == val) {
-          areas[1] = []
-          province.children.map((city) => {
-            areas[1].push(city.value)
-          })
-        }
-      })
-      this.setState({ areas })
-    }
-  }
+
 
   componentDidMount() {
     getToken(() => this.fetchData(), true)
 
-    // const that = this;
-    // //const code = this.$router.params.code
-    // const code = Taro.getStorageSync('userId')
-    // Taro.login({
-    //     success: function (res) {
-    //       console.log(res)
-    //       if (res.code) {
-    //         //发起网络请求
-
-    //         let data = {}
-    //         if(code){
-    //           data.id = code;
-    //         } else {
-    //           data.code = res.code
-    //         }
-
-    //         const login = () => {
-    //           Request({
-    //           //  url: 'wxLogin',
-    //             //method: 'post',
-    //             url: 'testLogin',
-    //             method: 'get',
-
-    //             data,
-    //             isToken:false
-    //           },(data) => {
-
-    //            setAccessToken(data.data)
-    //           //  setAccessToken(data.data.token)
-    //             that.fetchData()
-
-    //           })
-    //         }
-
-    //         login()
-
-    // const callback = () => {
-    //   Taro.getUserInfo({
-    //     lang:'zh_CN',
-    //     success: function(res) {
-
-    //           var userInfo = res.userInfo
-    //           var nickName = userInfo.nickName
-    //           var avatarUrl = userInfo.avatarUrl
-    //           var gender = userInfo.gender //性别 0：未知、1：男、2：女
-    //           var province = userInfo.province
-    //           var city = userInfo.city
-    //           var country = userInfo.country
-
-    //           data.userName = nickName;
-    //           data.headPic = avatarUrl;
-    //           console.log(data,1111)
-    //           login()
-
-    //         }
-    //       })
-    // }
-
-    // Taro.getSetting({
-    //   success(res1) {
-    //     console.log(res1)
-    //     if (!res1.authSetting['scope.userInfo']) {
-    //       Taro.authorize({
-    //         scope: 'scope.userInfo',
-    //         success () {
-    //           console.log(111)
-    //           callback()
-    //         }
-    //       })
-    //     } else {
-    //       console.log(2222)
-    //       callback()
-    //     }
-    //   }
-    // })
-
-    //     } else {
-    //       console.log('登录失败！' + res.errMsg)
-    //     }
-    //   }
-    // })
   }
 
   getPhoneNumber(e) {
-    console.log(e)
-    console.log(e.detail.errMsg)
-    console.log(e.detail.iv)
-    console.log(e.detail.encryptedData)
+    
   }
 
-  fetchData() {
-    //个人信息
-    Request(
-      {
-        url: 'user_info',
-        method: 'get',
-        data: {
-          //  code: res.code
-          //    id:10000
-        },
-      },
-      (data) => {
-        setUserId(data.data.id)  
-        setUserInfo(data.data)
-        //console.log(data.data.wxName == '',555)
-        // if(data.data.wxName == ''){
-        //   console.log(Taro)
-        //   // Taro.redirectTo({url: '/pages/index/login'})
-        //   // return false
-        // }
-        this.setState({ user: data.data, isOpened: data.data.flag >= 2 })
-      },
-    )
-
-    //摄影师列表
-    Request(
-      {
-        url: 'photoer-list',
-        method: 'GET',
-        data: {
-          //  code: res.code
-          //    id:10000
-        },
-        isToken: false,
-      },
-      (data) => {
-        this.setState({ Photographers: data.data.records })
-      },
-    )
-
-    this.fetchyzlist()
-  }
 
   componentWillUnmount() {}
 
@@ -235,42 +86,7 @@ export default class Index extends Component {
   componentDidHide() {}
 
   fetchyzlist(query, value) {
-    let data = {}
-    let val = ''
-
-    if(query === 'data'){
-      data = value
-    } else {
-      if (value) {
-        if (query === 'name') {
-         val = value
-       } else {
-         value = value.target.value
-        
-          if (query === 'type') {
-           val = Number(value) + 1
-         } else if (query === 'price') {
-           val = value == 1 ? 'desc' : 'asc'
-           if (value == 2) {
-             //自定义价格
- 
-             this.setState({ priceModal: true })
- 
-             return false
-           }
-         } else {
-           val = value
-         }
-       }
-     }
- 
-     if (query && val) {
-       data[query] = val
-     }
-    }
-   
-
-    this.setState({ currentSearch: data })
+    
 
     // 验真列表
     Request(
@@ -286,23 +102,6 @@ export default class Index extends Component {
     )
   }
 
-  handleConfirm() {
-    // 价格筛选
-    const { priceMax, priceMin } = this.state
-    const currentSearch = { priceMax, priceMin }
-    this.setState({ currentSearch })
-    Request(
-      {
-        url: 'photo-index',
-        method: 'GET',
-        data: currentSearch,
-        //isToken:false
-      },
-      (data) => {
-        this.setState({ ...data.data, priceModal: false })
-      },
-    )
-  }
 
   onChange(value) {
     this.setState({
@@ -310,42 +109,7 @@ export default class Index extends Component {
     })
   }
 
-  onConfirm() {
-    this.fetchyzlist('name', this.state.value)
-  }
 
-  // 想拍
-  handleLike(id) {
-    if(validateLogin()){
-      const { likeBtn, records } = this.state
-      if (likeBtn) {
-        this.setState({ likeBtn: false })
-        Request(
-          {
-            url: 'photo-like',
-            method: 'post',
-            data: {
-              serviceId: id,
-            },
-          },
-          (data) => {
-            records.map((item) => {
-              if (item.id === id) {
-                item.like = !item.like
-                if (item.like) {
-                  item.logCount += 1
-                } else {
-                  item.logCount -= 1
-                }
-              }
-            })
-
-            this.setState({ records, likeBtn: true })
-          },
-        )
-      }
-    }
-  }
 
   //上拉刷新
   onScrollToLower() {
@@ -368,407 +132,111 @@ export default class Index extends Component {
     }
   }
 
-
-  //省市选择
-  selectCity() {
-    const {provinceed,cityed,districted,countryed} = this.state;
-    const data = {
-      province:provinceed,
-      city:cityed,
-      area:districted,
-      country:countryed
+  handleClick(value,hide){
+    
+    this.setState({subCur:value })
+    if(hide){
+      this.setState({visible:!this.state.visible })
     }
-    this.fetchyzlist('data',data)
-    this.setState({ isOpenedArea: false })
   }
 
-  showArea(){
-    this.setState({ isOpenedArea: true })
-    Request(
-      {
-        url: ImageUrl+'/wx/area/country',
-        method: 'get',
-       
-      },
-      (data) => {
-        const countries = data.data;
-        const country = []
-        countries.map(item => {
-          country.push(item.zonename)
-        })
-       // this.setState({country:data.data})
-
-        this.setState({
-          country, //地区数据
-          countryed:'',
-          sel_country: '',
-          provinceed: '',//北京市,北京市,东城区
-          cityed: '',
-          districted: '',
-          countries,
-        })
-
-      // console.log(data)
-      },
-    )
-
+  changeTab(value){
+    this.setState({current:value,subCur:1 })
   }
-
-
-  onChangeCountry = (e) => {
-    // if (e.target.value == 0) {
-    //   this.setState({
-    //     provinceed: '北京市,北京市,东城区',
-    //   })
-    // }
-    this.setState({
-      countryed: this.state.country[e.target.value],
-    })
-    let id = ''
-    this.state.countries.map((item,i) => {
-      if(i == e.target.value){
-          id = item.id
-      }
-    })
-    Request(
-      {
-        url: ImageUrl+'/wx/area/province',
-        method: 'get',
-        data:{id}
-      },
-      (data) => {
-        const provinces = data.data;
-        const province = []
-        provinces.map(item => {
-          province.push(item.zonename)
-        })
-       // this.setState({country:data.data})
-
-        this.setState({
-          province,
-          provinces,
-         
-          provinced:'',
-          cityed:'',
-          districted:''
-        })
-
-      // console.log(data)
-      },
-    )
+  expand(){
+    this.setState({visible:!this.state.visible })
     
-
-
-    
-   
   }
 
-  onChangeProvince = (e) => {
-    console.log(e.target.value)
-   
-    this.setState({
-      provinceed: this.state.province[e.target.value],
-    })
-    let id = ''
-    this.state.provinces.map((item,i) => {
-      if(i == e.target.value){
-          id = item.id
-      }
-    })
-    Request(
-      {
-        url: ImageUrl+'/wx/area/city',
-        method: 'get',
-        data:{id}
-      },
-      (data) => {
-        const cities = data.data;
-        const city = []
-        cities.map(item => {
-          city.push(item.zonename)
-        })
-     
-        this.setState({
-          city,
-          cities,
-          cityed:'',
-          districted:''
-        })
 
-     
-      },
-    )
-
-  }
-
-  onChangeCity = (e) => {
-    this.setState({
-      cityed: this.state.city[e.target.value],
-    })
-    let id = ''
-    this.state.cities.map((item,i) => {
-      if(i == e.target.value){
-          id = item.id
-      }
-    })
-    Request(
-      {
-        url: ImageUrl+'/wx/area/district',
-        method: 'get',
-        data:{id}
-      },
-      (data) => {
-        const districts = data.data;
-        if(districts.length > 0){
-          const district = []
-          districts.map(item => {
-            district.push(item.zonename)
-          })
-          this.setState({
-            district,
-            districts,
-            districted:'',
-            showDistrict:true
-          })
-        }  
-      },
-    )
-  }
 
   render() {
-    const makeups = ['自备', '提供']
-    const clothes = ['自备', '提供']
-    const types = typeS
-    const prices = ['由高到低', '由低到高', '自定义价格区间']
+   
+  
     const {
-      Photographers,
       records,
-      notfirstYz,
       loading,
-      priceModal,
+      tabs,
       user,
-      initArea,
-      areas,
+      current,
+      subCur,
+      visible
+      
     } = this.state
 
     return (
       <View className="index">
-        {/*<button type='primary' open-type='getUserInfo' onClick={()=>  this.getUserInfo()  }>获取用户信息</button>
-        <button type='primary' open-type='getPhoneNumber' onClick={(e)=>  this.getPhoneNumber(e)  }>获取用户信息</button>*/}
-        <AtModal isOpened={priceModal}>
-          <AtModalHeader>输入价格区间</AtModalHeader>
-          <AtModalContent>
-            <View className="modalInput">
-              <Input
-                value={this.state.priceMin}
-                onInput={(e) => {
-                  this.setState({ priceMin: e.target.value })
-                }}
-              />
-              -
-              <Input
-                value={this.state.priceMax}
-                onInput={(e) => {
-                  this.setState({ priceMax: e.target.value })
-                }}
-              />
-            </View>
-          </AtModalContent>
-          <AtModalAction>
-            {' '}
-            <Button
-              onClick={() => {
-                this.setState({ priceModal: false })
-              }}
-            >
-              取消
-            </Button>{' '}
-            <Button onClick={() => this.handleConfirm()}>确定</Button>{' '}
-          </AtModalAction>
-        </AtModal>
+         <View className='menu'>
+          <View className='tab'>
+          <View className='p20 at-row '>
+          {tabs.map((item,i) => (
+            <View onClick={() => this.changeTab(item.value)}  className={item.value === current ? 'active at-col' : 'at-col'}><text>{item.label}</text></View>
+          ))}
+          </View></View>
+          <View className='fixed'></View>
+          <View className="container p20">
+            <View className='content '>
+              <View className="title">
+                {tabs[current-1].list.map((item,i) => (
+                  <View onClick={() => this.handleClick(item.value)}  className={item.value === subCur ? 'active sub' : 'sub'}><text>{item.label}</text></View>
+                ))}
+              {current === 1 &&   <View  className='expand' onClick={() => this.expand()}></View>}
+              </View>
+              <View className="subContent">
+                <View className="h3">· 服务流程是怎么样的？</View>
+                <View className="p">
+                <text>
+                  确认下单- -&gt;支付定金- -&gt;客服回电确认信息- -&gt;确定摄影师- -&gt;享受拍摄服务- -&gt;支付尾款- -&gt;收到成片 \n \n
 
-        <AtActivityIndicator
-          mode="center"
-          isOpened={loading}
-          content="加载中..."
-        ></AtActivityIndicator>
-        <Tabs current={0} />
+                  关于我的资金安全? \n
+                  在您享受完拍摄后收到成片并点击“收到成片”后，平台才会与摄影师进行结算打款，在此之前您的资金都将受到平台保护。\n \n
+
+                  拍摄需要提前多久预定? \n
+                  目前可支持预约1天后的拍摄服务，如遇拍摄旺季请您最好提前 \n
+                  15天到30天以上预定，以免耽误您的拍摄 \n
+                </text>
+              </View>
+            </View>
+          
+            <AtButton type='primary' size='small' className="book">预约摄影师</AtButton>
+          
+            </View>
+          </View>
+        </View>
         <ScrollView
-          className="scrollview"
-          scrollY
-          scrollWithAnimation
-          scrollTop={0}
-          style={{ height: Taro.getSystemInfoSync().windowHeight - 70 + 'px' }}
-          lowerThreshold={20}
-          upperThreshold={20}
-          onScrollToLower={this.onScrollToLower.bind(this)}
-        >
-          <View className="body">
-            <View className="list">
-              <View
-                className="item"
-                onClick={() =>
-                  Taro.navigateTo({
-                    url: `/pages/index/newPhotographer?isTruthUser=${user.isTruthUser}&userId=${user.id}`,
-                  })
-                }
-              >
-                <AtAvatar
-                  circle
-                  image={require('../../images/icon/photo.png')}
-                ></AtAvatar>
-                <text class={'add'}></text>验真约拍
-              </View>
-
-              {Photographers && Photographers.length > 0 ? (
-                Photographers.map((item, i) => (
-                  <View className="item" >
-                    <AtAvatar
-                      circle
-                      image={getImageUrl(item.imgPath)}
-                    ></AtAvatar>
-                    {item.isNew ? <text class="new">new</text> : ''}
-
-                    {item.name}
-                  </View>
-                ))
-              ) : (
-                <View></View>
-              )}
-            </View>
-            <View className="title">
-              <Text class="text">服务验真 约拍免费</Text>
-
-              {user && user.isTruthUser == 0 && (
-                <AtButton
-                  type="primary"
-                  onClick={() => {
-                    if(validateLogin()){
-                      Taro.navigateTo({ url: `/pages/publish/verificateChecker` })
-                    }
-                  }
-                  }
-                >
-                  认证验真官
-                </AtButton>
-              )}
-              <AtInput
-                name="value"
-                title=""
-                type="text"
-                placeholder="参加验真约拍， 体验服务拿报酬，为摄影服务验真"
-                value={this.state.value}
-                onChange={this.onChange.bind(this)}
-                onConfirm={this.onConfirm.bind(this)}
-              />
-            </View>
-
-            <View className="content">
-              <View className="selectBox">
-                <View className="at-row">
-                  {/* <Picker className='at-col'  mode="region" onColumnchange={(e) => this.onChangeCity(e)} value={initArea} range={areas} onChange={(e)=>this.fetchyzlist('area',e)}>
-                        <View className='picker'>
-                         地点
-                        </View>
-                        
-                     </Picker> */}
-
-                  <View
-                    className="picker at-col"
-                    onClick={() => this.showArea() }
-                  >
-                    地点
-                  </View>
-
-                  <Picker
-                    className="at-col"
-                    mode="selector"
-                    range={makeups}
-                    onChange={(e) => {
-                      this.fetchyzlist('makeupFlag', e)
-                    }}
-                  >
-                    <View className="picker">妆面</View>
-                  </Picker>
-                  <Picker
-                    className="at-col"
-                    mode="selector"
-                    range={clothes}
-                    onChange={(e) => {
-                      this.fetchyzlist('clothesFlag', e)
-                    }}
-                  >
-                    <View className="picker">服装</View>
-                  </Picker>
-                  <Picker
-                    className="at-col"
-                    mode="selector"
-                    range={types}
-                    onChange={(e) => {
-                      this.fetchyzlist('type', e)
-                    }}
-                  >
-                    <View className="picker">类型</View>
-                  </Picker>
-                  <Picker
-                    className="at-col"
-                    mode="selector"
-                    range={prices}
-                    onChange={(e) => {
-                      this.fetchyzlist('price', e)
-                    }}
-                  >
-                    <View className="picker">价格</View>
-                  </Picker>
-                </View>
-              </View>
-
-              <View className="box">
+              className='scrollview'
+              scrollY
+              scrollWithAnimation
+              scrollTop={0}
+              style={{height: (Taro.getSystemInfoSync().windowHeight) - 120 +  'px'}}
+              lowerThreshold={20}
+              upperThreshold={20}
+              onScrollToLower={this.onScrollToLower.bind(this)}
+               >
+               <View className="list">
                 {records && records.length > 0 ? (
                   records.map((item, i) => (
-                    <View  className="item">
+                    <View className="item">
                       <View
-                        onClick={() =>
-                          
+                        onClick={() => {
+                         
                             Taro.navigateTo({
-                              url: `/pages/index/serviceDetail?id=${item.id}&userId=${user.id}`,
+                              url: `/pages/index/serviceDetail?id=${item.id}&price=${item.price}&isPhotographer=1`,
                             })
                           
-                         
+                        }
                         }
                       >
-                        <View className="info">
-                          <View className="info1">
-                            <Image src={getImageUrl(item.headPic)}></Image>
-                            <View>
-                              <Text>
-                                {item.name}
-                                <Text className={item.sex ? 'man' : ''}></Text>
-                              </Text>
-                              {item.area}
-                            </View>
-                          </View>
-                        </View>
-
                         <View className="image">
+                          
                           <View className="img">
                             <Image
-                              mode="heightFix"
-                              src={getImageUrl(item.imgPath)}
+                              mode="widthFix"
+                              src={(item.imgPath)}
                             ></Image>
-                            {item.flag && <View className="badge">已验真</View>}
+                           
                           </View>
-                        </View>
-                      </View>
-
-                      <View className="price">
-                        <Text>￥{item.price}</Text>
-                        <View>
-                          <View
-                            onClick={() => this.handleLike(item.id)}
-                            className={`heart ${item.like ? 'active' : ''}`}
-                          ></View>
-                          {item.logCount}想拍
+                          <View className="text">{item.label}</View>
                         </View>
                       </View>
                     </View>
@@ -782,50 +250,18 @@ export default class Index extends Component {
                     <View>暂无数据</View>
                   </View>
                 )}
-
-                {/**/}
               </View>
-            </View>
-          </View>
         </ScrollView>
-
-        <AtModal isOpened={this.state.isOpenedArea}>
-        <AtModalHeader>请选择地区</AtModalHeader>
-          <AtModalContent>
-          <View className="p">国家地区</View>
-          <Picker
-            mode="selector"
-            range={this.state.country}
-            onChange={this.onChangeCountry}
-          >
-            <View className="pickerArea">
-              {this.state.countryed || '请选择国家'}
-            </View>
-          </Picker>
-            <View>
-              <View className="p">省份</View>
-              <Picker mode="selector" range={this.state.province} onChange={this.onChangeProvince}>
-                <View className="pickerArea">{this.state.provinceed || '请选择省份'}</View>
-              </Picker>
-            </View>
-           <View className='p'>城市</View>
-            <Picker mode='selector' range={this.state.city} onChange={this.onChangeCity} >
-              <View className='pickerArea'>
-                {this.state.cityed || '请选择城市'}
+     
+        <View className={(visible ? 'show ' : '' ) +"moreType"}>
+          <View className="body">
+              <View className="h4">全部选项<AtIcon value='close' size='20' color='#F6F6F6' onClick={() => this.expand()}></AtIcon></View>
+              <View className="types"> {tabs[0].list.map((item,i) => (
+                 <View onClick={() => this.handleClick(item.value,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.label}</text></View>
+              ))}</View>
               </View>
-            </Picker> 
-           {this.state.showDistrict && <View>
-              <View className='p'>区/县</View>
-              <Picker mode='selector' range={this.state.district} onChange={(e) => this.setState({districted:this.state.district[e.target.value]})} >
-                <View className='pickerArea'>
-                  {this.state.districted || '请选择区/县'}
-                </View>
-              </Picker> 
-             </View>} 
-
-          </AtModalContent>
-          <AtModalAction> <Button onClick={() => this.setState({isOpenedArea:false})}>取消</Button> <Button onClick={() => this.selectCity()}>确定</Button> </AtModalAction>
-        </AtModal>
+        </View>
+     
       </View>
     )
   }

@@ -17,85 +17,80 @@ import './icon.scss'
 class App extends Component {
   config = {
     pages: [
-     
-      'pages/index/index',
-      'pages/index/login',
-      'pages/index/newPhotographer', 
-      'pages/index/serviceDetail',
-      'pages/index/reportDetail',
-      
-      'pages/index/complaints',
-      'pages/want/index',
-      'pages/message/index',
-      'pages/message/detail',
-      'pages/publish/index',
-      'pages/publish/publishList',
-      'pages/publish/publishService',
-      'pages/publish/orderPhoto',
-      'pages/publish/publishTruth',
-      'pages/publish/publishReport',
-      'pages/verification/success',
-      'pages/publish/verificatePhotographer',
-      'pages/publish/verificateChecker',
-      'pages/publish/share',
-      'pages/publish/appointApplication',
-      'pages/publish/agreement',
-      'pages/verification/shareImg',
+
       'pages/user/index',
-      'pages/user/Info',
-      'pages/user/editDesc',
-      'pages/user/editName',
-      'pages/user/appointmentDetail',
-      'pages/user/applicationList',
-      'pages/user/appointmentList',
-      'pages/user/applicationDetail',
+      'pages/order/confirmOrder', 
+      'pages/order/evaluation', 
+      'pages/order/orderDeatil', 
+      
+      'pages/order/index',
+      'pages/index/publishService',
+      'pages/index/associationType',
+      'pages/order/photographer',
+      'pages/index/index',
+     
+      
+      
     ],
     window: {
       backgroundTextStyle: 'light',
-      navigationBarBackgroundColor: '#fff',
+      navigationBarBackgroundColor: '#5299FB',
       navigationBarTitleText: '拍好照',
       navigationBarTextStyle: 'black',
+     // navigationStyle:'custom'
     },
-    // tabBar: {
-    //   list: [
-    //     {
-    //       pagePath: "pages/index/index",
-    //       text: "首页"
-    //     },
-    //     {
-    //       pagePath: "pages/want/index",
-    //       text: "想拍"
-    //     },
-    //     {
-    //       pagePath: "pages/publish/index",
-    //       text: ""
-    //     },
-    //     {
-    //       pagePath: "pages/message/index",
-    //       text: "消息"
-    //     },
-    //     {
-    //       pagePath: "pages/user/index",
-    //       text: "我的"
-    //     }
-    //
-    //   ]
-    //  },
+    tabBar: {
+      selectedColor:'#5299FB',
+      list: [
+        {
+          pagePath: "pages/index/index",
+          selectedIconPath: "./images/icon/tab1_active.png",  
+          iconPath:"./images/icon/tab1.png",
+          text: "首页",
+        },  
+        {
+          pagePath: "pages/order/index",
+          selectedIconPath: "./images/icon/tab2_active.png",  
+          iconPath:"./images/icon/tab2.png",
+          text: "订单"
+        },
+       
+       
+        {
+          pagePath: "pages/user/index",
+          selectedIconPath: "./images/icon/tab3_active.png",  
+          iconPath:"./images/icon/tab3.png",
+          text: "我的"
+        }
+    
+      ]
+     },
   }
   constructor(props) {
     super(props)
     const that = this
+
+    // app.js
+    Taro.getSystemInfo({})
+    .then(res  => {
+      Taro.$navBarMarginTop =  res.statusBarHeight || 0
+    })
+    // 将状态栏高度挂载全局
   }
 
   componentWillMount() {}
 
-  componentDidMount() {}
+  componentDidMount() {
+    
+  }
 
   componentDidShow() {}
 
   componentDidHide() {}
 
   componentDidCatchError() {}
+
+  
 
   // 在 App 类中的 render() 函数没有实际作用
   // 请勿修改此函数

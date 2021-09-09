@@ -1,44 +1,48 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text, Picker, Input } from '@tarojs/components'
 import Request from '../../utils/request'
-import { timeString } from '../../utils/help'
-
-import './index.scss'
+import '../index/publishService.scss'
 import {
   AtImagePicker,
   AtTextarea,
   AtButton,
   AtForm,
   AtActivityIndicator,
+  AtInput,
+  AtIcon,AtTag
 } from 'taro-ui'
 import { ImageUrl } from '../../config'
 
-export default class publishService extends Component {
+export default class evaluation extends Component {
   config = {
-    navigationBarTitleText: '约拍申请',
+    navigationBarTitleText: '评价',
+    navigationBarTextStyle: 'white',
   }
 
   state = {
-    dateSel: timeString(new Date().getTime()),
     files: [],
+    phone: '',
     loading: false,
+    types:['写真约拍','婚纱摄影','商务公关','商业广告'],
+    tags:['个人写真','情侣写真','证件形象','汉服古风','儿童写真','cosplay','毕业照','全家福'],
+    typeSelect:Number(Taro.getStorageSync('typeId')),
+    tagSelect:Number(Taro.getStorageSync('tagId')),
+    numShow:false,
+    numValue: 5
+  
   }
   componentWillMount() {}
 
-  componentDidMount() {}
+  componentDidMount() {
+    
+  }
 
   componentWillUnmount() {}
 
   componentDidShow() {}
 
   componentDidHide() {}
-
-  onChange = (e) => {
-    this.setState({
-      dateSel: e.detail.value,
-    })
-  }
-
+  
   onChangeFile(files, operationType) {
     if (operationType === 'remove') {
       this.setState({
@@ -101,8 +105,16 @@ export default class publishService extends Component {
 
   //提交
   onSubmit() {
-    const { condition, wxName, dateSel, files, mobile } = this.state
-
+    let {
+    
+     
+      files,
+      title,
+      detail,
+      phone,
+      price,
+     
+    } = this.state
     let imgPath = ''
     if (files.length > 0) {
       imgPath = []
@@ -113,85 +125,91 @@ export default class publishService extends Component {
       imgPath = imgPath.join(',')
     }
 
+    if (!/^1[3456789]\d{9}$/.test(phone)) {
+      Taro.showToast({
+        title: '输入正确的手机号码',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    let type = 1
+   
     const data = {
-      condition,
-      wxName,
-      expectedDate: dateSel,
+     
+     
+      type,
+     
+     
       imgPath,
-      mobile,
-      id: this.$router.params.id,
+      title,
+      detail,
+      phone,
+      price,
+      status: 0,
+
     }
 
-    if (!wxName) {
-      Taro.showToast({
-        title: '微信号不能为空',
-        icon: 'none',
-        mask: true,
-      })
-      return false
-    }
-    if (!mobile || !/^1[3456789]\d{9}$/.test(mobile)) {
-      Taro.showToast({
-        title: '请填写正确的手机号',
-        icon: 'none',
-        mask: true,
-      })
-      return false
-    }
-    if (!dateSel) {
-      Taro.showToast({
-        title: '请填写期望日期',
-        icon: 'none',
-        mask: true,
-      })
-      return false
-    }
-
-    //  console.log(data)
+    console.log(data)
     // 发送数据
     Request(
       {
-        url: 'photo-speech-add',
+        url: 'photo-service',
         method: 'POST',
         data,
       },
       (data) => {
         Taro.showToast({
-          title: '申请成功！',
+          title: '发布成功',
           icon: 'success',
           mask: true,
         })
-
         setTimeout(() => {
           // Taro.navigateBack({delta: 1})
           Taro.redirectTo({
-            url: '/pages/index/newPhotographer?isTruthUser=1',
+            url: `/pages/index/index`,
           })
         }, 1000)
       },
     )
   }
 
+  cancelSelect(e,type){
+
+    e.stopPropagation()
+    if(type ===1){
+      Taro.removeStorageSync('typeId')
+    } else {
+      Taro.removeStorageSync('tagId')
+    }
+
+    
+  }
+  expand(){
+    this.setState({numShow:!this.state.numShow})
+    
+  }
+  setNum(e,item){
+    e.stopPropagation()
+    this.setState({numValue:item})
+    this.expand()
+
+  }
+  
+ 
   render() {
+
+    const {typeSelect,tagSelect,types,tags,numShow,numValue} = this.state
+
+    const nums = [0,5,10,15]
+
+    
+    
+
     return (
       <View className="publishService">
-        <AtForm onSubmit={this.onSubmit.bind(this)}>
-          <AtTextarea
-            //  value={this.state.value}
-            //  onChange={this.handleChange.bind(this)}
-            maxLength={300}
-            placeholder="介绍一下自己，比如身高体重擅长什么风格等。"
-            value={this.state.condition}
-            onChange={(e) => {
-              this.setState({ condition: e })
-            }}
-          />
-
-          <View className="h">上传您的样片</View>
-          <View className="desc mb">
-            别害羞，上传自拍与全身照，可以提供一些想拍的服装照片，便
-            于摄影师为你定制摄影方案!
-          </View>
+        <AtForm onSubmit={this.onSubmit.bind(this)} className="form">
+          <View className="formCont">
           <AtActivityIndicator
             mode="center"
             isOpened={this.state.loading}
@@ -200,41 +218,34 @@ export default class publishService extends Component {
           <AtImagePicker
             files={this.state.files}
             onChange={this.onChangeFile.bind(this)}
+            showAddBtn={this.state.files.length < 10}
+            multiple
           />
-
-          <View className="h">填写以下信息方便摄影师直接联系您！</View>
-
-          <View className="p">微信</View>
-          <Input
-            class="input"
-            placeholder="请输入微信"
-            value={this.state.wxName}
+          <AtInput
+            placeholder="添加标题会吸引更多人哦"
+            value={this.state.title}
+            name="title"
             onInput={(e) => {
-              this.setState({ wxName: e.target.value })
+              this.setState({ title: e.target.value })
             }}
           />
-
-          <View className="p">手机</View>
-          <Input
-            class="input"
-            placeholder="请输入手机"
-            value={this.state.mobile}
-            onInput={(e) => {
-              this.setState({ mobile: e.target.value })
+          <AtTextarea
+            //  value={this.state.value}
+            //  onChange={this.handleChange.bind(this)}
+            count={false}
+            maxLength={300}
+            placeholder="添加正文"
+            name="detail"
+            value={this.state.detail}
+            onChange={(e) => {
+              this.setState({ detail: e })
             }}
+            className="evaluationCon"
           />
-
-          <View className="h">期望拍摄日期</View>
-          <View className="p">日期</View>
-
-          <Picker mode="date" onChange={this.onChange}>
-            <View className="picker">{this.state.dateSel}</View>
-          </Picker>
-
-          <View className="tips">实际日期以您与摄影师最终商议为准</View>
-
-          <AtButton type="primary" formType="submit">
-            确定申请
+          
+          </View>
+          <AtButton type="primary" formType="submit" className="evaluationBtn">
+            发布评论
           </AtButton>
         </AtForm>
       </View>
