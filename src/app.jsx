@@ -18,20 +18,49 @@ class App extends Component {
   config = {
     pages: [
 
+      'pages/user/register',
+      'pages/user/recruitment',
+      
+      'pages/index/bookPhotographer',
+      'pages/order/index',
+      
+      
+      'pages/index/index',
+      
+      
+     
+      'pages/index/picker',
+      
       'pages/user/index',
+      'pages/user/feedback',
+      
+      'pages/user/recharge',
+      
+     
+      
+      'pages/user/myEvaluation',
+
+      'pages/user/detail',
+      'pages/user/myPhoto',
+      
       'pages/order/confirmOrder', 
       'pages/order/evaluation', 
       'pages/order/orderDeatil', 
       
-      'pages/order/index',
+      
       'pages/index/publishService',
       'pages/index/associationType',
       'pages/order/photographer',
-      'pages/index/index',
+    
      
       
       
     ],
+    "permission": {
+      "scope.userLocation": {
+        "desc": "你的位置信息将用于小程序位置接口的效果展示" // 高速公路行驶持续后台定位
+      }
+    },
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#5299FB',

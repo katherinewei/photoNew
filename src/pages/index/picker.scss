@@ -1,0 +1,44 @@
+.PickSingle{
+  height: 100vh;
+  background-color: #fff;
+  .content{
+    padding: 0 45px;
+    .item{
+      font-size: 28px;
+      color: #000000;
+      border-bottom: 1px solid #E5E5E5;
+      padding: 30px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &:after{
+        content: '';
+        width: 40px;
+        height: 40px;
+        background-image: url(../../images/icon/radio.png);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+      }
+      &.active{
+        &:after{
+          background-image: url(../../images/icon/radio_check.png);
+        }
+      }
+      &.isNumber{
+        &:after{
+          content:none;
+        }
+      }
+    }
+    .at-input-number__btn{
+      color: #000;
+      &.at-input-number--disabled{
+        color: #999;
+      }
+    }
+    
+  }
+  .foot{
+    height: 100px;
+  }
+}

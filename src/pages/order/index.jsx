@@ -1,5 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker } from '@tarojs/components'
+import { View, Text, ScrollView } from '@tarojs/components'
 import Request from '../../utils/request'
 import {
   timeString,
@@ -18,7 +18,8 @@ import {
   AtTabBar,AtIcon,AtButton,AtAvatar,AtFloatLayout,AtCountdown
 
 } from 'taro-ui'
-import NavBar from '../../components/Navbar/index'
+import Pay from '../../components/pay/index'
+import PayCancel from '../../components/pay/cancel'
 export default class Index extends Component {
   config = {
     navigationBarTitleText: '订单列表',
@@ -30,6 +31,7 @@ export default class Index extends Component {
     this.setState({
       loading: true,
       current:0,
+      curItem:null,
       isOpened:false, // 支付定金弹窗
       isOpenedCancel:false // 取消订单
       
@@ -86,20 +88,15 @@ export default class Index extends Component {
   handleClick(){
 
   }
-  onTimeUp () {
-    Taro.showToast({
-      title: '时间到',
-      icon: 'success',
-      duration: 2000
-    })
-  }
+
 
   cancelOrder(e){ 
     this.setState({isOpenedCancel:true,isOpened:false})
     return false
   }
   payOrder(e){
-    this.setState({isOpenedCancel:false,isOpened:true})
+    const curItem = {price:'200.55'}
+    this.setState({isOpenedCancel:false,isOpened:true,curItem})
   }
 
 
@@ -108,13 +105,14 @@ export default class Index extends Component {
 
     const tabs = [{title:'全部',value:0},{title:'预约中',value:1},{title:'已预约',value:2},{title:'已完成',value:3}]
     
+    const {current,isOpened,curItem,isOpenedCancel} = this.state
 
     return (
       <View className="index">
          <AtTabBar
           tabList={tabs}
           onClick={this.handleClick.bind(this)}
-          current={this.state.current}
+          current={current}
         />
         <ScrollView
           className='scrollview'
@@ -167,8 +165,8 @@ export default class Index extends Component {
               <View className="foot" onClick={e => e.stopPropagation()}>
                 <View className="left">待付定金:<text>￥200.00</text></View>
                 <View className="btns">
-                  <AtButton size="small" type="secondary" circle onClick={this.cancelOrder.bind(this)}>取消订单</AtButton>
-                  <AtButton size="small" type="primary" circle onClick={this.payOrder.bind(this)}>支付定金</AtButton>
+                  <AtButton size="small" type="secondary" circle onClick={() => this.cancelOrder()}>取消订单</AtButton>
+                  <AtButton size="small" type="primary" circle onClick={() => this.payOrder()}>支付定金</AtButton>
                 </View>
               </View>
             </View>
@@ -217,28 +215,11 @@ export default class Index extends Component {
           </View>
         </ScrollView>
 
-        <AtFloatLayout isOpened={this.state.isOpened}  className="payLayout">
-            <View className="text">请在
-            <AtCountdown
-              format={{ hours: ':', minutes: ':', seconds: '' }}
-              hours={24}
-              minutes={0}
-              seconds={0}
-              onTimeUp={this.onTimeUp.bind(this)}/>内支付定金，逾期将自动取消</View>
-            <View className="price"><text>￥</text>200.00</View>
-            <View className="way">
-              <View>支付方式</View>
-              <View className="payway"><View className="n">微信</View><View className="icon"><AtIcon value='check' size='12' color='#fff'></AtIcon></View></View>
-            </View>
-            <AtButton size="small" type="primary" circle>支付定金</AtButton>
-        </AtFloatLayout>
-
-        <AtFloatLayout isOpened={this.state.isOpenedCancel}  className="payLayout cancelL">
-            <View className="t">取消订单后将无法恢复</View>
-            <View className=" way p">取消订单请确保已与摄影师完成沟通，无责任取消订单后，支付金额将退回您充值账户，充值到期未消费将进行退款。</View>
-           
-            <AtButton size="small" type="primary" circle>确定取消</AtButton>
-        </AtFloatLayout>
+        
+        <Pay isOpened={isOpened} curItem={curItem}/>
+        <PayCancel isOpenedCancel={isOpenedCancel} />
+        
+       
 
       </View>
     )

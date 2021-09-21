@@ -11,24 +11,19 @@ import {
   AtInput,
   AtIcon,AtTag
 } from 'taro-ui'
-import { ImageUrl,baseUrl } from '../../config'
+import { baseUrl } from '../../config'
 
-export default class evaluation extends Component {
+export default class feedback extends Component {
   config = {
-    navigationBarTitleText: '评价',
-    navigationBarTextStyle: 'white',
+    navigationBarTitleText: '意见反馈',
+    navigationBarBackgroundColor: '#fff',
   }
 
   state = {
     files: [],
     phone: '',
+    name:'',
     loading: false,
-    types:['写真约拍','婚纱摄影','商务公关','商业广告'],
-    tags:['个人写真','情侣写真','证件形象','汉服古风','儿童写真','cosplay','毕业照','全家福'],
-    typeSelect:Number(Taro.getStorageSync('typeId')),
-    tagSelect:Number(Taro.getStorageSync('tagId')),
-    numShow:false,
-    numValue: 5
   
   }
   componentWillMount() {}
@@ -78,7 +73,6 @@ export default class evaluation extends Component {
             },
             success(res) {
               const data = JSON.parse(res.data)
-              console.log(data)
               files[i].url = data.data.path
 
               that.setState({
@@ -175,42 +169,37 @@ export default class evaluation extends Component {
     )
   }
 
-  cancelSelect(e,type){
 
-    e.stopPropagation()
-    if(type ===1){
-      Taro.removeStorageSync('typeId')
-    } else {
-      Taro.removeStorageSync('tagId')
-    }
-
-    
-  }
-  expand(){
-    this.setState({numShow:!this.state.numShow})
-    
-  }
-  setNum(e,item){
-    e.stopPropagation()
-    this.setState({numValue:item})
-    this.expand()
-
-  }
-  
  
   render() {
 
-    const {typeSelect,tagSelect,types,tags,numShow,numValue} = this.state
+    const {} = this.state
 
-    const nums = [0,5,10,15]
+
 
     
     
 
     return (
-      <View className="publishService">
+      <View className="feedback">
         <AtForm onSubmit={this.onSubmit.bind(this)} className="form">
+          <View className="formCont ">
+            <View className="txt-title">问题描述</View>  
+            <AtTextarea
+              //  value={this.state.value}
+              //  onChange={this.handleChange.bind(this)}
+              count={false}
+              maxLength={300}
+              placeholder="添加正文"
+              name="detail"
+              value={this.state.detail}
+              onChange={(e) => {
+                this.setState({ detail: e })
+              }}
+              />
+           </View>
           <View className="formCont">
+           <View className="txt-title">上传凭证</View>  
           <AtActivityIndicator
             mode="center"
             isOpened={this.state.loading}
@@ -222,32 +211,46 @@ export default class evaluation extends Component {
             showAddBtn={this.state.files.length < 10}
             multiple
           />
-          <AtInput
-            placeholder="添加标题会吸引更多人哦"
-            value={this.state.title}
-            name="title"
-            onInput={(e) => {
-              this.setState({ title: e.target.value })
-            }}
-          />
-          <AtTextarea
-            //  value={this.state.value}
-            //  onChange={this.handleChange.bind(this)}
-            count={false}
-            maxLength={300}
-            placeholder="添加正文"
-            name="detail"
-            value={this.state.detail}
-            onChange={(e) => {
-              this.setState({ detail: e })
-            }}
-            className="evaluationCon"
-          />
-          
           </View>
-          <AtButton type="primary" formType="submit" className="evaluationBtn">
-            发布评论
+          <View className="formCont noPadding">
+            <AtInput
+              required
+              className="input"
+              type="number"
+              title='联系人' 
+              placeholder="请输入"
+              name="phone"
+              value={this.state.name}
+              onInput={(e) => {
+                this.setState({ name: e.target.value })
+              }}
+            />
+          </View>
+          <View className="formCont noPadding">
+            <AtInput
+              required
+              type='phone'
+              className="input"
+              type="number"
+              title='联系方式' 
+              placeholder="请输入"
+              name="phone"
+              value={this.state.phone}
+              onInput={(e) => {
+                this.setState({ phone: e.target.value })
+              }}
+            />
+          </View>
+          
+          
+          
+         
+          <View className="foot">
+          <AtButton type="primary" formType="submit">
+            立即提交
           </AtButton>
+          </View>
+         
         </AtForm>
       </View>
     )

@@ -1,0 +1,119 @@
+.recruitment{
+    padding-top: 277px;
+    .container{
+        
+        margin:0 18px;
+        background: #FFFFFF;
+        box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.11);
+        border-radius: 10px;
+        
+        .title{
+            height: 86px;
+            background: #F6F6F6;
+            border-radius: 10px;
+            line-height: 86px;
+            font-size: 26px;
+            color: #333333;
+            padding: 0 48px;
+        }
+    }
+
+    .inputCustomize{
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #DCDCDC;
+        font-size: 28px;
+        margin: 0 30px;
+        height: 88px;
+        padding: 0;
+        
+        .at-input__container{
+            flex: 1;
+        }
+        input{
+            font-size: 28px; 
+           
+        }
+        .phcolor{
+            color: #999;
+        }
+        .active{
+            color: #333;
+        }
+        &:before,&:after{
+            content: '';
+            width: 25px;
+            height: 30px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            display: block;
+            margin:0 18px;
+        }
+        &.phone{
+            &:before{
+                background-image: url(../../images/icon/phone.png);
+            }
+        }
+        &.code{
+            &:before{
+                background-image: url(../../images/icon/safe.png);
+            }
+        }
+        &.area{
+            justify-content: space-between;
+            border-bottom: 0;
+            text{
+                flex: 1;
+                color: #999999;
+                &.active{
+                    color: #333;
+                }
+            }
+            &:before{
+                background-image: url(../../images/icon/positionB.png);
+            }
+            &:after{
+                content: '';
+                width: 12px;
+                height: 20px;
+                background-image: url(../../images/icon/back.png);
+            }
+        }
+    }
+    .sendCode{
+        background-color: #99ccff;
+        border-radius: 30px;
+        height: 38px;
+        // width: 158px;
+        text-align: center;
+        color: #fff;
+        font-size: 24px;
+        line-height: 38px;
+    }
+    .showSecond{
+        font-size: 24px;
+        color: #666;
+    }
+
+    .tip{
+        font-size: 26px;
+        color: #333333;
+        text-align: right;
+        margin:18px;
+       vertical-align: middle;
+        &:after{
+            display: inline-block;
+            content: '';
+            width: 23px;
+            height: 23px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+           
+            margin:0 30px 0 7px;
+            background-image: url(../../images/icon/doubt.png);
+        }
+    }
+}
+.foot{
+    height: 100px;
+}

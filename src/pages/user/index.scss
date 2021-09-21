@@ -1,5 +1,5 @@
 .user{
-  background-image: url(../../images/icon/ubg.png);
+  background-image: url(http://www.hotxiezhen.com/img/6ae9a1774328dbf8f3cc792ddfa405e8.png);
   min-height: 400px;
   width: 100%;
   background-size: 100%;
@@ -20,8 +20,46 @@
   .right{
     margin-left: 20px;
     .name{
+      margin-top: 14px;
       font-size: 36px;
+      text-shadow: 0px 3px 10px rgba(0, 0, 0, 0.76);
+    }
+    .wan{
+      margin-top: 10px;
+      width: 138px;
+      height: 40px;
+      line-height: 40px;
+      color: #fff;
+      background-color: rgba(0,0,0,.7);
+      border-radius: 50px;
+      text-align: center;
+      font-size: 24px;
     }
     
   }
+}
+
+.grid{
+  margin: 30px 18px;
+  background-color: #fff;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  padding: 50px 0;
+  .item{
+    color: #000;
+    text-align: center;
+    flex: 1;
+    .t{
+      font-size: 30px;
+      height: 40px;
+      margin-bottom: 13px;
+    }
+    .b{
+      font-size: 24px;
+    }
+    image{
+      width: 40px;
+    }
+  } 
 }

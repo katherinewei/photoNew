@@ -14,11 +14,12 @@ import {
 import { ImageUrl } from '../../config'
 import './detail.scss'
 import './modal.scss'
+import '../../components/common.scss'
 import {
-  AtTabBar,AtIcon,AtButton,AtAvatar,AtFloatLayout,AtCountdown
+  AtTabBar,AtIcon,AtButton,AtAvatar
 
 } from 'taro-ui'
-import NavBar from '../../components/Navbar/index'
+import PayCancel from '../../components/pay/cancel'
 export default class Index extends Component {
   config = {
     navigationBarTitleText: '订单详情',
@@ -28,7 +29,8 @@ export default class Index extends Component {
   state = {
     current:'',
     curState:2,
-    isOpenedCancel:false
+    isOpenedCancel:false,
+    check:true
   }
 
   componentWillMount() {
@@ -62,7 +64,7 @@ export default class Index extends Component {
   
 
   render() {
-    const {curState} = this.state
+    const {curState,isOpenedCancel} = this.state
     const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
     
     return (
@@ -146,8 +148,8 @@ export default class Index extends Component {
          </View>
          <View className="foot">
          {curState === 0 && <View>
-            <View className="agree">
-             <View className="icon"><AtIcon value='check' size='10' color='#fff'></AtIcon></View>
+            <View className="agree" onClick={() => this.setState({check: !check})}>
+             <View className="icon">{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
              <View> 我已阅读并同意<text>《拍摄服务撮合协议》</text></View>
             </View>
            <AtButton size="small" type="primary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/confirmOrder?id=1`})}>提交订单</AtButton>
@@ -166,12 +168,9 @@ export default class Index extends Component {
 
           </View>
 
-          <AtFloatLayout isOpened={this.state.isOpenedCancel}  className="payLayout cancelL">
-            <View className="t">取消订单后将无法恢复</View>
-            <View className=" way p">取消订单请确保已与摄影师完成沟通，无责任取消订单后，支付金额将退回您充值账户，充值到期未消费将进行退款。</View>
-           
-            <AtButton size="small" type="primary" circle>确定取消</AtButton>
-        </AtFloatLayout>
+         
+
+        <PayCancel isOpenedCancel={isOpenedCancel} />
 
       </View>
     )

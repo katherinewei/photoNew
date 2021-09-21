@@ -11,7 +11,7 @@ import {
   AtInput,
   AtIcon,AtTag
 } from 'taro-ui'
-import { ImageUrl } from '../../config'
+import { baseUrl } from '../../config'
 
 export default class publishService extends Component {
   config = {
@@ -65,7 +65,7 @@ export default class publishService extends Component {
           })
           const that = this
           Taro.uploadFile({
-            url: ImageUrl + '/wx/client/img',
+            url: baseUrl + 'api/img',
             filePath: file.url,
             name: 'file',
             formData: {
@@ -78,7 +78,7 @@ export default class publishService extends Component {
             },
             success(res) {
               const data = JSON.parse(res.data)
-              files[i].url = data.path
+              files[i].url = data.data.path
 
               that.setState({
                 files,

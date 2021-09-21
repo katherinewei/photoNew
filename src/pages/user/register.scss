@@ -1,0 +1,16 @@
+$color:#5299FB;
+.foot{
+  height: 100px;
+}
+
+.register{
+  .at-steps__circular{
+    display: none;
+  }
+  .at-steps__item.at-steps__item--active{
+    .at-steps__title{
+      color: $color;
+    }
+    
+  }
+}

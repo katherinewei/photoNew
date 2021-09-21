@@ -18,7 +18,7 @@ import {
   AtTabBar,AtIcon,AtButton,AtAvatar,AtFloatLayout,AtCountdown
 
 } from 'taro-ui'
-import NavBar from '../../components/Navbar/index'
+import Pay from '../../components/pay/index'
 export default class Index extends Component {
   config = {
     navigationBarTitleText: '确认订单',
@@ -28,7 +28,8 @@ export default class Index extends Component {
   state = {
     current:'',
     curState:2,
-    isOpened:false
+    isOpened:false,
+    curItem:null
   }
 
   componentWillMount() {
@@ -57,19 +58,15 @@ export default class Index extends Component {
 
 
   payOrder(e){
-    this.setState({isOpened:true})
+    
+    const curItem = {price:'200.55'}
+    this.setState({isOpened:true,curItem})
   }
 
-  onTimeUp () {
-    Taro.showToast({
-      title: '时间到',
-      icon: 'success',
-      duration: 2000
-    })
-  }
+
 
   render() {
-    const {curState} = this.state
+    const {curState,isOpened,curItem } = this.state
     const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
     
     return (
@@ -130,21 +127,9 @@ export default class Index extends Component {
           
           </View>
 
-          <AtFloatLayout isOpened={this.state.isOpened}  className="payLayout">
-            <View className="text">请在
-            <AtCountdown
-              format={{ hours: ':', minutes: ':', seconds: '' }}
-              hours={24}
-              minutes={0}
-              seconds={0}
-              onTimeUp={this.onTimeUp.bind(this)}/>内支付定金，逾期将自动取消</View>
-            <View className="price"><text>￥</text>200.00</View>
-            <View className="way">
-              <View>支付方式</View>
-              <View className="payway"><View className="n">微信</View><View className="icon"><AtIcon value='check' size='12' color='#fff'></AtIcon></View></View>
-            </View>
-            <AtButton size="small" type="primary" circle>支付定金</AtButton>
-        </AtFloatLayout>
+         
+        <Pay isOpened={isOpened} curItem={curItem}/>
+
 
       </View>
     )

@@ -119,7 +119,7 @@ export function getToken(callback,isIndex){
           //发起网络请求
   
           let data = {}
-          let url =  'wxLogin'
+          let url =  'api/wxLogin'
           let method = 'post'
           if(code){
             data.id = code;

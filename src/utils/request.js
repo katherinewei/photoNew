@@ -59,7 +59,7 @@ export default (options = { method: 'GET', data: {} },resolve) => {
       }
       
 
-      if (data.code !== 200) {
+      if (!options.isMap &&  data.code !== 200) {
         Taro.showToast({
           title: `${data.msg}~`,
           icon: 'none',
