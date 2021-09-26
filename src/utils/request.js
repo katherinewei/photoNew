@@ -26,7 +26,7 @@ export default (options = { method: 'GET', data: {} },resolve) => {
     Accept: 'application/json',
   }
   if (options.isToken === undefined || options.isToken) {
-    header.Authorization = `${token}`;
+    header.token = `${token}`;
   }
   let url =  options.url
   if(!url.startsWith('http')){
@@ -53,7 +53,7 @@ export default (options = { method: 'GET', data: {} },resolve) => {
       }
       if(data.code === 501 ){  //token失效
         setTimeout(() => {
-          Taro.redirectTo({url: '/pages/index/login'})
+          Taro.redirectTo({url: '/pages/index/index'})
         }, 1000);
         return false
       }

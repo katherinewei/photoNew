@@ -364,7 +364,7 @@ export default class Index extends Component {
                 <AtImagePicker
                   files={this.state.files1}
                   onChange={(files, operationType) => this.onChangeFile(files, operationType,1)}
-                  showAddBtn={this.state.files1.length < 10}
+                  showAddBtn={this.state.files1 && this.state.files1.length < 10}
                   multiple
                 />
                 <View className="p">上传顾客面容照片，让摄影师制定风格</View>
@@ -376,7 +376,7 @@ export default class Index extends Component {
                 <AtImagePicker
                   files={this.state.files2}
                   onChange={this.onChangeFile.bind(this)}
-                  showAddBtn={this.state.files2.length < 10}
+                  showAddBtn={this.state.files2 && this.state.files2.length < 10}
                   multiple
                 />
                 <View className="tit" style={{color:'#333'}}> 如实描述皮肤状态</View>

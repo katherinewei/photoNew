@@ -33,9 +33,6 @@ export default class Index extends Component {
   config = {
     navigationBarTitleText: '首页',
     navigationStyle: 'custom',
-    usingComponents: {
-      'navbar': '../../components/Navbar/index', // 书写第三方组件的相对路径
-    },
   }
 
   componentWillMount() {
@@ -47,7 +44,7 @@ export default class Index extends Component {
 
     const { top, height } = wx.getMenuButtonBoundingClientRect()
     const { statusBarHeight, platform } = wx.getSystemInfoSync()
-    console.log(top, height,statusBarHeight,platform,9632145)
+  //  console.log(top, height,statusBarHeight,platform,9632145)
     let navigationBarHeight;
     if (top && top !== 0 && height && height !== 0) {
       navigationBarHeight = (top - statusBarHeight) * 2 + height
@@ -62,23 +59,20 @@ export default class Index extends Component {
 
     this.setState({
       loading: true,
-      current: 1,
-      subCur:1,
+      currentId: 1,
+      subCur:0,
       value: '',
       records: [{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'}],
       currentSearch: {},
       visible:false,
-      tabs:[
-       { label:'写真约拍',value:1,list:[{value:1,label:'个人写真'},{value:2,label:'情侣写真'},{value:3,label:'证件形象'},{value:4,label:'儿童写真'},{value:5,label:'汉服古风'},{value:6,label:'Cosplay'},{value:7,label:'毕业照'},{value:8,label:'全家福'}]},
-       { label:'婚纱摄影',value:2,list:[{value:1,label:'婚纱写真'},{value:2,label:'婚纱旅拍'},{value:3,label:'登记跟拍'},{value:4,label:'婚礼现场'}]},
-       { label:'商务公关',value:3,list:[{value:1,label:'公关活动'},{value:2,label:'赛事记录'},{value:3,label:'会议论坛'},{value:4,label:'工程开发记录'}]},
-       { label:'商业广告',value:4,list:[{value:1,label:'产品广告'},{value:2,label:'空间建筑'},{value:3,label:'美食静场'}]}
-
-      ],
+      index:0,
+      tabs:[ ],
       statusBarHeight:statusBarHeight,
       barHeight:navigationBarHeight,
       curAddr:'',
-      typeBarHeight:''  
+      typeBarHeight:''  ,
+      containerHeight:'',
+      pages:1, current:1, records:[]
     })
        
     Taro.showShareMenu({
@@ -90,12 +84,15 @@ export default class Index extends Component {
 
 
   componentDidMount() {
-    getToken(() => this.fetchData(), true)
+    this.fetchCate()
+  //  getToken(() => this.fetchData(), true)
     this.getLocation()
+    
 
 
     ///创建节点选择器
         var query = wx.createSelectorQuery();
+        var c = wx.createSelectorQuery();
         //选择id
         query.select('.tab').boundingClientRect()
         query.exec((res) => {
@@ -106,6 +103,33 @@ export default class Index extends Component {
             this.setState({typeBarHeight:res[0].height})
         })
 
+        //container
+        c.select('.container').boundingClientRect()
+        c.exec((res) => {
+            //res就是 所有标签为mjltest的元素的信息 的数组
+            // console.log(res);
+            // //取高度
+             console.log(res[0].height,987878787);
+            this.setState({containerHeight:res[0].height})
+        })
+  }
+
+  fetchCate(){
+    // 品类
+    Request(
+      {
+        url: 'api/category',
+        method: 'GET',
+        //isToken:false
+      },
+      (res) => {
+      //  console.log(res.data,11110000)
+        this.setState({ tabs:res.data,currentId:res.data[0].id },() => {
+          // 获取返片
+          this.fetchNotePage()
+        })
+      },
+    )
   }
 
   fetchData(){
@@ -123,15 +147,15 @@ export default class Index extends Component {
 
   componentDidHide() {}
 
-  fetchyzlist(query, value) {
+  fetchNotePage(query, value) {
     
-
+    const {current,currentId} = this.state
     // 验真列表
     Request(
       {
-        url: 'photo-index',
+        url: 'api/notePage',
         method: 'GET',
-        data,
+        data:{page:current,typeId:currentId},
         //isToken:false
       },
       (data) => {
@@ -151,19 +175,19 @@ export default class Index extends Component {
 
   //上拉刷新
   onScrollToLower() {
-    const { pages, current, records, currentSearch } = this.state
+    const { pages, current, records } = this.state
 
     if (pages > current) {
       Request(
         {
-          url: 'photo-index',
+          url: 'api/notePage',
           method: 'GET',
-          data: { page: current + 1, ...currentSearch },
+          data: { page: current + 1,typeId:currentId },
           //isToken:false
         },
         (data) => {
           data.data.records = [...records, ...data.data.records]
-          console.log(data)
+         // console.log(data)
           this.setState({ ...data.data })
         },
       )
@@ -178,8 +202,12 @@ export default class Index extends Component {
     }
   }
 
-  changeTab(value){
-    this.setState({current:value,subCur:1 })
+  changeTab(item,index){
+    this.setState({currentId:item.id,subCur:1,index },() => {
+      // 获取返片
+      this.fetchNotePage()
+    })
+
   }
   expand(){
     this.setState({visible:!this.state.visible })
@@ -204,7 +232,7 @@ export default class Index extends Component {
           Taro.getLocation().then(res => {
         let latitude = res.latitude;
         let longitude = res.longitude;
-        console.log(latitude,longitude)
+       // console.log(latitude,longitude)
 
         Request(
           {
@@ -234,16 +262,19 @@ export default class Index extends Component {
       loading,
       tabs,
       user,
-      current,
+      currentId,
       subCur,
       visible,
       curAddr,
       barHeight,
       statusBarHeight,
-      typeBarHeight
+      typeBarHeight,
+      containerHeight,
+      index
       
     } = this.state
 
+    // console.log(tabs[index].child,index)
     return (
       <View className="index">
         <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
@@ -254,18 +285,18 @@ export default class Index extends Component {
          <View className='menu'>
           <View className='tab' style={{top:barHeight +statusBarHeight +"px"}}>
           <View className='p20 at-row '>
-          {tabs.map((item,i) => (
-            <View onClick={() => this.changeTab(item.value)}  className={item.value === current ? 'active at-col' : 'at-col'}><text>{item.label}</text></View>
+          {tabs && tabs.map((item,i) => (
+            <View onClick={() => this.changeTab(item,i)}  className={i === index ? 'active at-col' : 'at-col'}><text>{item.dictVal}</text></View>
           ))}
           </View></View>
           <View className='fixed' style={{height:(typeBarHeight + barHeight + statusBarHeight) +"px"}}></View>
           <View className="container p20">
             <View className='content '>
               <View className="title">
-                {tabs[current-1].list.map((item,i) => (
-                  <View onClick={() => this.handleClick(item.value)}  className={item.value === subCur ? 'active sub' : 'sub'}><text>{item.label}</text></View>
+                {tabs[index] && tabs[index].child && tabs[index].child.map((item,i) => (
+                  <View onClick={() => this.handleClick(i)}  className={i === subCur ? 'active sub' : 'sub'}><text>{item.dictVal}</text></View>
                 ))}
-              {current === 1 &&   <View  className='expand' onClick={() => this.expand()}></View>}
+              {index === 0 &&   <View  className='expand' onClick={() => this.expand()}></View>}
               </View>
               <View className="subContent">
                 <View className="h3">· 服务流程是怎么样的？</View>
@@ -292,7 +323,7 @@ export default class Index extends Component {
               scrollY
               scrollWithAnimation
               scrollTop={0}
-              style={{height: (Taro.getSystemInfoSync().windowHeight) - 120 +  'px'}}
+              style={{height: (Taro.getSystemInfoSync().windowHeight) - containerHeight - typeBarHeight - barHeight - statusBarHeight +  'px'}}
               lowerThreshold={20}
               upperThreshold={20}
               onScrollToLower={this.onScrollToLower.bind(this)}
@@ -304,9 +335,9 @@ export default class Index extends Component {
                       <View
                         onClick={() => {
                          
-                            Taro.navigateTo({
-                              url: `/pages/index/serviceDetail?id=${item.id}&price=${item.price}&isPhotographer=1`,
-                            })
+                            // Taro.navigateTo({
+                            //   url: `/pages/index/serviceDetail?id=${item.id}&price=${item.price}&isPhotographer=1`,
+                            // })
                           
                         }
                         }
@@ -316,11 +347,11 @@ export default class Index extends Component {
                           <View className="img">
                             <Image
                               mode="widthFix"
-                              src={(item.imgPath)}
+                              src={(item.imgUrl)}
                             ></Image>
                            
                           </View>
-                          <View className="text">{item.label}</View>
+                          <View className="text">{item.title}</View>
                         </View>
                       </View>
                     </View>
@@ -337,14 +368,14 @@ export default class Index extends Component {
               </View>
         </ScrollView>
      
-        <View className={(visible ? 'show ' : '' ) +"moreType"}>
+        {visible && <View className={(visible ? 'show ' : '' ) +"moreType"}>
           <View className="body">
               <View className="h4">全部选项<AtIcon value='close' size='20' color='#F6F6F6' onClick={() => this.expand()}></AtIcon></View>
-              <View className="types"> {tabs[0].list.map((item,i) => (
-                 <View onClick={() => this.handleClick(item.value,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.label}</text></View>
+              <View className="types"> {tabs[0].child && tabs[0].child.map((item,i) => (
+                 <View onClick={() => this.handleClick(i,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.dictVal}</text></View>
               ))}</View>
               </View>
-        </View>
+        </View>}
      
          <View  className="recruitmentBtn">
          <Text   onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} >招募 \n 摄影师</Text>

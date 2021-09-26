@@ -18,20 +18,27 @@ class App extends Component {
   config = {
     pages: [
 
+      'pages/order/index',
+      'pages/user/index',
+      'pages/index/index',
+      'pages/index/publishService',
+      
+      'pages/user/registerFinish',
       'pages/user/register',
+      
       'pages/user/recruitment',
       
       'pages/index/bookPhotographer',
-      'pages/order/index',
       
       
-      'pages/index/index',
+      
+     
       
       
      
       'pages/index/picker',
       
-      'pages/user/index',
+     
       'pages/user/feedback',
       
       'pages/user/recharge',
@@ -48,7 +55,7 @@ class App extends Component {
       'pages/order/orderDeatil', 
       
       
-      'pages/index/publishService',
+      
       'pages/index/associationType',
       'pages/order/photographer',
     

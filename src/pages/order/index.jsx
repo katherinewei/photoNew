@@ -30,8 +30,10 @@ export default class Index extends Component {
 
     this.setState({
       loading: true,
-      current:0,
+      current:1,
+      currentState:0,
       curItem:null,
+      orderState:'',
       isOpened:false, // 支付定金弹窗
       isOpenedCancel:false // 取消订单
       
@@ -46,12 +48,31 @@ export default class Index extends Component {
 
 
   componentDidMount() {
-    
+    getToken(() => {
+      this.fetchOrder()
+    })
 
   }
 
   getPhoneNumber(e) {
     
+  }
+
+  // 获取订单
+  fetchOrder(){
+    const { pages, current, records,orderState } = this.state
+    Request(
+      {
+        url: 'api/wxTradePage',
+        method: 'GET',
+        data: { page: 1,orderState },
+        //isToken:false
+      },
+      (data) => {
+        
+        this.setState({ ...data.data })
+      },
+    )
   }
 
 
@@ -71,9 +92,9 @@ export default class Index extends Component {
     if (pages > current) {
       Request(
         {
-          url: 'photo-index',
+          url: 'api/wxTradePage',
           method: 'GET',
-          data: { page: current + 1, ...currentSearch },
+          data: { page: current + 1,orderState },
           //isToken:false
         },
         (data) => {
@@ -85,8 +106,32 @@ export default class Index extends Component {
     }
   }
 
-  handleClick(){
+  handleClick(e){
+    console.log(e)
+    // 根据状态值展示不一样列表;不填则表示查询全部,
+    //订单状态 -1 取消订单 0:确认下单(待支付) 1:支付定金(已支付) 2.客户回电确认信息 3.确认摄影师 4.享受拍摄服务 5.支付尾款 6.收到成片
+    this.setState({currentState:e})
+    let {orderState} = this.state
+    switch(e){
+      case 0:
+        orderState = ''
+        break;
+        case 1:
+          orderState = 0
+          break;
+        case 2:
+          orderState = 3
+          break;
+        case 3:
+          orderState = 6
+          break;  
+         default:
+         break 
 
+    }
+    this.setState({orderState},() => {
+      this.fetchOrder()
+    })
   }
 
 
@@ -94,8 +139,9 @@ export default class Index extends Component {
     this.setState({isOpenedCancel:true,isOpened:false})
     return false
   }
-  payOrder(e){
-    const curItem = {price:'200.55'}
+  payOrder(item){
+    const curItem = item
+    curItem.price = item.payment
     this.setState({isOpenedCancel:false,isOpened:true,curItem})
   }
 
@@ -103,16 +149,18 @@ export default class Index extends Component {
 
   render() {
 
-    const tabs = [{title:'全部',value:0},{title:'预约中',value:1},{title:'已预约',value:2},{title:'已完成',value:3}]
+    const tabs = [{title:'全部'},{title:'预约中'},{title:'已预约'},{title:'已完成'}]
     
-    const {current,isOpened,curItem,isOpenedCancel} = this.state
+    const {currentState,isOpened,curItem,isOpenedCancel,records} = this.state
 
+    const stateName = ['取消订单','待支付','已支付','确认摄影师','享受拍摄服务','支付尾款','收到成片'] 
+   
     return (
       <View className="index">
          <AtTabBar
           tabList={tabs}
-          onClick={this.handleClick.bind(this)}
-          current={current}
+          onClick={(e) => this.handleClick(e)}
+          current={currentState}
         />
         <ScrollView
           className='scrollview'
@@ -124,94 +172,45 @@ export default class Index extends Component {
           upperThreshold={20}
           onScrollToLower={this.onScrollToLower.bind(this)}>
           <View className="container">
-            <View className="box" onClick={() => Taro.navigateTo({url: `/pages/order/orderDeatil?id=1`})}>
-              <View className="state">
-                <View className="position"><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>长沙 芙蓉区</View>
-                <View className="sta">待支付</View>
-              </View>
-              <text class="time">拍摄时间：8月21日 13:00 - 8月21日 20:00 \n
-              写真约拍：1成人</text>
-              <View className="replay">已有<text class="num">12</text>位摄影师回复，<text class="num">请支付定金查看&gt;</text></View>
-              <View className="list">
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
+          {records && records.length > 0 ? (
+            records.map((item, i) => (
+              <View className="box" onClick={() => Taro.navigateTo({url: `/pages/order/orderDeatil?id=${item.id}`})}>
+                <View className="state">
+                  <View className="position"><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>{item.city} {item.area}</View>
+                  <View className="sta">{stateName[item.state - 1]}</View>
                 </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
+                <text class="time">拍摄时间：{item.startTime} - {item.endTime} \n
+                {item.imgType}：{item.adult ? item.adult + '成人' : ''} {item.adult ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</text>
+                <View className="replay">已有<text class="num">{item.photoerList.length}</text>位摄影师回复，{item.state ===0 && <text class="num">请支付定金查看&gt;</text>}</View>
+                <View className="list">
+                {item.photoerList && item.photoerList.length > 0 ? (
+                  item.photoerList.map((photoer, i) => (
+                  <View className="item" >
+                    <AtAvatar  circle  image={photoer.headPic}   ></AtAvatar>
+                    {photoer.userName}
+                  </View>
+                ))):''}
                 </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk34
+                <View className="foot" onClick={e => e.stopPropagation()}>
+                  <View className="left">待付定金:<text>￥{item.payment}</text></View>
+                  <View className="btns">
+                    <AtButton size="small" type="secondary" circle onClick={() => this.cancelOrder(item)}>取消订单</AtButton>
+                    <AtButton size="small" type="primary" circle onClick={() => this.payOrder(item)}>支付定金</AtButton>
+                  </View>
                 </View>
               </View>
-              <View className="foot" onClick={e => e.stopPropagation()}>
-                <View className="left">待付定金:<text>￥200.00</text></View>
-                <View className="btns">
-                  <AtButton size="small" type="secondary" circle onClick={() => this.cancelOrder()}>取消订单</AtButton>
-                  <AtButton size="small" type="primary" circle onClick={() => this.payOrder()}>支付定金</AtButton>
-                </View>
-              </View>
+            
+          ))): (
+            <View className="noData" style={{ marginTop: '110px' }}>
+              <Image
+                mode="widthFix"
+                src={require('../../images/icon/noData.png')}
+              ></Image>
+              <View>暂无数据</View>
             </View>
-            <View className="box">
-              <View className="state">
-                <View className="position"><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>长沙 芙蓉区</View>
-                <View className="sta">预约中</View>
-              </View>
-              <text class="time">拍摄时间：8月21日 13:00 - 8月21日 20:00 \n
-              写真约拍：1成人</text>
-              <View className="replay">已有<text class="num">12</text>位摄影师回复，<text class="num">请支付定金查看&gt;</text></View>
-              <View className="list">
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-                <View className="item" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  hjkkk
-                </View>
-              </View>
-              <View className="foot">
-                <View className="left">已付定金:<text>￥200.00</text></View>
-                <View className="btns">
-                  <AtButton size="small" type="secondary" circle>取消预约</AtButton>
-                </View>
-              </View>
-            </View>
+          )}
 
+          
           </View>
         </ScrollView>
 

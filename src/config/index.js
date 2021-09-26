@@ -1,7 +1,7 @@
 // 请求连接前缀
 export const baseUrl = 'http://www.hotxiezhen.com/trade/';
 
-export const ImageUrl = 'https://www.ka-chow.com';
+export const ImageUrl = 'http://www.hotxiezhen.com/img';
 
 //腾讯地图key
 export const mapKey = 'UWIBZ-YYVE4-VE4U3-X7XJ6-WTGN3-HFF6K'

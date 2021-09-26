@@ -40,6 +40,7 @@ $color:#5299FB;
 }
 .fixed{
   height: 88px;
+  background-color: #5299FB;
 }
 .container{
   background: linear-gradient(to bottom,#5299FB,#f5f5f5);
@@ -149,7 +150,10 @@ $color:#5299FB;
     }
   }
 }
-
+.noData{
+  margin: 0 auto;
+  
+}
 .moreType{
   position: fixed;
   background-color: rgba(0,0,0,0.4);

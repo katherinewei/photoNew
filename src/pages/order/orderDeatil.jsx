@@ -40,6 +40,22 @@ export default class Index extends Component {
   }
 
   componentDidMount() {
+
+
+    //根据 ID 获取订单详情信息内容
+    Request(
+      {
+        url: 'api/wxTradeDetail',
+        method: 'GET',
+        data: { tradeId:this.$router.params.id },
+        //isToken:false
+      },
+      (data) => {
+      
+        console.log(data)
+        this.setState({ ...data.data })
+      },
+    )
     
   }
 

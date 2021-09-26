@@ -16,20 +16,14 @@ export default class publishService extends Component {
 
   state = {
     value: '',
-    type1:['写真约拍','婚纱摄影','商务公关','商业广告'],
-    type2:['个人写真','情侣写真','证件形象','汉服古风','儿童写真','cosplay','毕业照','全家福'],
-    option:[],
-    isType:true // 是否是关联类型
+    option: [], 
+    isType:true  // 是否是关联类型
   }
 
   componentDidMount() {
+    this.setState({option:this.$router.params.data ? JSON.parse(this.$router.params.data) : [],isType:this.$router.params.type === '1'})
+   // console.log(this.$router.params.data)
 
-    const {type1,type2} = this.state
-    const isType = this.$router.params.type === '1' 
-   
-    const type =  isType ? type1 : type2
-    const option = type.map((item,i) => {return {label:item,value:i}})
-    this.setState({isType,option})
 
   }
 
@@ -40,13 +34,15 @@ export default class publishService extends Component {
     this.setState({
       value
     })
+    const item = this.state.option.filter(i => i.value === value)
     if(this.state.isType){
-      Taro.setStorageSync('typeId', value);
+
+      Taro.setStorageSync('typeId', JSON.stringify(item[0]));
     } else {
-      Taro.setStorageSync('tagId', value);
+      Taro.setStorageSync('tagId', JSON.stringify(item[0]));
     }
     Taro.redirectTo({
-      url: `/pages/index/publishService`
+      url: `/pages/index/publishService?hasChoose=1`
     })
   }
 
