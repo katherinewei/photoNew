@@ -30,7 +30,8 @@ export default class Index extends Component {
     current:'',
     curState:2,
     isOpenedCancel:false,
-    check:true
+    check:true,
+    data:{}
   }
 
   componentWillMount() {
@@ -53,7 +54,7 @@ export default class Index extends Component {
       (data) => {
       
         console.log(data)
-        this.setState({ ...data.data })
+        this.setState({ data:data.data,curState: data.data.state})
       },
     )
     
@@ -80,32 +81,34 @@ export default class Index extends Component {
   
 
   render() {
-    const {curState,isOpenedCancel} = this.state
+    const {curState,isOpenedCancel,data} = this.state
     const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
-    
+    const stateName = ['确认下单','客户回电','确认摄影师','预约成功','支付尾款','已完成']
+
+    // 1 取消订单 0:确认下单(待支付) 1:支付定金(已支付) 2.客户回电确认信息 3.确认摄影师 4.享受拍摄服务 5.支付尾款 6.收到成片
     return (
       <View className={curState !== 0 ? 'state1' : ''}>
         <View className={`body`}>
-         <View className="box state">{curState === 0 ? '预约中' : curState === 1 ? '预约成功' : curState === 2 ? '已完成' : ''}</View>
+         <View className="box state">{stateName[curState]}</View>
          <View className="box cc">
            <View className="title">订单信息</View>
            <View className="content">
-             <View className="p"><text>预约项目：</text>写真约拍</View>
-             <View className="p"><text>预约时间：</text>8月21日 13:00 - 20:00</View>
-             <View className="p"><text>拍摄人数：</text>1成人</View>
-             <View className="p"><text>拍摄方式：</text>室内棚拍,外景</View>
+             <View className="p"><text>预约项目：</text>{data.imgType}</View>
+             <View className="p"><text>预约时间：</text>{data.startTime} - {data.endTime}</View>
+             <View className="p"><text>拍摄人数：</text>{data.adult ? data.adult + '成人' : ''} {data.adult ? data.child + '儿童' : ''} {data.lover ? data.lover + '情侣' : ''}</View>
+             <View className="p"><text>拍摄方式：</text>{data.serviceType}</View>
            </View>
          </View>
          <View className="box cc">
-           <View className="title">摄影师接单{curState === 0 ? '(10)' : ''} </View>
+           <View className="title">摄影师接单{curState === 0 ? `(${data.photoerList.length})` : ''} </View>
            <View className="content list">
-             {list.map((item,i) => (
-               <View className="item" onClick={() => Taro.navigateTo({url: `/pages/order/photographer?id=1`})}>
+             {data.photoerList.map((item,i) => (
+               <View className="item" onClick={() => Taro.navigateTo({url: `/pages/order/photographer?id=${item.userId}`})}>
                <View className={(this.state.current ===i ? `check` : '') + ` radio`} onClick={(e) => this.checked(e,i)}></View>
-               <Image  src={item.img} mode="widthFix" ></Image>
-               <View>{item.name}</View>
+               <Image  src={item.headPic} mode="widthFix" ></Image>
+               <View>{item.userName}</View>
                <View>{item.title}</View>
-               <View>报价:￥{item.price}</View>
+               <View>报价:￥{item.amount}</View>
              </View>
              ))}
             
@@ -168,7 +171,7 @@ export default class Index extends Component {
              <View className="icon">{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
              <View> 我已阅读并同意<text>《拍摄服务撮合协议》</text></View>
             </View>
-           <AtButton size="small" type="primary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/confirmOrder?id=1`})}>提交订单</AtButton>
+           <AtButton size="small" type="primary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/confirmOrder?id=${data.id}`})}>提交订单</AtButton>
          </View>
          }
          {curState === 1 && <View>
