@@ -31,7 +31,24 @@ export default class Index extends Component {
 
   componentWillMount() {
 
-    this.setState({})
+    
+    //根据摄影师 ID 获取摄影师详情内容
+    Request(
+      {
+        url: 'api/getWxPhotoerInfo',
+        method: 'GET',
+        data: { page: current + 1,orderState },
+        //isToken:false
+      },
+      (data) => {
+        data.data.records = [...records, ...data.data.records]
+        console.log(data)
+        this.setState({ ...data.data })
+      },
+    )
+
+
+   // this.setState({})
   
   }
 
@@ -216,6 +233,7 @@ export default class Index extends Component {
                 
 
               </View>
+           
             </View>
           </AtTabsPane>
          

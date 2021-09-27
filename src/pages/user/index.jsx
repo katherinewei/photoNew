@@ -88,7 +88,7 @@ export default class UserComponent extends Component {
 
     getUser(){
       let that = this;
-     const callback = () => {
+      const callback = () => {
             Taro.getUserInfo({
               lang:'zh_CN',
               success: function(res) {
