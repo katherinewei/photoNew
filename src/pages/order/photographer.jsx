@@ -25,8 +25,9 @@ export default class Index extends Component {
   }
 
   state = {
-    current:0,
-    top:0,
+    currentTab:0,
+    photoerVO:{},
+    tradeRecordVO:{}
   }
 
   componentWillMount() {
@@ -37,15 +38,29 @@ export default class Index extends Component {
       {
         url: 'api/getWxPhotoerInfo',
         method: 'GET',
-        data: { page: current + 1,orderState },
+        data: { id:1},
         //isToken:false
       },
       (data) => {
-        data.data.records = [...records, ...data.data.records]
+       // data.data.records = [...records, ...data.data.records]
         console.log(data)
         this.setState({ ...data.data })
       },
     )
+
+     //查看摄影师评论列表内容-分页
+     Request(
+      {
+        url: 'api/wxCommentPage',
+        method: 'GET',
+        data: { id:1},
+        //isToken:false
+      },
+      (data) => {
+        this.setState({ ...data.data })
+      },
+    )
+
 
 
    // this.setState({})
@@ -65,7 +80,7 @@ export default class Index extends Component {
   componentDidHide() {}
   handleClick (value) {
     this.setState({
-      current: value
+      currentTab: value
     })
   }
   scrollTopFun(e){
@@ -73,10 +88,32 @@ export default class Index extends Component {
    // that.top = e.detail.scrollTop;
   }
 
+  //上拉刷新
+  onScrollToLower() {
+    const { pages, current, records } = this.state
+
+    if (pages > current) {
+      Request(
+        {
+          url: 'api/notePage',
+          method: 'GET',
+          data: { page: current + 1,typeId:currentId },
+          //isToken:false
+        },
+        (data) => {
+          data.data.records = [...records, ...data.data.records]
+         // console.log(data)
+          this.setState({ ...data.data })
+        },
+      )
+    }
+  }
+
   
 
   render() {
-
+    const {photoerVO,tradeRecordVO,records,total} = this.state
+   
     const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
     const tabList = [{ title: '样片' }, { title: '评价' }]
     return (
@@ -84,156 +121,90 @@ export default class Index extends Component {
         <View className="contain">
         <View className="header" >
          
-          <View className="bg" style={{backgroundImage:"url("+'http://orderplus-cloud.oss-cn-hongkong.aliyuncs.com/orderPlus/8c6fee9b9f954cefaca7eda286394c10.png'+")"}}></View>
+          <View className="bg" style={{backgroundImage:"url("+photoerVO.headPic+")"}}></View>
           <View className="mask"></View>
           <View className="top">
-            <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
+            <AtAvatar  circle  image={photoerVO.headPic}   ></AtAvatar>
             <View className="right">
-              <View className="name">kk</View>
-              <View className="i"><text>女</text><text>高级摄影师</text><text>从业12年</text><text>服务客户</text></View>
+              <View className="name">{photoerVO.userName}</View>
+              <View className="i"><text>{photoerVO.sex === 1 ? '女' :'男'}</text><text>高级摄影师</text><text>从业12年</text><text>服务客户<text class="number">{photoerVO.serviceNum}</text></text></View>
               <View className="o">诚信服务</View>
             </View>
           </View>
          
         </View>
         <View className="intro">
-          <text>简介：</text>从业11年，擅长人像摄影，从业11年，擅长人像摄影， 从业11年，擅长人像摄影。
+          <text>简介：</text>{photoerVO.introduction}
         </View>
         <View className="content intro">
-          <View className="price">报价：<text>￥</text>1000.00</View>
+          <View className="price">报价：<text>￥</text>{tradeRecordVO.amount}</View>
           <View className="detail">
             <View className="price">套餐详情</View>
             <View className="con">
-              <View><text>拍摄时长：</text>3小时</View>
-              <View><text>服装造型：</text>1套</View>
-              <View><text>底片数量：</text>120张</View>
-              <View><text>精修加片：</text>25元/张</View>
-              <View><text>精修成片：</text>12张</View>
-              <View><text>最多人数：</text>1位</View>
+              <View><text>拍摄时长：</text>{tradeRecordVO.photoTime}小时</View>
+              <View><text>服装造型：</text>{tradeRecordVO.dressNum}套</View>
+              <View><text>底片数量：</text>{tradeRecordVO.plateNum}张</View>
+              <View><text>精修加片：</text>{tradeRecordVO.turingAmount}元/张</View>
+              <View><text>精修成片：</text>{tradeRecordVO.turingNum}张</View>
+              <View><text>最多人数：</text>{tradeRecordVO.personNum}位</View>
             </View>
           </View>
         </View>
 
 
-        <AtTabs className={top>130 ? 'topnav' : ''} current={this.state.current} tabList={tabList} onClick={this.handleClick.bind(this)}>
-          <AtTabsPane current={this.state.current} index={0}>
+        <AtTabs className={top>130 ? 'topnav' : ''} current={this.state.currentTab} tabList={tabList} onClick={this.handleClick.bind(this)}>
+          <AtTabsPane current={this.state.currentTab} index={0}>
             <View  className="images">
-             <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-             <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-             <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-             <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-             <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
+              {tradeRecordVO.rushImgUrlList && tradeRecordVO.rushImgUrlList.length > 0 && tradeRecordVO.rushImgUrlList.map(pic => (
+                <Image src={pic} mode="widthFix"></Image>
+              ))}
+             
+            
             </View>
             
            
           </AtTabsPane>
-          <AtTabsPane current={this.state.current} index={1} className="evaluation">
+          <AtTabsPane current={this.state.currentTab} index={1} className="evaluation">
             <View  className="evaluation">
-              <View  className="title">用户评价(23)</View>
-              <View className="box">
-                <View className="item">
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  <View className="cRight">
-                    <View className="n">kk</View>
-                    <View className="t">2021-09-09</View>
-                    <View className="c">很赞很赞很赞很赞很赞很赞很赞很赞很赞很赞，很赞很赞很赞很赞很赞很赞</View>
-                    <View className="i">
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                    </View>
-                  </View>
-                 
-                </View>
-                <View className="item">
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  <View className="cRight">
-                    <View className="n">kk</View>
-                    <View className="t">2021-09-09</View>
-                    <View className="c">很赞很赞很赞很赞很赞很赞很赞很赞很赞很赞，很赞很赞很赞很赞很赞很赞</View>
-                    <View className="i">
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                    </View>
-                  </View>
-                 
-                </View>
-                
-                <View className="item">
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  <View className="cRight">
-                    <View className="n">kk</View>
-                    <View className="t">2021-09-09</View>
-                    <View className="c">很赞很赞很赞很赞很赞很赞很赞很赞很赞很赞，很赞很赞很赞很赞很赞很赞</View>
-                    <View className="i">
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                    </View>
-                  </View>
-                 
-                </View>
-                <View className="item">
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  <View className="cRight">
-                    <View className="n">kk</View>
-                    <View className="t">2021-09-09</View>
-                    <View className="c">很赞很赞很赞很赞很赞很赞很赞很赞很赞很赞，很赞很赞很赞很赞很赞很赞</View>
-                    <View className="i">
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                    </View>
-                  </View>
-                 
-                </View>
-                
+              <View  className="title">用户评价({total})</View>
+              <ScrollView
+              className='scrollview'
+              scrollY
+              scrollWithAnimation
+              scrollTop={0}
+              style={{height: (Taro.getSystemInfoSync().windowHeight) - 500 +  'px'}}
+              lowerThreshold={20}
+              upperThreshold={20}
+              onScrollToLower={this.onScrollToLower.bind(this)}
+               >
 
-                <View className="item">
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  <View className="cRight">
-                    <View className="n">kk</View>
-                    <View className="t">2021-09-09</View>
-                    <View className="c">很赞很赞很赞很赞很赞很赞很赞很赞很赞很赞，很赞很赞很赞很赞很赞很赞</View>
-                    <View className="i">
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
+                <View className="box">
+                  {records && records.length > 0 ? records.map(item => (
+                    <View className="item">
+                    <AtAvatar  circle  image={item.headPic}   ></AtAvatar>
+                    <View className="cRight">
+                      <View className="n">{item.userName}</View>
+                      <View className="t">{item.time}</View>
+                      <View className="c">{item.content}</View>
+                      <View className="i">
+                        {item.commentImgUrlList && item.commentImgUrlList.length > 0 && item.commentImgUrlList.map(pic=> (
+                            <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
+                        ))}
+                      </View>
                     </View>
+                  
                   </View>
-                 
-                </View>
-                <View className="item">
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
-                  <View className="cRight">
-                    <View className="n">kk</View>
-                    <View className="t">2021-09-09</View>
-                    <View className="c">很赞很赞很赞很赞很赞很赞很赞很赞很赞很赞，很赞很赞很赞很赞很赞很赞</View>
-                    <View className="i">
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                      <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
-                    </View>
-                  </View>
-                 
-                </View>
+                  
+                  )): <View className="noData" style={{ marginTop: '30px' }}>
+                  <Image
+                    mode="widthFix"
+                    src={require('../../images/icon/noData.png')}
+                  ></Image>
+                  <View>暂无数据</View>
+                </View>}
                 
-
-              </View>
-           
+                </View>
+              </ScrollView>
             </View>
           </AtTabsPane>
          

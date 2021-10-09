@@ -83,7 +83,7 @@ export default class Index extends Component {
   render() {
     const {curState,isOpenedCancel,data} = this.state
     const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
-    const stateName = ['确认下单','客户回电','确认摄影师','预约成功','支付尾款','已完成']
+    const stateName = ['待支付定金','预约中','客户回电','确认摄影师','预约成功','支付尾款','已完成']
 
     // 1 取消订单 0:确认下单(待支付) 1:支付定金(已支付) 2.客户回电确认信息 3.确认摄影师 4.享受拍摄服务 5.支付尾款 6.收到成片
     return (
@@ -99,8 +99,8 @@ export default class Index extends Component {
              <View className="p"><text>拍摄方式：</text>{data.serviceType}</View>
            </View>
          </View>
-         <View className="box cc">
-           <View className="title">摄影师接单{curState === 0 ? `(${data.photoerList.length})` : ''} </View>
+          <View className="box cc">
+           <View className="title">摄影师接单{ curState === 1 ? `(${data.photoerList.length})` : ''} </View>
            <View className="content list">
              {data.photoerList.map((item,i) => (
                <View className="item" onClick={() => Taro.navigateTo({url: `/pages/order/photographer?id=${item.userId}`})}>
@@ -115,7 +115,7 @@ export default class Index extends Component {
            </View>
          </View>
 
-         {curState !== 0 && <View className="box cc d">
+         {curState > 2 && <View className="box cc d">
            <View className="title">套餐详情：</View>
            <View className="content">
              <View className="p"><text>拍摄时长:</text>3658741</View>
@@ -129,17 +129,17 @@ export default class Index extends Component {
 
 
          <View className="box cc d">
-           <View className="title">已付定金：</View>
+           <View className="title">{curState === 1 ? '已付定金' : '实付' }：</View>
            <View className="content">
-             <View className="p"><text>订单号:</text>3658741</View>
+             <View className="p"><text>订单号:</text>{data.tradeNo}</View>
              <View className="p"><text>手机号:</text>13685428889</View>
              <View className="p"><text>付款时间:</text>2021-08-15 15:00 </View>
              <View className="p"><text>下单时间:</text>2021-08-15 15:10 </View>
-             <View className="p"><text>定 金:</text>￥200</View>
+             {curState === 1 && <View className="p"><text>定 金:</text>￥{data.payment}</View>}
              
            </View>
          </View>
-         {curState !== 0 &&  <View className="box cc d">
+           <View className="box cc d">
            <View className="title">温馨提示：</View>
            <View className="content">
               <View className="tip">
@@ -163,17 +163,17 @@ export default class Index extends Component {
 
            </View>
               
-         </View>}
+         </View>
          </View>
          <View className="foot">
-         {curState === 0 && <View>
-            <View className="agree" onClick={() => this.setState({check: !check})}>
-             <View className="icon">{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
+         {curState === 1 &&<View>
+            <View className="agree" onClick={() => this.setState({check: !this.state.check})}>
+             <View className="icon">{this.state.check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
              <View> 我已阅读并同意<text>《拍摄服务撮合协议》</text></View>
             </View>
            <AtButton size="small" type="primary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/confirmOrder?id=${data.id}`})}>提交订单</AtButton>
-         </View>
-         }
+         </View>}
+         
          {curState === 1 && <View>
            
            <AtButton size="small" type="primary" circle onClick={this.cancelOrder.bind(this)}>取消订单</AtButton>

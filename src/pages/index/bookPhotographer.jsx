@@ -9,7 +9,7 @@ import {
   setUserInfo,
   validateLogin
 } from '../../utils/help'
-import { baseUrl } from '../../config'
+import { baseUrl,mapKey } from '../../config'
 import './index.scss'
 import '../../components/common.scss'
 import DateTimePicker from '../../components/DateTimePicker';
@@ -28,6 +28,7 @@ import {
   AtImagePicker
   } from 'taro-ui'
   import Pay from '../../components/pay/index'
+  import ImageUpload from '../../components/imageUpload';
 export default class Index extends Component {
   config = {
     navigationBarTitleText: '预约摄影师',
@@ -55,26 +56,23 @@ export default class Index extends Component {
     this.setState({
       loading: false,
       current: 1,
-      subCur:1,
+      subCur:0,
       value: '',
       visible:false,
       check:true,
-      tabs:[
-       { label:'写真约拍',value:1,list:[{value:1,label:'个人写真'},{value:2,label:'情侣写真'},{value:3,label:'证件形象'},{value:4,label:'儿童写真'},{value:5,label:'汉服古风'},{value:6,label:'Cosplay'},{value:7,label:'毕业照'},{value:8,label:'全家福'}]},
-       { label:'婚纱摄影',value:2,list:[{value:1,label:'婚纱写真'},{value:2,label:'婚纱旅拍'},{value:3,label:'登记跟拍'},{value:4,label:'婚礼现场'}]},
-       { label:'商务公关',value:3,list:[{value:1,label:'公关活动'},{value:2,label:'赛事记录'},{value:3,label:'会议论坛'},{value:4,label:'工程开发记录'}]},
-       { label:'商业广告',value:4,list:[{value:1,label:'产品广告'},{value:2,label:'空间建筑'},{value:3,label:'美食静场'}]}
-
-      ]  ,
-      files1: [],
-      files2: [],
+      tabs:[],
+      index:0,
+      currentId: '',
+      clothesImgUrl: [],
+      customerImgUrlList: [],
       isOpenedArea: false,
      
-      dateStart:'请选择时间',  // 开始时间
-      dateEnd:'请选择时间',//结束时间
+      startTime:'',  // 开始时间
+      endTime:'',//结束时间
       curAddr:'',//选择的地点
       bookSel,
-      isOpened:false
+      isOpened:false,
+      tradeId:'',
       // selType1:'',//数码/胶片/视频
       // selType2:'',//人数
       // selType3:'',//化妆选择
@@ -92,14 +90,91 @@ export default class Index extends Component {
 
 
   componentDidMount() {
-     getToken(() => {}, true)
+     getToken(() => {})
 
-    this.getLocation()
+     if(!this.$router.params.hasChoose){   // 不是选择
+        this.getLocation() 
+        this.fetchCate()
+        Taro.removeStorageSync('curAddr'); 
+        Taro.removeStorageSync('tabs'); 
+        Taro.removeStorageSync('startTime'); 
+        Taro.removeStorageSync('endTime'); 
+        Taro.removeStorageSync('skinState'); 
+        Taro.removeStorageSync('customerImgUrlList'); 
+        Taro.removeStorageSync('clothesImgUrl'); 
+          
+          
+     } else {
+       let currAddr = Taro.getStorageSync('curAddr') ? JSON.parse(Taro.getStorageSync('curAddr'))  : ''
+       let tabs = Taro.getStorageSync('tabs') ? JSON.parse(Taro.getStorageSync('tabs'))  : []
+
+       if(currAddr.length > 0){
+        currAddr = currAddr[currAddr.length - 2] + ' ' + currAddr[currAddr.length - 1]
+       }
+       let currentId = ''
+       if(tabs.length > 0){
+        currentId = tabs[0].id
+       }
+
+        
+
+      this.setState({
+        curAddr:currAddr,
+        tabs:Taro.getStorageSync('tabs') ? JSON.parse(Taro.getStorageSync('tabs'))  : [],
+        currentId,
+        startTime:Taro.getStorageSync('startTime') || '',
+        endTime:Taro.getStorageSync('endTime') || '',
+        skinState:Taro.getStorageSync('skinState') || '',
+
+      })
+     }
+
+   
+
+   
 
   }
 
-  getPhoneNumber(e) {
-    
+  fetchCate(){
+    // 品类
+    Request(
+      {
+        url: 'api/category',
+        method: 'GET',
+        //isToken:false
+      },
+      (res) => {
+      //  console.log(res.data,11110000)
+        this.setState({ tabs:res.data,currentId:res.data[0].id },() => {
+        Taro.setStorageSync('tabs', JSON.stringify(res.data))   // 保存地址
+        })
+      },
+    )
+  }
+
+  getLocation(){
+
+    Taro.getLocation().then(res => {
+        let latitude =  res.latitude; // 
+        let longitude =  res.longitude;
+       // console.log(latitude,longitude)
+
+        Request(
+          {
+            url: `https://apis.map.qq.com/ws/geocoder/v1/?location=${latitude},${longitude}&key=${mapKey}`,
+            method: 'GET',
+            isMap:true
+            //isToken:false
+          },
+          (data) => {
+          //  console.log(data.result.address_component.city,222)
+            this.setState({curAddr:data.result.address_component.city + ' ' + data.result.address_component.district })
+            const addr = [data.result.address_component.nation,data.result.address_component.province,data.result.address_component.city,data.result.address_component.district]
+            Taro.setStorageSync('curAddr', JSON.stringify(addr))   // 保存地址
+          },
+        )
+    })
+
   }
 
 
@@ -134,114 +209,170 @@ export default class Index extends Component {
     
   }
 
-  onChangeFile(files, operationType,isFile1) {
-    if (operationType === 'remove') {
-      this.setState({
-        files,
-      })
-    }
+  //省市选择
+  selectCity(e) {
+    let curAddr = ''
+    curAddr = `${e.data.city} ${e.data.area}`
+    
+    this.setState({ isOpenedArea: false,curAddr })
 
-    // console.log(files)
-    //  this.setState({
-    //    files
-    //  })
-    if (operationType === 'add') {
-      files.map((item, i) => {
-        if (!item.url.startsWith(baseUrl)) {
-          const file = item
-          console.log(file)
-          this.setState({
-            //files
-            loading: true,
-          })
-          const that = this
-          Taro.uploadFile({
-            url: baseUrl +'api/imgs',
-            filePath: file.url,
-            name: 'file',
-            formData: {
-              file: files,
-            },
-            header: {
-              //  Authorization : getAccessToken(),
-              'Content-Type': 'multipart/form-data',
-              accept: 'application/json',
-            },
-            success(res) {
-              const data = JSON.parse(res.data)
-              files[i].url = data.data.path
-              that.setState({ loading: false })
-              if(isFile1){
-                that.setState({  files1:files })
-              } else {
-                that.setState({ files2:files })
-              }
-
-              //do something
-            },
-            fail() {
-              console.log(1111)
-            },
-          })
-        }
-      })
-    }
+    const addr = [e.data.country,e.data.province,e.data.city,e.data.area]
+    Taro.setStorageSync('curAddr', JSON.stringify(addr))   // 保存地址
   }
 
-
-    //省市选择
-    selectCity(e) {
-     let curAddr = ''
-     if(e.showDistrict){
-      curAddr = `${e.data.city} ${e.data.area}`
-     } else{
-      curAddr = `${e.data.province} ${e.data.city}`
-     }
-      this.setState({ isOpenedArea: false,curAddr })
-    }
-
-    getLocation(){
-
-        Request(
-          {
-            url: `area/getAreaByIp`,
-            method: 'GET'
-            //isToken:false
-          },
-          (data) => {
-            console.log(data)
-
-             this.setState({curAddr:data.data.city })
-          },
-        )
-
-
-    //   Taro.getLocation().then(res => {
-    //     let latitude = res.latitude;
-    //     let longitude = res.longitude;
-
-    //     Request(
-    //       {
-    //         url: `https://apis.map.qq.com/ws/geocoder/v1/?location=${latitude},${longitude}&key=${app.globalData.tencentMapKey}`,
-    //         method: 'GET',
-    //         data,
-    //         //isToken:false
-    //       },
-    //       (data) => {
-    //         // this.setState({ ...data.data, loading: false })
-    //       },
-    //     )
-    // })
-  }
+ 
 
   onDateChange(e,isStart){
     if(isStart){
-      this.setState({dateStart:e.current})
+      this.setState({startTime:e.current})
+      Taro.setStorageSync('startTime',e.current)   // 保存开始时间 
     } else {
-      this.setState({dateEnd:e.current})
+      this.setState({endTime:e.current})
+      Taro.setStorageSync('endTime', e.current)   // 保存开始时间
     }
     
    
+  }
+
+  // 提交
+  onSubmit(){
+    const {
+      tabs,index,subCur, clothesImgUrl,customerImgUrlList,startTime, endTime,curAddr,bookSel,skinState
+      
+    } = this.state
+
+    let payload = {}
+
+    // 开始时间大于结束时间
+    if(new Date(startTime).getTime() > new Date(endTime).getTime()){
+      Taro.showToast({
+        title: '开始时间不能大于结束时间',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    
+    if(!bookSel.selType1){
+      Taro.showToast({
+        title: '请选择拍摄类型',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    const imgType = bookSel.selType1.id
+
+    if(!bookSel.selType2){
+      Taro.showToast({
+        title: '请选择人数',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    bookSel.selType2.map(item => {
+      if(item.id === 0){  // 成人
+        payload.adult = item.number
+      }
+      if(item.id === 1){  // 成人
+        payload.child = item.number
+      }
+      if(item.id === 2){  // 成人
+        payload.lover = item.number
+      }
+    })
+    if(!bookSel.selType3){
+      Taro.showToast({
+        title: '请选择化妆方式',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    const makeupType = bookSel.selType3.id
+
+    if(!bookSel.selType4){
+      Taro.showToast({
+        title: '请选择服装方式',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    const clothesType = bookSel.selType4.id
+
+    if(!bookSel.selType5){
+      Taro.showToast({
+        title: '请选择服装方式',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    const photographerType = bookSel.selType5.id
+
+    if(!bookSel.selType6){
+      Taro.showToast({
+        title: '请选择服务方式',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    const serviceType = bookSel.selType6.id
+
+    let imgPath1 = ''
+    if (clothesImgUrl.length > 0) {
+      imgPath1 = []
+     clothesImgUrl.map((item) => {
+       //let url = item.url.replace(ImageUrl, '')
+        imgPath1.push(item.url)
+      })
+    }
+    let imgPath2 = ''
+    if (customerImgUrlList.length > 0) {
+      imgPath2 = []
+     customerImgUrlList.map((item) => {
+       // let url = item.url.replace(ImageUrl, '')
+        imgPath2.push(item.url)
+      })
+    }
+   const typeId = tabs[index].id 
+   const tagId = tabs[index].child[subCur].id
+   const pos = JSON.parse(Taro.getStorageSync('curAddr')) 
+
+    payload = {...payload,
+      typeId,tagId,startTime:startTime + ':00',endTime:endTime + ':00',contact:'15011112254',//todo
+      country:pos[0], province:pos[1],city:pos[2], district:pos[3],  
+      imgType,makeupType,clothesType,photographerType,serviceType,
+      styleImgUrlList:imgPath1,customerImgUrlList:imgPath2,
+      skinState}
+      // 发送数据
+    Request(
+      {
+        url: 'api/tradeSave',
+        method: 'POST',
+        data:payload,
+      },
+      (data) => {
+        Taro.showToast({
+          title: '提交成功',
+          icon: 'success',
+          mask: true,
+        })
+        this.setState({tradeId:data.data.id,isOpened:true,curItem:{price:'200.00'}})
+
+
+      //  return data.data.id
+        // setTimeout(() => {
+        //   Taro.redirectTo({
+        //     url: `/pages/index/index`,
+        //   })
+        // }, 1000)
+      },
+    )
+
   }
 
 
@@ -250,7 +381,7 @@ export default class Index extends Component {
    
 
     const {
-      loading,tabs,user, current,subCur,  visible,  check,   files1,   files2,dateStart, dateEnd,curAddr,bookSel,isOpened,curItem
+      loading,tabs,index,user, current,subCur,  visible,  check, clothesImgUrl,customerImgUrlList,startTime, endTime,curAddr,bookSel,isOpened,curItem,skinState
       
     } = this.state
 
@@ -270,7 +401,7 @@ export default class Index extends Component {
       selType2 = ''
     }
 
-    console.log(this.state.isOpenedArea,99999966666)
+    const {hasChoose} = this.$router.params
 
     return (
       <View className="index bookPage">
@@ -278,17 +409,17 @@ export default class Index extends Component {
           <View className='tab'>
           <View className='p20 at-row '>
           {tabs.map((item,i) => (
-            <View onClick={() => this.changeTab(item.value)}  className={item.value === current ? 'active at-col' : 'at-col'}><text>{item.label}</text></View>
+            <View onClick={() => this.changeTab(item,i)}  className={i === index ? 'active at-col' : 'at-col'}><text>{item.dictVal}</text></View>
           ))}
           </View></View>
           <View className='fixed'></View>
           <View className="container p20">
             <View className='content '>
-              <View className="title">
-                {tabs[current-1].list.map((item,i) => (
-                  <View onClick={() => this.handleClick(item.value)}  className={item.value === subCur ? 'active sub' : 'sub'}><text>{item.label}</text></View>
+              <View className="title"> 
+              {tabs[index] && tabs[index].child && tabs[index].child.map((item,i) => (
+                  <View onClick={() => this.handleClick(i)}  className={i === subCur ? 'active sub' : 'sub'}><text>{item.dictVal}</text></View>
                 ))}
-              {current === 1 &&   <View  className='expand' onClick={() => this.expand()}></View>}
+              {index === 0 &&  <View  className='expand' onClick={() => this.expand()}></View>}
               </View>
               <View className="subContent">
                   
@@ -296,11 +427,12 @@ export default class Index extends Component {
                     className="picker"
                     onClick={() => this.setState({isOpenedArea:true}) }
                   >
+                   
                     {curAddr}
                   </View>
                   <View  className="pickerDate picker">
-                    <DateTimePicker onOk={e => this.onDateChange(e,true)}   wrap-class="pickerTime"  select-item-class="selLale selStart" />
-                    <DateTimePicker onOk={e => this.onDateChange(e,true)}    wrap-class="pickerTime"  select-item-class="selLale selEnd" />
+                    <DateTimePicker initValue={startTime} onOk={e => this.onDateChange(e,true)}   wrap-class="pickerTime"  select-item-class="selLale selStart" />
+                    <DateTimePicker initValue={endTime} onOk={e => this.onDateChange(e)}    wrap-class="pickerTime"  select-item-class="selLale selEnd" />
                   </View>
 
                   <View className='at-row pickerRow'>
@@ -338,10 +470,10 @@ export default class Index extends Component {
 
                   
                   {/* <Picker mode='date' onChange={e => this.onDateChange(e,true)}>
-                  <View className="time start">{dateStart}</View>
+                  <View className="time start">{startTime}</View>
                   </Picker>
                   <Picker mode='date' onChange={e => this.onDateChange(e)}>
-                  <View className="time end">{dateEnd}</View>
+                  <View className="time end">{endTime}</View>
                   </Picker> */}
 
             </View>
@@ -356,38 +488,37 @@ export default class Index extends Component {
               <View className="tit"> 以下资料可以快速匹配摄影师并为您制定初步方案 </View>
               <View className="con">
                 <View className="p">上传想拍的风格参考图，让摄影师确认风格。若选择自备服装，可在此上传服装样式。</View>
-                <AtActivityIndicator
-                  mode="center"
-                  isOpened={this.state.loading}
-                  content="上传中..."
-                ></AtActivityIndicator>
-                <AtImagePicker
-                  files={this.state.files1}
-                  onChange={(files, operationType) => this.onChangeFile(files, operationType,1)}
-                  showAddBtn={this.state.files1 && this.state.files1.length < 10}
-                  multiple
-                />
+
+                {/* <ImageUpload  onOk={e => {
+                  this.setState({clothesImgUrl:e.files})
+                  }} /> */}
+
+                <ImageUpload files={hasChoose ? Taro.getStorageSync('clothesImgUrl') ? JSON.parse(Taro.getStorageSync('clothesImgUrl')) : []:[]} onOk={e => {
+                  this.setState({clothesImgUrl:e.files})
+                  Taro.setStorageSync('clothesImgUrl', JSON.stringify(e.files));
+                  }} />
+
+
                 <View className="p">上传顾客面容照片，让摄影师制定风格</View>
-                <AtActivityIndicator
-                  mode="center"
-                  isOpened={this.state.loading}
-                  content="上传中..."
-                ></AtActivityIndicator>
-                <AtImagePicker
-                  files={this.state.files2}
-                  onChange={this.onChangeFile.bind(this)}
-                  showAddBtn={this.state.files2 && this.state.files2.length < 10}
-                  multiple
-                />
+                {/* <ImageUpload  onOk={e => {
+                this.setState({customerImgUrlList:e.files})
+              
+                }} /> */}
+                <ImageUpload files={hasChoose ? Taro.getStorageSync('customerImgUrlList') ? JSON.parse(Taro.getStorageSync('customerImgUrlList')) : []:[]} onOk={e => {
+                  this.setState({customerImgUrlList:e.files})
+                  Taro.setStorageSync('customerImgUrlList', JSON.stringify(e.files));
+                  }} />
+
                 <View className="tit" style={{color:'#333'}}> 如实描述皮肤状态</View>
                 <AtTextarea
                   count={false}
                   maxLength={300}
                   placeholder="请输入你的肌肤状态"
-                  name="detail"
-                  value={this.state.detail}
+                  name="skinState"
+                  value={skinState}
                   onChange={(e) => {
-                    this.setState({ detail: e })
+                    this.setState({ skinState: e })
+                    Taro.setStorageSync('skinState',  e);
                   }}
                 />
               </View>
@@ -419,23 +550,23 @@ export default class Index extends Component {
               <View className="icon">{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
               <View> 我已阅读并同意<text>《拍摄服务撮合协议》</text></View>
               </View>
-            <AtButton size="small" type="primary" circle  onClick={() => {this.setState({isOpened:true,curItem:{price:'100.00'}})}}>立即预约</AtButton>
+            <AtButton size="small" type="primary" circle  onClick={() => {this.onSubmit()}}>立即预约</AtButton>
         </View>
 
         
         <View className={(visible ? 'show ' : '' ) +"moreType"}>
           <View className="body">
               <View className="h4">全部选项<AtIcon value='close' size='20' color='#F6F6F6' onClick={() => this.expand()}></AtIcon></View>
-              <View className="types"> {tabs[0].list.map((item,i) => (
-                 <View onClick={() => this.handleClick(item.value,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.label}</text></View>
+              <View className="types"> {tabs[0].child && tabs[0].child.map((item,i) => (
+                 <View onClick={() => this.handleClick(i,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.dictVal}</text></View>
               ))}</View>
               </View>
         </View>
      
 
          
-        <Area visible={this.state.isOpenedArea} onOk={e=>this.selectCity(e)}></Area>
-        <Pay isOpened={isOpened} curItem={curItem}/>
+        <Area visible={this.state.isOpenedArea} onOk={e=>this.selectCity(e)} onClose={() => {this.setState({isOpenedArea:false})}}></Area>
+        <Pay isOpened={isOpened} curItem={curItem} create={true} tradeId={this.state.tradeId}/>
       </View>
     )
   }

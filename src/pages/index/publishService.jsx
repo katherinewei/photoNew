@@ -134,6 +134,19 @@ export default class publishService extends Component {
       })
       return false
     }
+
+
+  let address = Taro.getStorageSync('curAddr')
+  let province = ''
+  let city = ''
+if(address){
+  address = JSON.parse(address)
+  province = address[1]
+  city = address[2]
+
+}
+
+
    
     const data = {
       imgUrlList:imgPath,
@@ -142,7 +155,9 @@ export default class publishService extends Component {
       mobile,
       limitSize,
       typeId:typeSelect.value,
-      tagId:tagSelect.value
+      tagId:tagSelect.value,
+      province,
+      city
     }
     if(!data.typeId){
       Taro.showToast({
@@ -177,7 +192,7 @@ export default class publishService extends Component {
         })
         setTimeout(() => {
           // Taro.navigateBack({delta: 1})
-          Taro.redirectTo({
+          Taro.switchTab({
             url: `/pages/index/index`,
           })
         }, 1000)

@@ -60,7 +60,7 @@ export default class RegisterFinish extends Component {
         return (
            <View className='registerFinish'>
               <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
-                <View className="icon"><Image src={require('../../images/icon/tab1_active.png')} mode="widthFix"/></View>
+                <View className="icon" onClick={() => Taro.switchTab({url: `/pages/index/index`})}><Image src={require('../../images/icon/tab1_active.png')} mode="widthFix"/></View>
                 <View className="title" >注册成功</View>
 
               </View>

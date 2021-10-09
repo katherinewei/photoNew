@@ -23,7 +23,8 @@ export default class Register extends Component {
         files:[],
         name:'',
          sex:'',
-          idcard:'', wxCode:'',cameraCode:'',cameraName:'',files1:[],files2:[],check:0
+          idcard:'', wxCode:'',cameraCode:'',cameraName:'',files1:[],files2:[],check:0,
+          ways: [{title:'诚信服务',text:'保证金签约',price:'300'},{title:'官方免费提供安卓设备，参与到功能改进中',text:'安卓测试官签约',price:'600'},{title:'凭实力证明自己',text:'先试用 ',price:''}]
       }
     }
 
@@ -40,10 +41,29 @@ export default class Register extends Component {
 
     onNext () {
 
-      const {name, sex, idcard, wxCode,current,cameraCode,cameraName} = this.state
-
+      const {name, sex, idcard, wxCode,current,cameraCode,cameraName,files,files1,files2,ways,check} = this.state
         if(current === 2){
-          Taro.redirectTo({url: `/pages/user/registerFinish`})
+          let cameraNumImgUrl =files1.map((item) => item.url).join('')
+          let cameraImgUrl =files2.map((item) => item.url).join('')
+          let wxImgUrl =files.map((item) => item.url).join('')
+          Request(
+            {
+              url: 'api/wxNewUserUpdateInfo',
+              method: 'POST',
+              data: { 
+                id:this.$router.params.id,
+                camera:cameraName,cameraImgUrl,cameraNum:cameraCode,cameraNumImgUrl,identityNum:idcard,realName:name,sex,wxImgUrl,
+                depositAmount:ways[check].price, wxNum:wxCode},
+              //isToken:false
+            },
+            (data) => {
+              if(data.code === 200){
+                Taro.redirectTo({url: `/pages/user/registerFinish`})
+               
+              }
+              
+            },
+          )
           return false
         }
 
@@ -123,8 +143,7 @@ export default class Register extends Component {
         { 'title': '器材信息' },
         { 'title': '签约选择' }
       ]
-      const ways = [{title:'诚信服务',text:'保证金签约',price:'300'},{title:'官方免费提供安卓设备，参与到功能改进中',text:'安卓测试官签约',price:'600'},{title:'凭实力证明自己',text:'先试用 ',price:''}]
-      const {current,check} = this.state
+      const {current,check,ways} = this.state
         return (
            <View className='register'>
                <View  className='steps'> {items.map((item,i )=> (<View className={(i <= current ? 'active' :'') + " step"}>{item.title}</View>))}</View>
@@ -134,7 +153,7 @@ export default class Register extends Component {
                  <View className="content">
                   <View className="formCont">
                     <View className="txt-title">上传微信二维码</View>  
-                    <ImageUpload onOk={e => this.setState({files:e.files})} />
+                    <ImageUpload single={true} onOk={e => this.setState({files:e.files})} />
                   </View>
                   <View className="formCont">
                   <AtInput
@@ -198,11 +217,11 @@ export default class Register extends Component {
                     <View className="content">
                       <View className="formCont">
                         <View className="txt-title">上传相机编码</View>  
-                          <ImageUpload onOk={e => this.setState({files1:e.files})} />
+                          <ImageUpload single={true} onOk={e => this.setState({files1:e.files})} />
                         </View>
                       <View className="formCont">
                         <View className="txt-title">上传相机正面图</View>  
-                          <ImageUpload onOk={e => this.setState({files2:e.files})} />
+                          <ImageUpload single={true} onOk={e => this.setState({files2:e.files})} />
                       </View>
                       <View className="formCont">
                         <AtInput
@@ -238,7 +257,9 @@ export default class Register extends Component {
                       <View className="txt-title">我们提供3种方式</View>  
                       {ways && ways.map((item,i) => (<View className="box">
                         <View className="txt-subTitle">· {item.title}</View>
-                        <View className={`${check === i ? 'active' : ''} price`} onClick={() => this.setState({check:i})}><View>{item.text}{item.price ? '￥' :''} <text>{item.price}</text></View></View>
+                        <View className={`${check === i ? 'active' : ''} price`} onClick={() => this.setState({check:i})}>
+                          <View>{item.text}{item.price ? '￥' :''} <text>{item.price}</text></View>
+                          </View>
                         </View>))}
                     </View>
                   </View>}  

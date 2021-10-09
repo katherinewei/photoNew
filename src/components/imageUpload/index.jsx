@@ -23,8 +23,8 @@ export default class imageUpload extends Component {
     }
 
     componentDidMount () {
-      console.log(this.props.files,999)
-      this.setState({files:this.props.files})
+      //console.log(this.props.files,999)
+      this.setState({files:this.props.files || []})
 
     }
 
@@ -105,7 +105,7 @@ export default class imageUpload extends Component {
         
 
         return (
-          <View>
+          <View >
              <AtActivityIndicator
               mode="center"
               isOpened={this.state.loading}
@@ -115,8 +115,8 @@ export default class imageUpload extends Component {
                className="imageUpload"
                 files={this.state.files}
                 onChange={this.onChangeFile.bind(this)}
-                showAddBtn={this.state.files.length < 10}
-                multiple
+                showAddBtn={this.props.single ? this.state.files.length < 1 : this.state.files.length < 10}
+                count={this.props.single ? 1 : 10}
               />
 
           </View>

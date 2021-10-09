@@ -35,7 +35,8 @@ export default class Index extends Component {
       curItem:null,
       orderState:'',
       isOpened:false, // 支付定金弹窗
-      isOpenedCancel:false // 取消订单
+      isOpenedCancel:false, // 取消订单
+      tradeId:''//交易单号
       
     })
        
@@ -117,7 +118,7 @@ export default class Index extends Component {
         orderState = ''
         break;
         case 1:
-          orderState = 0
+          orderState = 100
           break;
         case 2:
           orderState = 3
@@ -136,13 +137,13 @@ export default class Index extends Component {
 
 
   cancelOrder(e){ 
-    this.setState({isOpenedCancel:true,isOpened:false})
+    this.setState({isOpenedCancel:true,isOpened:false,tradeId:e.tradeId})
     return false
   }
   payOrder(item){
     const curItem = item
     curItem.price = item.payment
-    this.setState({isOpenedCancel:false,isOpened:true,curItem})
+    this.setState({isOpenedCancel:false,isOpened:true,curItem,tradeId:e.tradeId})
   }
 
 
@@ -151,7 +152,7 @@ export default class Index extends Component {
 
     const tabs = [{title:'全部'},{title:'预约中'},{title:'已预约'},{title:'已完成'}]
     
-    const {currentState,isOpened,curItem,isOpenedCancel,records} = this.state
+    const {currentState,isOpened,curItem,isOpenedCancel,records,tradeId} = this.state
 
     const stateName = ['取消订单','待支付','已支付','确认摄影师','享受拍摄服务','支付尾款','收到成片'] 
    
@@ -174,14 +175,14 @@ export default class Index extends Component {
           <View className="container">
           {records && records.length > 0 ? (
             records.map((item, i) => (
-              <View className="box" onClick={() => Taro.navigateTo({url: `/pages/order/orderDeatil?id=${item.id}`})}>
+              <View className="box" onClick={() => item.state !== -1 && item.state !== 0 &&  Taro.navigateTo({url: `/pages/order/orderDeatil?id=${item.id}`})}>
                 <View className="state">
                   <View className="position"><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>{item.city} {item.area}</View>
                   <View className="sta">{stateName[item.state - 1]}</View>
                 </View>
-                <text class="time">拍摄时间：{item.startTime} - {item.endTime} \n
-                {item.imgType}：{item.adult ? item.adult + '成人' : ''} {item.adult ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</text>
-                <View className="replay">已有<text class="num">{item.photoerList.length}</text>位摄影师回复，{item.state ===0 && <text class="num">请支付定金查看&gt;</text>}</View>
+                <text class="time">拍摄时间： <Text className="s">{item.startTime} - {item.endTime}</Text> \n
+                {item.typeDesc}：{item.adult ? item.adult + '成人' : ''} {item.adult ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</text>
+                {item.photoerList && item.photoerList.length > 0 && <View className="replay">已有<text class="num">{item.photoerList.length}</text>位摄影师回复，{item.state ===0 && <text class="num">请支付定金查看&gt;</text>}</View>}
                 <View className="list">
                 {item.photoerList && item.photoerList.length > 0 ? (
                   item.photoerList.map((photoer, i) => (
@@ -216,7 +217,7 @@ export default class Index extends Component {
 
         
         <Pay isOpened={isOpened} curItem={curItem}/>
-        <PayCancel isOpenedCancel={isOpenedCancel} />
+        <PayCancel isOpenedCancel={isOpenedCancel} tradeId={tradeId}/>
         
        
 

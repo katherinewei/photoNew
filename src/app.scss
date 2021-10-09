@@ -42,3 +42,31 @@ page{
       border: none;
   }
 }
+
+.imageUpload{
+  // font-size: 33px;
+   .at-image-picker__flex-box{
+     padding-left: 0;
+     padding-right: 10px;
+   }
+   .at-image-picker__flex-item{
+     margin-left: 0;
+     margin-right: 10px;
+   }
+ }
+
+ .payLayout {
+   .at-button.at-button--small.at-button--primary.at-button--circle{
+      height: 88px;
+      line-height: 88px;
+      border-radius: 40px;
+      margin: 30px;
+    }
+ }
+
+ .cancelL{
+  .at-float-layout__container{
+    height: 400px;
+    min-height: 100px;
+  }
+}

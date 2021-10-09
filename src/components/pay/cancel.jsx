@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
-import Request from '../utils/request';
+import Request from '../../utils/request';
 import {baseUrl} from '../config';
 import { AtFloatLayout,AtButton } from "taro-ui"
 import './index.scss';
@@ -43,7 +43,23 @@ export default class Pay extends Component {
     componentDidHide () { }
 
     onCancel(){
-      this.setState({isOpenedCancel:false})
+      
+      // 发送数据
+      Request(
+        {
+          url: 'api/wxCancelTrade',
+          method: 'POST',
+          data:{tradeId:this.props.tradeId},
+        },
+        (data) => {
+         
+         if(data.code === 200){
+
+          this.setState({isOpenedCancel:false})
+
+         }
+        },
+      )
     }
 
 

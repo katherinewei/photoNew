@@ -30,7 +30,11 @@ export default class DateTimePicker extends Component {
     openModal = () => {
         const { current, fmtInitValue } = this.state;
         const selectIndexList = [];
+        
         const arr = getArrWithTime(current || fmtInitValue || getDate()); //优先当前选择的值，其次默认值，其次当前值
+
+       
+
         const { yearList, monthLsit, dayList, hourList, minuteList } = getPickerViewList();
         const [year, month, day, hour, minute] = arr;
 
@@ -40,6 +44,8 @@ export default class DateTimePicker extends Component {
         selectIndexList[2] = dayList.indexOf(arr[2] + '日');
         selectIndexList[3] = hourList.indexOf(arr[3] + '点');
         selectIndexList[4] = minuteList.indexOf(arr[4] + '分');
+
+        console.log(current,fmtInitValue,987,arr)
 
         this.setState({
             selectIndexList,
@@ -130,7 +136,7 @@ export default class DateTimePicker extends Component {
             <View className="datetime-picker-wrap wrap-class">
                 <View className="selector-wrap">
                     <View className="select-item select-item-class" onClick={this.openModal}>
-                        {current || placeholder}
+                        {current || initValue || placeholder}
                     </View>
                     {
                         current && <View className="clear-icon">

@@ -66,7 +66,7 @@ export default class UserComponent extends Component {
              // this.getUser()
             }
         })
-      }, true)
+      })
     
 
 
@@ -149,21 +149,21 @@ export default class UserComponent extends Component {
 
 
     render () {
-        
+        const{user} = this.state
 
         return (
             <View className='user'>
                 <View className="header" >
-                  <AtAvatar  circle  image={require('../../images/icon/photo.png')}   ></AtAvatar>
+                  <AtAvatar  circle  image={user.headPic}   ></AtAvatar>
                   <View className="right">
-                    <View className="name">kk</View>
+                    <View className="name">{user.nickName}</View>
                     {/* <View className="wan">完善资料</View> */}
                     <Button openType='getUserInfo' onGetUserInfo={this.getUser.bind(this)} className="wan">完善资料</Button>
                   </View>
                 </View>
                 <View className="grid">
-                    <View className="item" onClick={() => Taro.navigateTo({url: `/pages/user/recharge?price=60`})}>
-                      <View className="t">0.00</View>
+                    <View className="item" onClick={() => Taro.navigateTo({url: `/pages/user/recharge?price=${user.remainAmount}`})}>
+                      <View className="t">{user.remainAmount}</View>
                       <View className="b">余额</View>
                     </View>
                     <View className="item"  onClick={() => Taro.navigateTo({url: `/pages/user/feedback`})}>

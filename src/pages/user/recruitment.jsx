@@ -7,6 +7,7 @@ import {getImageUrl,setUserInfo} from '../../utils/help';
 import { AtInput ,AtButton } from "taro-ui"
 import Area from '../../components/area';
 import '../../components/common.scss'
+import Countdown from '../../components/countdown';
 export default class Recruitment extends Component {
 
     config = {
@@ -24,14 +25,17 @@ export default class Recruitment extends Component {
         sended:false,
         isOpenedArea:false,
         curAddr:'',
-        second:3
+        second:60,
+        province:'', 
+        city:'',
+        district:''
 
       })
     }
 
 
     componentWillMount () {
-
+      clearInterval(this.backInterval)
     }
 
     componentDidMount () {
@@ -57,29 +61,67 @@ export default class Recruitment extends Component {
 
     //省市选择
     selectCity(e) {
-      let curAddr =  `${e.data.province} ${e.data.city}  ${e.data.area}`
+      const {province,city,area} = e.data;
+      let curAddr =  `${province} ${city}  ${area}`
       
-       this.setState({ isOpenedArea: false,curAddr })
+       this.setState({ isOpenedArea: false,curAddr,province, city,district:area})
      }
 
      showSend(){
        
-      this.setState({sended:true})
-      const timeO = setInterval(() => {
-        const second = this.state.second - 1
-        console.log(second,9999)
-        if(second === 0){
-          this.setState({sended:false,second:60})
-          clearInterval(timeO)
-        } else{
-          this.setState({second})
-        }
-        
-      }, 1000);
+     
+
+      let {
+        phone
+      } = this.state
+     
+      if (!/^1[3456789]\d{9}$/.test(phone)) {
+        Taro.showToast({
+          title: '输入正确的手机号码',
+          icon: 'none',
+          mask: true,
+        })
+        return false
+      }
+      const data = {
+        mobile:phone
+      }
+  
+      console.log(data)
+      // 发送数据
+      Request(
+        {
+          url: 'api/getWxVerificationCode',
+          method: 'POST',
+          data,
+        },
+        (data) => {
+          // Taro.showToast({
+          //   title: '已发送',
+          //   icon: 'success',
+          //   mask: true,
+          // })
+          this.setState({sended:true})
+          this.backInterval = setInterval(() => {
+            const second = this.state.second - 1
+          // console.log(second,9999)
+            if(second === 0){
+              this.setState({sended:false,second:60})
+              clearInterval(this.backInterval)
+            } else{
+              this.setState({second})
+            }
+            
+          }, 1000);
+        },
+      )
+
+
+      
 
      }
      join(){
-      const {phone,code,curAddr} = this.state
+      const {phone,code,curAddr,province, city,district} = this.state
       console.log(phone,code)
        if(!phone){
         Taro.showToast({
@@ -106,7 +148,21 @@ export default class Recruitment extends Component {
         return false
        }
 
-       Taro.navigateTo({url: `/pages/user/register`})
+       const data = {province, city,district,mobile:phone,verificationCode:code,password:'a123456'}
+
+       // 发送数据
+      Request(
+        {
+          url: 'api/wxNewUserSaveInfo',
+          method: 'POST',
+          data,
+        },
+        (data) => {
+         Taro.navigateTo({url: `/pages/user/register?id=${data.data.id}`})
+        },
+      )
+
+       
 
 
 
@@ -143,7 +199,7 @@ export default class Recruitment extends Component {
                     className="inputCustomize code"
                     placeholderClass="phcolor"
                   >
-                      {sended ? <View className="showSecond">{second}秒后重新发送</View> : <View className="sendCode" onClick={()=>this.showSend()}>发送验证码</View>}
+                      <Countdown phone={phone} />
 
                     
                   </AtInput>
@@ -155,7 +211,7 @@ export default class Recruitment extends Component {
                 </View>
                 <View className="tip">摄影师加盟基础要求</View>
 
-                <Area visible={this.state.isOpenedArea} onOk={e=>this.selectCity(e)}></Area>
+                <Area visible={this.state.isOpenedArea} onOk={e=>this.selectCity(e)} onClose={() => {this.setState({isOpenedArea:false})}}></Area>
                 <View className="foot">
                 <AtButton size="small" type="primary" circle  onClick={() => this.join()}>我要加入</AtButton>
                 </View>

@@ -18,7 +18,7 @@ export default class MyPhoto extends Component {
     constructor () {
       super(...arguments)
       this.setState ({
-        records: [{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'}],
+        records: [],
       
 
       })
@@ -30,7 +30,18 @@ export default class MyPhoto extends Component {
     }
 
     componentDidMount () {
+      Request({
+        url: 'api/wxNotePage',
+        method: 'get',
+        data: {
+        //  code: res.code
+        //    id:10000
+        },
 
+      },(data) => {
+
+         this.setState({...data.data})
+      })
 
     }
     componentWillUnmount () { }
@@ -39,9 +50,25 @@ export default class MyPhoto extends Component {
 
     componentDidHide () { }
 
-    onScrollToLower(){
+     //上拉刷新
+  onScrollToLower() {
+    const { pages, current, records } = this.state
 
+    if (pages > current) {
+      Request(
+        {
+          url: 'api/wxNotePage',
+          method: 'GET',
+          data: { page: current + 1 },
+          //isToken:false
+        },
+        (data) => {
+          data.data.records = [...records, ...data.data.records]
+          this.setState({ ...data.data })
+        },
+      )
     }
+  }
 
     render () {
         
@@ -68,7 +95,7 @@ export default class MyPhoto extends Component {
                   <View
                     onClick={() => {
                         Taro.navigateTo({
-                          url: `/pages/user/detail?id=4`,
+                          url: `/pages/user/detail?id=${item.id}`,
                         })
                     }
                     }
@@ -78,11 +105,11 @@ export default class MyPhoto extends Component {
                       <View className="img">
                         <Image
                           mode="widthFix"
-                          src={(item.imgPath)}
+                          src={(item.imgUrl)}
                         ></Image>
                        
                       </View>
-                      <View className="text">{item.label}</View>
+                      <View className="text">{item.title}</View>
                     </View>
                   </View>
                 </View>

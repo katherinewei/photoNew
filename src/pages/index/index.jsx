@@ -59,17 +59,16 @@ export default class Index extends Component {
 
     this.setState({
       loading: true,
-      currentId: 1,
-      subCur:0,
+      currentId: 1,  // 一级id
+      subCur:0,  // 二级index
       value: '',
-      records: [{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'},{imgPath:require( '../../images/icon/picture.png'),label:'长沙约拍 | 我的这个夏天被偷走了被偷走了'}],
-      currentSearch: {},
       visible:false,
-      index:0,
+      index:0,// 一级index
       tabs:[ ],
       statusBarHeight:statusBarHeight,
       barHeight:navigationBarHeight,
-      curAddr:'',
+      city:'',
+      province:'',
       typeBarHeight:''  ,
       containerHeight:'',
       pages:1, current:1, records:[]
@@ -84,8 +83,8 @@ export default class Index extends Component {
 
 
   componentDidMount() {
-    this.fetchCate()
-  //  getToken(() => this.fetchData(), true)
+    
+    getToken(() => {}, true)
     this.getLocation()
     
 
@@ -126,15 +125,14 @@ export default class Index extends Component {
       //  console.log(res.data,11110000)
         this.setState({ tabs:res.data,currentId:res.data[0].id },() => {
           // 获取返片
+         
           this.fetchNotePage()
         })
       },
     )
   }
 
-  fetchData(){
 
-  }
 
   getPhoneNumber(e) {
     
@@ -149,13 +147,16 @@ export default class Index extends Component {
 
   fetchNotePage(query, value) {
     
-    const {current,currentId} = this.state
-    // 验真列表
+    const {current,currentId,province,city,tabs,subCur,index} = this.state
+    
+    const data = {page:current,typeId:currentId,tagId:tabs[index].child[subCur].id,province:encodeURI(province),city:encodeURI(city)}
+    
+    // 获取返片列表
     Request(
       {
         url: 'api/notePage',
         method: 'GET',
-        data:{page:current,typeId:currentId},
+        data,
         //isToken:false
       },
       (data) => {
@@ -196,14 +197,18 @@ export default class Index extends Component {
 
   handleClick(value,hide){
     
-    this.setState({subCur:value })
+    this.setState({subCur:value },() => {
+      // 获取返片
+      this.fetchNotePage()
+    })
     if(hide){
       this.setState({visible:!this.state.visible })
     }
+    
   }
 
   changeTab(item,index){
-    this.setState({currentId:item.id,subCur:1,index },() => {
+    this.setState({currentId:item.id,subCur:0,index },() => {
       // 获取返片
       this.fetchNotePage()
     })
@@ -215,25 +220,9 @@ export default class Index extends Component {
   }
 
   getLocation(){
-
-    // Request(
-    //   {
-    //     url: `area/getAreaByIp`,
-    //     method: 'GET'
-    //     //isToken:false
-    //   },
-    //   (data) => {
-    //     console.log(data)
-
-    //      this.setState({curAddr:data.data.city })
-    //   },
-    // )
-
-          Taro.getLocation().then(res => {
+      Taro.getLocation().then(res => {
         let latitude = res.latitude;
         let longitude = res.longitude;
-       // console.log(latitude,longitude)
-
         Request(
           {
             url: `https://apis.map.qq.com/ws/geocoder/v1/?location=${latitude},${longitude}&key=${mapKey}`,
@@ -242,8 +231,14 @@ export default class Index extends Component {
             //isToken:false
           },
           (data) => {
-          //  console.log(data.result.address_component.city,222)
-            this.setState({curAddr:data.result.address_component.city })
+          console.log(data.result.address_component,222)
+          const address  = data.result.address_component;
+
+            this.setState({city:address.city,province:address.province },() => {this.fetchCate()})
+
+            const addr = [address.nation,address.province,address.city,address.district]
+            Taro.setStorageSync('curAddr', JSON.stringify(addr))   // 保存地址
+            
           },
         )
     })
@@ -265,7 +260,7 @@ export default class Index extends Component {
       currentId,
       subCur,
       visible,
-      curAddr,
+      city,
       barHeight,
       statusBarHeight,
       typeBarHeight,
@@ -278,7 +273,7 @@ export default class Index extends Component {
     return (
       <View className="index">
         <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
-          <View className="addr">{curAddr}</View>
+          <View className="addr">{city}</View>
           <View className="service" onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>分享返片,获取创作模特资格</View>
 
         </View>

@@ -14,7 +14,7 @@ export default class Recharge extends Component {
         navigationBarBackgroundColor: '#fff',
     }
     state = {
-      prices: [600,1000,2000]
+      prices: []
     }
 
 
@@ -38,7 +38,19 @@ export default class Recharge extends Component {
     }
 
     componentDidMount () {
-
+      Request(
+        {
+          url: 'api/wxDepositList',
+          method: 'GET'
+        },
+        (data) => {
+          if(data.code === 200){
+            this.setState({prices: data.data})
+           
+          }
+          
+        },
+      )
 
     }
     componentWillUnmount () { }
@@ -47,7 +59,33 @@ export default class Recharge extends Component {
 
     componentDidHide () { }
 
-    onScrollToLower(){
+    onsubmit(){
+
+      const {index,prices} = this.state
+
+      Request(
+        {
+          url: 'api/wxDepositSave',
+          method: 'POST',
+          data:{amount:prices[index].amount}
+        },
+        (data) => {
+          if(data.code === 200){
+            Taro.showToast({
+              title: '充值成功',
+              icon: 'success',
+              mask: true,
+            })
+            setTimeout(() => {
+              Taro.reLaunch({
+                url: `/pages/user/index`,
+              })
+            }, 1000)
+           
+          }
+          
+        },
+      )
 
     }
 
@@ -66,7 +104,7 @@ export default class Recharge extends Component {
             <View className="list">
               {prices && prices.map((item,i) => (
                 <View className={`${index === i ? 'active' :''} item`} onClick={() => this.setState({index:i})}>
-                 <View>充值￥<text>{item}</text></View>
+                 <View>{item.title}￥<text>{item.money}</text></View>
               </View>
               ))}
 
@@ -87,7 +125,7 @@ export default class Recharge extends Component {
                     <View className="icon">{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
                     <View> 我已阅读并同意<text>《储蓄消费者协议》</text></View>
                     </View>
-                  <AtButton size="small" type="primary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/confirmOrder?id=1`})}>立即充值</AtButton>
+                  <AtButton size="small" type="primary" circle  onClick={() => this.onsubmit()}>立即充值</AtButton>
               </View>
          </View>
         )

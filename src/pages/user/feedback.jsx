@@ -12,7 +12,7 @@ import {
   AtIcon,AtTag
 } from 'taro-ui'
 import { baseUrl } from '../../config'
-
+import ImageUpload from '../../components/imageUpload';
 export default class feedback extends Component {
   config = {
     navigationBarTitleText: '意见反馈',
@@ -101,26 +101,17 @@ export default class feedback extends Component {
   //提交
   onSubmit() {
     let {
-    
-     
       files,
-      title,
-      detail,
-      phone,
-      price,
-     
+      userName,
+      contract,
+      content
     } = this.state
-    let imgPath = ''
+    let imgUrlList = []
     if (files.length > 0) {
-      imgPath = []
-      files.map((item) => {
-        let url = item.url.replace(ImageUrl, '')
-        imgPath.push(url)
-      })
-      imgPath = imgPath.join(',')
+      imgUrlList = files.map(item => item.url )
     }
 
-    if (!/^1[3456789]\d{9}$/.test(phone)) {
+    if (!/^1[3456789]\d{9}$/.test(contract)) {
       Taro.showToast({
         title: '输入正确的手机号码',
         icon: 'none',
@@ -128,28 +119,18 @@ export default class feedback extends Component {
       })
       return false
     }
-    let type = 1
-   
     const data = {
-     
-     
-      type,
-     
-     
-      imgPath,
-      title,
-      detail,
-      phone,
-      price,
-      status: 0,
-
+      contract,
+      imgUrlList,
+      userName,
+      content,
     }
 
     console.log(data)
     // 发送数据
     Request(
       {
-        url: 'photo-service',
+        url: 'api/wxSuggestApply',
         method: 'POST',
         data,
       },
@@ -161,8 +142,8 @@ export default class feedback extends Component {
         })
         setTimeout(() => {
           // Taro.navigateBack({delta: 1})
-          Taro.redirectTo({
-            url: `/pages/index/index`,
+          Taro.switchTab({
+            url: `/pages/user/index`,
           })
         }, 1000)
       },
@@ -172,14 +153,6 @@ export default class feedback extends Component {
 
  
   render() {
-
-    const {} = this.state
-
-
-
-    
-    
-
     return (
       <View className="feedback">
         <AtForm onSubmit={this.onSubmit.bind(this)} className="form">
@@ -192,25 +165,15 @@ export default class feedback extends Component {
               maxLength={300}
               placeholder="添加正文"
               name="detail"
-              value={this.state.detail}
+              value={this.state.content}
               onChange={(e) => {
-                this.setState({ detail: e })
+                this.setState({ content: e })
               }}
               />
            </View>
           <View className="formCont">
            <View className="txt-title">上传凭证</View>  
-          <AtActivityIndicator
-            mode="center"
-            isOpened={this.state.loading}
-            content="上传中..."
-          ></AtActivityIndicator>
-          <AtImagePicker
-            files={this.state.files}
-            onChange={this.onChangeFile.bind(this)}
-            showAddBtn={this.state.files.length < 10}
-            multiple
-          />
+           <ImageUpload onOk={e => { this.setState({files:e.files})}} />
           </View>
           <View className="formCont noPadding">
             <AtInput
@@ -220,9 +183,9 @@ export default class feedback extends Component {
               title='联系人' 
               placeholder="请输入"
               name="phone"
-              value={this.state.name}
-              onInput={(e) => {
-                this.setState({ name: e.target.value })
+              value={this.state.userName}
+              onChange={(e) => {
+                this.setState({ userName: e })
               }}
             />
           </View>
@@ -235,9 +198,9 @@ export default class feedback extends Component {
               title='联系方式' 
               placeholder="请输入"
               name="phone"
-              value={this.state.phone}
-              onInput={(e) => {
-                this.setState({ phone: e.target.value })
+              value={this.state.contract}
+              onChange={(e) => {
+                this.setState({ contract: e })
               }}
             />
           </View>

@@ -63,24 +63,23 @@ export default class Area extends Component {
         country:countryed
       }
       if(showDistrict){
-        if(!data.area){
-          Taro.showToast({
-            title: '请选择地区',
-            icon: 'none',
-            mask: true,
-          });
-          return false
-        }
+        
       } else {
-        if(!data.city){
-          Taro.showToast({
-            title: '请选择地区',
-            icon: 'none',
-            mask: true,
-          });
-          return false
-        }
+        
+        data.area = data.city;
+        data.city = data.province;
+        
       }
+
+      if(!data.area){
+        Taro.showToast({
+          title: '请选择地区',
+          icon: 'none',
+          mask: true,
+        });
+        return false
+      }
+
       this.setState({ isOpenedArea: false })
       this.props.onOk && this.props.onOk({ data,showDistrict });
 
@@ -239,14 +238,20 @@ export default class Area extends Component {
       )
     }
 
+    onClose(){
+      this.setState({ isOpenedArea: false });
+      this.props.onClose && this.props.onClose()
+    }
+
 
 
     render () {
      // console.log(this.state.isOpenedArea,98989)
-        
+        console.log(this.state.provinceed,112222444)
+
 
         return (
-          <AtModal isOpened={this.state.isOpenedArea} closeOnClickOverlay={false} onClose={ () =>  {this.setState({ isOpenedArea: false })} }>
+          <AtModal isOpened={this.state.isOpenedArea} closeOnClickOverlay={false} onClose={ () =>  this.onClose() }>
           <AtModalHeader>请选择地区</AtModalHeader>
             <AtModalContent>
             <View className="p">国家地区</View>
@@ -281,7 +286,7 @@ export default class Area extends Component {
                </View>} 
   
             </AtModalContent>
-            <AtModalAction> <Button onClick={() => this.setState({isOpenedArea:false})}>取消</Button> <Button onClick={() => this.selectCity()}>确定</Button> </AtModalAction>
+            <AtModalAction> <Button onClick={() => this.onClose()}>取消</Button> <Button onClick={() => this.selectCity()}>确定</Button> </AtModalAction>
           </AtModal>
   
         )
