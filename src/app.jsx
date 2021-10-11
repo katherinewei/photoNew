@@ -17,29 +17,28 @@ import './icon.scss'
 class App extends Component {
   config = {
     pages: [
-      'pages/user/index',
       'pages/index/index',
-      'pages/user/recruitment',
-      
-      'pages/user/feedback',
-      'pages/order/index',
+      'pages/index/detail', 
       'pages/index/bookPhotographer',
+      'pages/index/picker',    
+      'pages/index/associationType', 
+      'pages/index/publishService', 
+      'pages/order/index',
       'pages/order/photographer',
       'pages/order/evaluation',
-      'pages/user/myEvaluation',
-      'pages/user/evaluateDetail', 
-      'pages/index/publishService',
-      'pages/user/registerFinish',
-      'pages/user/register',
-     
-      'pages/index/picker',      
-      
-      'pages/user/recharge',
+      'pages/order/confirmOrder',    
+      'pages/order/orderDeatil', 
+      'pages/user/index',
       'pages/user/detail',
       'pages/user/myPhoto',
-      'pages/order/confirmOrder',    
-      'pages/order/orderDeatil',  
-      'pages/index/associationType',  
+      'pages/user/recruitment',
+      'pages/user/feedback', 
+      'pages/user/registerFinish',
+      'pages/user/myEvaluation',
+      'pages/user/evaluateDetail', 
+      'pages/user/register',
+      'pages/user/recharge',
+      'pages/user/record',
     ],
     "permission": {
       "scope.userLocation": {

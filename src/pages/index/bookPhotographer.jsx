@@ -2,12 +2,8 @@ import Taro, { Component } from '@tarojs/taro'
 import { View, Text, Picker } from '@tarojs/components'
 import Request from '../../utils/request'
 import {
-  timeString,
-  setAccessToken,
-  setUserId,
   getToken,
-  setUserInfo,
-  validateLogin
+ 
 } from '../../utils/help'
 import { baseUrl,mapKey } from '../../config'
 import './index.scss'
@@ -102,6 +98,8 @@ export default class Index extends Component {
         Taro.removeStorageSync('skinState'); 
         Taro.removeStorageSync('customerImgUrlList'); 
         Taro.removeStorageSync('clothesImgUrl'); 
+        Taro.removeStorageSync('contact'); 
+        
           
           
      } else {
@@ -125,6 +123,7 @@ export default class Index extends Component {
         startTime:Taro.getStorageSync('startTime') || '',
         endTime:Taro.getStorageSync('endTime') || '',
         skinState:Taro.getStorageSync('skinState') || '',
+        contact:Taro.getStorageSync('contact') || '',
 
       })
      }
@@ -237,11 +236,28 @@ export default class Index extends Component {
   // 提交
   onSubmit(){
     const {
-      tabs,index,subCur, clothesImgUrl,customerImgUrlList,startTime, endTime,curAddr,bookSel,skinState
+      tabs,index,subCur, clothesImgUrl,customerImgUrlList,startTime, endTime,curAddr,bookSel,skinState,contact
       
     } = this.state
 
     let payload = {}
+
+    if(!startTime){
+      Taro.showToast({
+        title: '请选择开始时间',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    if(!endTime){
+      Taro.showToast({
+        title: '请选择结束时间',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
 
     // 开始时间大于结束时间
     if(new Date(startTime).getTime() > new Date(endTime).getTime()){
@@ -322,7 +338,7 @@ export default class Index extends Component {
     }
     const serviceType = bookSel.selType6.id
 
-    let imgPath1 = ''
+    let imgPath1 = []
     if (clothesImgUrl.length > 0) {
       imgPath1 = []
      clothesImgUrl.map((item) => {
@@ -330,7 +346,7 @@ export default class Index extends Component {
         imgPath1.push(item.url)
       })
     }
-    let imgPath2 = ''
+    let imgPath2 = []
     if (customerImgUrlList.length > 0) {
       imgPath2 = []
      customerImgUrlList.map((item) => {
@@ -338,12 +354,30 @@ export default class Index extends Component {
         imgPath2.push(item.url)
       })
     }
+
+    if(imgPath1.length === 0){
+      Taro.showToast({
+        title: '请上传风格参考图',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    if(imgPath2.length === 0){
+      Taro.showToast({
+        title: '请上传面容照片',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+
    const typeId = tabs[index].id 
    const tagId = tabs[index].child[subCur].id
    const pos = JSON.parse(Taro.getStorageSync('curAddr')) 
 
     payload = {...payload,
-      typeId,tagId,startTime:startTime + ':00',endTime:endTime + ':00',contact:'15011112254',//todo
+      typeId,tagId,startTime:startTime + ':00',endTime:endTime + ':00',contact,//todo
       country:pos[0], province:pos[1],city:pos[2], district:pos[3],  
       imgType,makeupType,clothesType,photographerType,serviceType,
       styleImgUrlList:imgPath1,customerImgUrlList:imgPath2,
@@ -373,6 +407,12 @@ export default class Index extends Component {
       },
     )
 
+  }
+
+  callback(){
+    Taro.reLaunch({
+      url: `/pages/order/index`,
+    })
   }
 
 
@@ -408,7 +448,7 @@ export default class Index extends Component {
          <View className='menu'>
           <View className='tab'>
           <View className='p20 at-row '>
-          {tabs.map((item,i) => (
+          {tabs && tabs.map((item,i) => (
             <View onClick={() => this.changeTab(item,i)}  className={i === index ? 'active at-col' : 'at-col'}><text>{item.dictVal}</text></View>
           ))}
           </View></View>
@@ -416,7 +456,7 @@ export default class Index extends Component {
           <View className="container p20">
             <View className='content '>
               <View className="title"> 
-              {tabs[index] && tabs[index].child && tabs[index].child.map((item,i) => (
+              {tabs && tabs[index] && tabs[index].child && tabs[index].child.map((item,i) => (
                   <View onClick={() => this.handleClick(i)}  className={i === subCur ? 'active sub' : 'sub'}><text>{item.dictVal}</text></View>
                 ))}
               {index === 0 &&  <View  className='expand' onClick={() => this.expand()}></View>}
@@ -475,6 +515,24 @@ export default class Index extends Component {
                   <Picker mode='date' onChange={e => this.onDateChange(e)}>
                   <View className="time end">{endTime}</View>
                   </Picker> */}
+
+
+                  <AtInput
+                    clear
+                    title='联系方式'
+                    type='number'
+                    placeholder='请输入您的联系方式'
+                    value={this.state.contact}
+                    onBlur={(e) => {this.setState({contact:e});Taro.setStorageSync('contact',  e);}}
+                   
+                    className="contact"
+                    placeholderClass="phcolor"
+                  >
+                      <Text className="green">已开启密码保护</Text>
+
+                    
+                  </AtInput>
+
 
             </View>
           
@@ -557,16 +615,16 @@ export default class Index extends Component {
         <View className={(visible ? 'show ' : '' ) +"moreType"}>
           <View className="body">
               <View className="h4">全部选项<AtIcon value='close' size='20' color='#F6F6F6' onClick={() => this.expand()}></AtIcon></View>
-              <View className="types"> {tabs[0].child && tabs[0].child.map((item,i) => (
+              <View className="types"> {tabs && tabs[0].child && tabs[0].child.map((item,i) => (
                  <View onClick={() => this.handleClick(i,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.dictVal}</text></View>
               ))}</View>
               </View>
         </View>
      
 
-         
+      
         <Area visible={this.state.isOpenedArea} onOk={e=>this.selectCity(e)} onClose={() => {this.setState({isOpenedArea:false})}}></Area>
-        <Pay isOpened={isOpened} curItem={curItem} create={true} tradeId={this.state.tradeId}/>
+        <Pay isOpened={isOpened} curItem={curItem} create={true} tradeId={this.state.tradeId} onOk={() => this.callback()}/>
       </View>
     )
   }

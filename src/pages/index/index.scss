@@ -242,7 +242,33 @@ $color:#5299FB;
   .at-textarea__textarea{
     font-size: 28px;
   }
+
 }
+.contact{
+  margin-left:0;
+ 
+  .at-input__title{
+    font-size: 28px;
+    color: #000;
+    font-weight: bold;
+    width: 113px;
+  }
+  input{
+    font-size: 28px;
+  }
+  .at-input__children {    
+    &::after{
+      border-left-width:0 !important;
+    }
+  }
+}
+.green{
+  font-size: 24px !important;
+  font-weight: 500 !important;
+  color: #33CC33 !important;
+ 
+}
+
 .bookPage{
   .subContent{
     padding-top: 20px;

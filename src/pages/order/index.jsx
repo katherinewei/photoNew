@@ -70,8 +70,12 @@ export default class Index extends Component {
         //isToken:false
       },
       (data) => {
-        
-        this.setState({ ...data.data })
+
+        // data.data.records.map(item => {
+        //   item.state = 0
+        //   item.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
+        // })
+        this.setState({ ...data.data,isOpenedCancel:false,isOpened:false })
       },
     )
   }
@@ -137,13 +141,14 @@ export default class Index extends Component {
 
 
   cancelOrder(e){ 
-    this.setState({isOpenedCancel:true,isOpened:false,tradeId:e.tradeId})
+    this.setState({isOpenedCancel:true,isOpened:false,tradeId:e.id})
     return false
   }
   payOrder(item){
     const curItem = item
     curItem.price = item.payment
-    this.setState({isOpenedCancel:false,isOpened:true,curItem,tradeId:e.tradeId})
+
+    this.setState({isOpenedCancel:false,isOpened:true,curItem,tradeId:item.id})
   }
 
 
@@ -154,7 +159,7 @@ export default class Index extends Component {
     
     const {currentState,isOpened,curItem,isOpenedCancel,records,tradeId} = this.state
 
-    const stateName = ['取消订单','待支付','已支付','确认摄影师','享受拍摄服务','支付尾款','收到成片'] 
+    const stateName = ['取消订单','待支付','预约中','确认摄影师','','享受拍摄服务','支付尾款','已完成'] 
    
     return (
       <View className="index">
@@ -178,27 +183,36 @@ export default class Index extends Component {
               <View className="box" onClick={() => item.state !== -1 && item.state !== 0 &&  Taro.navigateTo({url: `/pages/order/orderDeatil?id=${item.id}`})}>
                 <View className="state">
                   <View className="position"><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>{item.city} {item.area}</View>
-                  <View className="sta">{stateName[item.state - 1]}</View>
+                  <View className="sta">{stateName[item.state + 1]}</View>
                 </View>
                 <text class="time">拍摄时间： <Text className="s">{item.startTime} - {item.endTime}</Text> \n
                 {item.typeDesc}：{item.adult ? item.adult + '成人' : ''} {item.adult ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</text>
-                {item.photoerList && item.photoerList.length > 0 && <View className="replay">已有<text class="num">{item.photoerList.length}</text>位摄影师回复，{item.state ===0 && <text class="num">请支付定金查看&gt;</text>}</View>}
-                <View className="list">
-                {item.photoerList && item.photoerList.length > 0 ? (
+                {item.photoerList && item.photoerList.length > 0 && <View className="replay">
+                  {item.state === 0 ? <View>  已有<text class="num">{item.photoerList.length}</text>位摄影师回复， <text class="num">请支付定金查看&gt;</text></View> : item.state > 0 ? '已选定摄影师' : ''}
+
+                  </View>}
+               
+                {item.photoerList && item.photoerList.length > 0 ?  <View className="list"> {
                   item.photoerList.map((photoer, i) => (
                   <View className="item" >
                     <AtAvatar  circle  image={photoer.headPic}   ></AtAvatar>
                     {photoer.userName}
                   </View>
-                ))):''}
-                </View>
-                <View className="foot" onClick={e => e.stopPropagation()}>
-                  <View className="left">待付定金:<text>￥{item.payment}</text></View>
-                  <View className="btns">
-                    <AtButton size="small" type="secondary" circle onClick={() => this.cancelOrder(item)}>取消订单</AtButton>
-                    <AtButton size="small" type="primary" circle onClick={() => this.payOrder(item)}>支付定金</AtButton>
+                ))}</View>:''}
+                
+               {item.state >= 0 &&  <View className="foot" onClick={e => e.stopPropagation()}>
+                  
+                  <View className="left"> 
+                    {item.state > 1 ? <View>实付：<text>￥{item.payAmount}</text></View> : 
+                    <View>{item.state === 0 ? '待' : '已'}付定金：<text>￥{item.payment}</text></View>}
                   </View>
-                </View>
+                  <View className="btns">
+                      {(item.state === 0 || item.state === 1 || item.state === 2) && <AtButton size="small" type="secondary" circle onClick={() => this.cancelOrder(item)}>取消{item.state === 1 ? '预约': '订单'}</AtButton>}
+                      {item.state === 0 &&  <AtButton size="small" type="primary" circle onClick={() => this.payOrder(item)}>支付定金</AtButton>}
+                      {(item.state === -1 || item.state === 6)  &&  <AtButton size="small" type="secondary" circle onClick={() => this.deleteOrder(item)}>删除订单</AtButton>}
+                      {(item.state === 6)  &&  <AtButton size="small" type="secondary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
+                  </View>
+                </View>}
               </View>
             
           ))): (
@@ -216,8 +230,8 @@ export default class Index extends Component {
         </ScrollView>
 
         
-        <Pay isOpened={isOpened} curItem={curItem}/>
-        <PayCancel isOpenedCancel={isOpenedCancel} tradeId={tradeId}/>
+        <Pay isOpened={isOpened} curItem={curItem} tradeId={tradeId}  onOk={() => this.fetchOrder()}/>
+        <PayCancel isOpenedCancel={isOpenedCancel} tradeId={tradeId} onOk={() => this.fetchOrder()}/>
         
        
 

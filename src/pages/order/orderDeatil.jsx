@@ -55,6 +55,8 @@ export default class Index extends Component {
       
         console.log(data)
         this.setState({ data:data.data,curState: data.data.state})
+      // data.data.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk',id:1}]
+       //this.setState({ data:data.data,curState: 1})
       },
     )
     
@@ -78,6 +80,28 @@ export default class Index extends Component {
     return false
   }
 
+  submitOrder(){
+    const {check,current,data} = this.state;
+    if(!check){
+      Taro.showToast({
+        title: '请同意协议',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    if( !current && current !== 0 ){
+      Taro.showToast({
+        title: '请选择摄影师',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
+    Taro.navigateTo({url: `/pages/order/confirmOrder?id=${data.id}&recordId=${data.photoerList[current].id}`})
+
+  }
+
   
 
   render() {
@@ -87,7 +111,7 @@ export default class Index extends Component {
 
     // 1 取消订单 0:确认下单(待支付) 1:支付定金(已支付) 2.客户回电确认信息 3.确认摄影师 4.享受拍摄服务 5.支付尾款 6.收到成片
     return (
-      <View className={curState !== 0 ? 'state1' : ''}>
+      <View className={curState > 1 ? 'state1' : ''}>
         <View className={`body`}>
          <View className="box state">{stateName[curState]}</View>
          <View className="box cc">
@@ -100,15 +124,17 @@ export default class Index extends Component {
            </View>
          </View>
           <View className="box cc">
-           <View className="title">摄影师接单{ curState === 1 ? `(${data.photoerList.length})` : ''} </View>
+           <View className="title">摄影师接单{ curState === 1 ? `(${data.photoerList.length})` : ''} {curState === 1 && <text>请选择</text>}</View>
            <View className="content list">
              {data.photoerList.map((item,i) => (
                <View className="item" onClick={() => Taro.navigateTo({url: `/pages/order/photographer?id=${item.userId}`})}>
-               <View className={(this.state.current ===i ? `check` : '') + ` radio`} onClick={(e) => this.checked(e,i)}></View>
-               <Image  src={item.headPic} mode="widthFix" ></Image>
-               <View>{item.userName}</View>
-               <View>{item.title}</View>
-               <View>报价:￥{item.amount}</View>
+                  <View onClick={e => e.stopPropagation()}>
+                   {curState === 1 && <View className={(this.state.current ===i ? `check` : '') + ` radio`} onClick={(e) => this.checked(e,i)}></View>}
+                    <Image  src={item.headPic} mode="widthFix" ></Image>
+                    <View>{item.userName}</View>
+                    <View>{item.title}</View>
+                    <View>报价:￥{item.amount}</View>
+                  </View>
              </View>
              ))}
             
@@ -118,23 +144,23 @@ export default class Index extends Component {
          {curState > 2 && <View className="box cc d">
            <View className="title">套餐详情：</View>
            <View className="content">
-             <View className="p"><text>拍摄时长:</text>3658741</View>
-             <View className="p"><text>底片数量:</text>13685428889</View>
-             <View className="p"><text>精修成片:</text>2021-08-15 15:00 </View>
-             <View className="p"><text>服装造型:</text>2021-08-15 15:10 </View>
-             <View className="p"><text>总价:</text>2021-08-15 15:10 </View>
+             <View className="p"><text>拍摄时长:</text>{data.photoTime}小时</View>
+             <View className="p"><text>底片数量:</text>{data.plateNum}张</View>
+             <View className="p"><text>精修成片:</text>{data.turingNum}张</View>
+             <View className="p"><text>服装造型:</text>{data.dressNum}套 </View>
+             <View className="p"><text>总价:</text>￥{data.amount} </View>
              
            </View>
          </View>}
 
 
          <View className="box cc d">
-           <View className="title">{curState === 1 ? '已付定金' : '实付' }：</View>
+           <View className="title">{curState === 1 ? '已付定金' : `实付:${data.payAmount}` }：</View>
            <View className="content">
              <View className="p"><text>订单号:</text>{data.tradeNo}</View>
-             <View className="p"><text>手机号:</text>13685428889</View>
-             <View className="p"><text>付款时间:</text>2021-08-15 15:00 </View>
-             <View className="p"><text>下单时间:</text>2021-08-15 15:10 </View>
+             <View className="p"><text>手机号:</text>{data.contract}</View>
+             <View className="p"><text>付款时间:</text>{data.payTime}</View>
+             <View className="p"><text>下单时间:</text>{data.tradeTime}</View>
              {curState === 1 && <View className="p"><text>定 金:</text>￥{data.payment}</View>}
              
            </View>
@@ -165,23 +191,23 @@ export default class Index extends Component {
               
          </View>
          </View>
-         <View className="foot">
+         <View className={`${curState === 1 ? 'moreHeight' : ''} foot`}>
          {curState === 1 &&<View>
             <View className="agree" onClick={() => this.setState({check: !this.state.check})}>
              <View className="icon">{this.state.check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
              <View> 我已阅读并同意<text>《拍摄服务撮合协议》</text></View>
             </View>
-           <AtButton size="small" type="primary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/confirmOrder?id=${data.id}`})}>提交订单</AtButton>
+           <AtButton size="small" type="primary" circle  onClick={() => this.submitOrder()}>提交订单</AtButton>
          </View>}
          
-         {curState === 1 && <View>
+         {(curState === 2 || curState === 3 ) && <View>
            
            <AtButton size="small" type="primary" circle onClick={this.cancelOrder.bind(this)}>取消订单</AtButton>
          </View>
          }
-         {curState === 2 && <View>
+         {curState === 6 && <View>
            
-           <AtButton size="small" type="primary" circle onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=1`})}>立即评价</AtButton>
+           <AtButton size="small" type="primary" circle onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${data.id}`})}>立即评价</AtButton>
          </View>
          }
 

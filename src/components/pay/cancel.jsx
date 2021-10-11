@@ -57,6 +57,8 @@ export default class Pay extends Component {
 
           this.setState({isOpenedCancel:false})
 
+          this.props.onOk && this.props.onOk()
+
          }
         },
       )

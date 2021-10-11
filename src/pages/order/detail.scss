@@ -23,6 +23,13 @@ $color:#5299FB;
     font-weight: bold;
     color: #000000;
     margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    text{
+      color: $color;
+      font-weight: normal;
+      font-size: 24px;
+    }
   }
   .p{
     font-size: 24px;
@@ -141,6 +148,9 @@ $color:#5299FB;
   }
   
   .foot{
+    &.moreHeight{
+      height: 200px;
+    }
     height: 98px;
     text-align: right;
     .at-button--small{

@@ -114,7 +114,7 @@ export default class Index extends Component {
   render() {
     const {photoerVO,tradeRecordVO,records,total} = this.state
    
-    const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
+    const list = []
     const tabList = [{ title: '样片' }, { title: '评价' }]
     return (
       <View className="index" >
@@ -188,7 +188,7 @@ export default class Index extends Component {
                       <View className="c">{item.content}</View>
                       <View className="i">
                         {item.commentImgUrlList && item.commentImgUrlList.length > 0 && item.commentImgUrlList.map(pic=> (
-                            <Image src={require('../../images/icon/picture.png')} mode="widthFix"></Image>
+                            <Image src={pic} mode="widthFix"></Image>
                         ))}
                       </View>
                     </View>

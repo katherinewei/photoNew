@@ -84,7 +84,25 @@ export default class Index extends Component {
 
   componentDidMount() {
     
-    getToken(() => {}, true)
+    getToken(() => {
+
+      // 获取个人信息
+      Request({
+        url: 'api/getUserInfo',
+        method: 'post',
+        data: {
+        //  code: res.code
+        //    id:10000
+        },
+
+      },(data) => {
+
+          
+          setUserInfo(data.data)
+         
+      })
+
+    }, true)
     this.getLocation()
     
 
@@ -330,9 +348,9 @@ export default class Index extends Component {
                       <View
                         onClick={() => {
                          
-                            // Taro.navigateTo({
-                            //   url: `/pages/index/serviceDetail?id=${item.id}&price=${item.price}&isPhotographer=1`,
-                            // })
+                            Taro.navigateTo({
+                              url: `/pages/index/detail?id=${item.id}`,
+                            })
                           
                         }
                         }

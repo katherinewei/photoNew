@@ -300,7 +300,7 @@ if(address){
             placeholder="请输入电话"
             name="mobile"
             value={this.state.mobile}
-            onChange={(e) => {
+            onBlur={(e) => {
               this.setState({ mobile: e })
               Taro.setStorageSync('mobile',  e);
             }}

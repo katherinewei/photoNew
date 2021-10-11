@@ -98,9 +98,11 @@ export default class Recharge extends Component {
          
          <View className="recharge">
             <View className="current">
-              当前余额(元)
-              <text>{curPrice}</text>
+              <View>当前余额(元)
+              <text>{curPrice}</text></View>
+              <View onClick={() => Taro.navigateTo({url: `/pages/user/record`})}>账单记录</View>
             </View>
+
             <View className="list">
               {prices && prices.map((item,i) => (
                 <View className={`${index === i ? 'active' :''} item`} onClick={() => this.setState({index:i})}>

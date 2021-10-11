@@ -39,7 +39,26 @@ export default class Index extends Component {
   }
 
   componentDidMount() {
+
+    const {id,recordId} = this.$router.params
     
+    //根据 ID 获取订单详情信息内容
+    Request(
+      {
+        url: 'api/wxConfirmTrade',
+        method: 'POST',
+        data: { tradeId:id,recordId},
+        //isToken:false
+      },
+      (data) => {
+      
+        console.log(data)
+       // this.setState({ data:data.data,curState: data.data.state})
+       data.data.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
+       this.setState({ data:data.data,curState: 1})
+      },
+    )
+
   }
 
  
@@ -59,14 +78,20 @@ export default class Index extends Component {
 
   payOrder(e){
     
-    const curItem = {price:'200.55'}
+    const curItem = {...this.state.data,price:this.state.data.diffAmount,recordId:this.$router.params.recordId}
     this.setState({isOpened:true,curItem})
+  }
+
+  callback(){
+    Taro.redirectTo({
+      url: `/pages/order/orderDeatil?id=${curItem.id}`,
+    })
   }
 
 
 
   render() {
-    const {curState,isOpened,curItem } = this.state
+    const {curState,isOpened,curItem,data } = this.state
     const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
     
     return (
@@ -76,24 +101,24 @@ export default class Index extends Component {
          <View className="box cc">
            <View className="title">订单信息</View>
            <View className="content">
-             <View className="p"><text>预约项目：</text>写真约拍</View>
-             <View className="p"><text>预约时间：</text>8月21日 13:00 - 20:00</View>
-             <View className="p"><text>拍摄人数：</text>1成人</View>
-             <View className="p"><text>拍摄方式：</text>室内棚拍,外景</View>
+             <View className="p"><text>预约项目：</text>{data.imgType}</View>
+             <View className="p"><text>预约时间：</text>{data.startTime} - {data.endTime}</View>
+             <View className="p"><text>拍摄人数：</text>{data.adult ? data.adult + '成人' : ''} {data.adult ? data.child + '儿童' : ''} {data.lover ? data.lover + '情侣' : ''}</View>
+             <View className="p"><text>拍摄方式：</text>{data.serviceType}</View>
            </View>
          </View>
          <View className="box cc">
-           <View className="title">摄影师接单{curState === 0 ? '(10)' : ''} </View>
+           <View className="title">摄影师 </View>
            <View className="content list">
-             {list.map((item,i) => (
-               <View className="item" onClick={() => Taro.navigateTo({url: `/pages/order/photographer?id=1`})}>
-               <View className={(this.state.current ===i ? `check` : '') + ` radio`} onClick={(e) => this.checked(e,i)}></View>
-               <Image  src={item.img} mode="widthFix" ></Image>
-               <View>{item.name}</View>
-               <View>{item.title}</View>
-               <View>报价:￥{item.price}</View>
+            
+               <View className="item">
+              
+               <Image  src={data.photoerList[0].headPic} mode="widthFix" ></Image>
+               <View>{data.photoerList[0].userName}</View>
+               <View>{data.photoerList[0].title}</View>
+               <View>报价:￥{data.photoerList[0].amount}</View>
              </View>
-             ))}
+            
             
            </View>
          </View>
@@ -101,18 +126,18 @@ export default class Index extends Component {
           <View className="box cc d">
            <View className="title">套餐详情：</View>
            <View className="content">
-             <View className="p"><text>拍摄时长:</text>3658741</View>
-             <View className="p"><text>底片数量:</text>13685428889</View>
-             <View className="p"><text>精修成片:</text>2021-08-15 15:00 </View>
-             <View className="p"><text>服装造型:</text>2021-08-15 15:10 </View>
-             <View className="p"><text>总价:</text>2021-08-15 15:10 </View>
+             <View className="p"><text>拍摄时长:</text>{data.photoTime}小时</View>
+             <View className="p"><text>底片数量:</text>{data.plateNum}张</View>
+             <View className="p"><text>精修成片:</text>{data.turingNum}张 </View>
+             <View className="p"><text>服装造型:</text>{data.dressNum}套 </View>
+             <View className="p"><text>总价:</text>￥{data.amount}  </View>
              
            </View>
          </View>
 
          <View className="box cc totalPrice">
-           <View className="title">订单总价：<text class="unit">￥</text>1000.00</View>
-           <View className="title">定金抵扣：<text class="price">-<text  class="unit">￥</text>1000.00</text></View>
+           <View className="title">订单总价：<text class="unit">￥</text>{data.amount}</View>
+           <View className="title">定金抵扣：<text class="price">-<text  class="unit">￥</text>{data.payment}</text></View>
          </View>
 
 
@@ -121,14 +146,14 @@ export default class Index extends Component {
          <View className="foot">
          
             <View className="waitPay">
-            <text class="p">待支付：￥<text class="price">800.00</text></text>
+            <text class="p">待支付：￥<text class="price">{data.diffAmount}</text></text>
             <AtButton size="small" type="primary" circle onClick={this.payOrder.bind(this)}>立即支付</AtButton>
           </View>
           
           </View>
 
          
-        <Pay isOpened={isOpened} curItem={curItem}/>
+        <Pay isOpened={isOpened} curItem={curItem} final={true} onOk={() => this.callback()}/>
 
 
       </View>
