@@ -135,17 +135,25 @@ export default class feedback extends Component {
         data,
       },
       (data) => {
-        Taro.showToast({
-          title: '发布成功',
-          icon: 'success',
-          mask: true,
-        })
-        setTimeout(() => {
-          // Taro.navigateBack({delta: 1})
-          Taro.switchTab({
-            url: `/pages/user/index`,
+        if(data.code === 200){
+          Taro.showToast({
+            title: '发布成功',
+            icon: 'success',
+            mask: true,
           })
-        }, 1000)
+          setTimeout(() => {
+            // Taro.navigateBack({delta: 1})
+            Taro.switchTab({
+              url: `/pages/user/index`,
+            })
+          }, 1000)
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }

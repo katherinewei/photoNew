@@ -42,9 +42,17 @@ export default class Index extends Component {
         //isToken:false
       },
       (data) => {
+        if(data.code === 200){
        // data.data.records = [...records, ...data.data.records]
         console.log(data)
         this.setState({ ...data.data })
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
 
@@ -57,7 +65,15 @@ export default class Index extends Component {
         //isToken:false
       },
       (data) => {
+        if(data.code === 200){
         this.setState({ ...data.data })
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
 
@@ -101,9 +117,19 @@ export default class Index extends Component {
           //isToken:false
         },
         (data) => {
+          if(data.code === 200){
           data.data.records = [...records, ...data.data.records]
          // console.log(data)
           this.setState({ ...data.data })
+          }
+          else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
+
         },
       )
     }

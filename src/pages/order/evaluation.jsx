@@ -68,15 +68,23 @@ export default class evaluation extends Component {
         data,
       },
       (data) => {
-        Taro.showToast({
-          title: '发布成功',
-          icon: 'success',
-          mask: true,
-        })
-        setTimeout(() => {
-           Taro.navigateBack({delta: 1})
-         
-        }, 1000)
+        if(data.code === 200){
+          Taro.showToast({
+            title: '发布成功',
+            icon: 'success',
+            mask: true,
+          })
+          setTimeout(() => {
+            Taro.navigateBack({delta: 1})
+          
+          }, 1000)
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }

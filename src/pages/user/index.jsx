@@ -57,7 +57,7 @@ export default class UserComponent extends Component {
           },
 
         },(data) => {
-
+          if(data.code === 200){
             this.setState({user:data.data})
             setUserInfo(data.data)
             console.log(data.data)
@@ -65,6 +65,13 @@ export default class UserComponent extends Component {
             if(!data.data.head_pic){
              // this.getUser()
             }
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
         })
       })
     
@@ -89,9 +96,10 @@ export default class UserComponent extends Component {
     getUser(){
       let that = this;
       const callback = () => {
-            Taro.getUserInfo({
+            Taro.getUserProfile({
               lang:'zh_CN',
               success: function(res) {
+                
 
                     var userInfo = res.userInfo
                     var nickName = userInfo.nickName
@@ -100,7 +108,7 @@ export default class UserComponent extends Component {
                     var province = userInfo.province
                     var city = userInfo.city
                     var country = userInfo.country
-
+                    console.log(res,11111122222)
 
                     let data = {nickName,sex:gender == 1 ? 2 : 1,city,province,country,headPic:avatarUrl};  //sex  	性别: 0未知 1女性 2男性
                     console.log(data,88885555)
@@ -110,14 +118,21 @@ export default class UserComponent extends Component {
                       method: 'post',
                       data
                     },(res) => {
-                      Taro.showToast({
-                        title: '获取成功',
-                        icon: 'success',
-                        mask: true,
-                      });
+                      if(res.code === 200){
+                        Taro.showToast({
+                          title: '获取成功',
+                          icon: 'success',
+                          mask: true,
+                        });
 
-                      that.setState({user:{head_pic:data.avatarUrl,userName:data.nickName,address:data.province + ' ' + data.city}})
-
+                        that.setState({user:data.data})
+                      }else {
+                        Taro.showToast({
+                          title: res.msg,
+                          icon:'none',
+                          mask: true
+                        });
+                      }
 
 
                     })

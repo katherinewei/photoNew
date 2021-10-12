@@ -44,6 +44,12 @@ export default class Recharge extends Component {
           if(data.code === 200){
             this.setState({...data.data})
            
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
           }
           
         },
@@ -69,8 +75,17 @@ onScrollToLower() {
         //isToken:false
       },
       (data) => {
+        if(data.code === 200){
         data.data.records = [...records, ...data.data.records]
         this.setState({ ...data.data })
+        }
+        else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }

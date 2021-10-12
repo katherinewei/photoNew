@@ -25,7 +25,6 @@ export default class Recruitment extends Component {
         sended:false,
         isOpenedArea:false,
         curAddr:'',
-        second:60,
         province:'', 
         city:'',
         district:''
@@ -67,59 +66,6 @@ export default class Recruitment extends Component {
        this.setState({ isOpenedArea: false,curAddr,province, city,district:area})
      }
 
-     showSend(){
-       
-     
-
-      let {
-        phone
-      } = this.state
-     
-      if (!/^1[3456789]\d{9}$/.test(phone)) {
-        Taro.showToast({
-          title: '输入正确的手机号码',
-          icon: 'none',
-          mask: true,
-        })
-        return false
-      }
-      const data = {
-        mobile:phone
-      }
-  
-      console.log(data)
-      // 发送数据
-      Request(
-        {
-          url: 'api/getWxVerificationCode',
-          method: 'POST',
-          data,
-        },
-        (data) => {
-          // Taro.showToast({
-          //   title: '已发送',
-          //   icon: 'success',
-          //   mask: true,
-          // })
-          this.setState({sended:true})
-          this.backInterval = setInterval(() => {
-            const second = this.state.second - 1
-          // console.log(second,9999)
-            if(second === 0){
-              this.setState({sended:false,second:60})
-              clearInterval(this.backInterval)
-            } else{
-              this.setState({second})
-            }
-            
-          }, 1000);
-        },
-      )
-
-
-      
-
-     }
      join(){
       const {phone,code,curAddr,province, city,district} = this.state
       console.log(phone,code)
@@ -158,7 +104,16 @@ export default class Recruitment extends Component {
           data,
         },
         (data) => {
-         Taro.navigateTo({url: `/pages/user/register?id=${data.data.id}`})
+          if(data.code === 200){
+            Taro.navigateTo({url: `/pages/user/register?id=${data.data.id}`})
+          } else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
+         
         },
       )
 
@@ -172,7 +127,7 @@ export default class Recruitment extends Component {
 
     render () {
         
-      const {sended,phone,code,curAddr,second} = this.state
+      const {sended,phone,code,curAddr} = this.state
         return (
             <View className='user recruitment'>
                 <View className="container">

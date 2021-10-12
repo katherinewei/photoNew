@@ -34,6 +34,12 @@
             font-size: 28px; 
            
         }
+        .at-input__children {    
+            &::after{
+              border-left-width:0 !important;
+            }
+          }
+          
         .phcolor{
             color: #999;
         }

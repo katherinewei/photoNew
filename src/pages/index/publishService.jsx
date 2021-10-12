@@ -87,10 +87,20 @@ export default class publishService extends Component {
       },
       (res) => {
       //  console.log(res.data,11110000)
+      if(res.code === 200){
         this.setState({ cates:res.data},() => {
           // 获取返片
         //  this.fetchNotePage()
         })
+      }
+
+        else {
+          Taro.showToast({
+            title: res.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }
@@ -113,15 +123,23 @@ export default class publishService extends Component {
       typeSelect,
       tagSelect
     } = this.state
-    let imgPath = ''
+    let imgPath = []
     if (files.length > 0) {
-      imgPath = []
-     // console.log(222,limitSize,files)
+     
       files.map((item) => {
         let url = item.url.replace(ImageUrl, '')
         imgPath.push(item.url)
       })
-     // imgPath = imgPath.join(',')
+
+    }
+
+    if(imgPath.length === 0){
+      Taro.showToast({
+        title: '请上传图片',
+        icon: 'none',
+        mask: true,
+      })
+      return false
     }
 
    // console.log(222,limitSize,imgPath)
@@ -136,15 +154,15 @@ export default class publishService extends Component {
     }
 
 
-  let address = Taro.getStorageSync('curAddr')
-  let province = ''
-  let city = ''
-if(address){
-  address = JSON.parse(address)
-  province = address[1]
-  city = address[2]
+    let address = Taro.getStorageSync('curAddr')
+    let province = ''
+    let city = ''
+    if(address){
+      address = JSON.parse(address)
+      province = address[1]
+      city = address[2]
 
-}
+    }
 
 
    
@@ -185,17 +203,25 @@ if(address){
         data,
       },
       (data) => {
-        Taro.showToast({
-          title: '发布成功',
-          icon: 'success',
-          mask: true,
-        })
-        setTimeout(() => {
-          // Taro.navigateBack({delta: 1})
-          Taro.switchTab({
-            url: `/pages/index/index`,
+        if(data.code === 200){
+          Taro.showToast({
+            title: '发布成功',
+            icon: 'success',
+            mask: true,
           })
-        }, 1000)
+          setTimeout(() => {
+            // Taro.navigateBack({delta: 1})
+            Taro.switchTab({
+              url: `/pages/index/index`,
+            })
+          }, 1000)
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }

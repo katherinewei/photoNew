@@ -66,7 +66,7 @@ export default class Index extends Component {
       {
         url: 'api/wxTradePage',
         method: 'GET',
-        data: { page: 1,orderState },
+        data: { page: 1,state:orderState },
         //isToken:false
       },
       (data) => {
@@ -75,7 +75,15 @@ export default class Index extends Component {
         //   item.state = 0
         //   item.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
         // })
+        if(data.code === 200){
         this.setState({ ...data.data,isOpenedCancel:false,isOpened:false })
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }
@@ -92,20 +100,28 @@ export default class Index extends Component {
 
   //上拉刷新
   onScrollToLower() {
-    const { pages, current, records, currentSearch } = this.state
+    const { pages, current, records, orderState } = this.state
 
     if (pages > current) {
       Request(
         {
           url: 'api/wxTradePage',
           method: 'GET',
-          data: { page: current + 1,orderState },
+          data: { page: current + 1,state:orderState },
           //isToken:false
         },
         (data) => {
-          data.data.records = [...records, ...data.data.records]
-          console.log(data)
-          this.setState({ ...data.data })
+          if(data.code === 200){
+            data.data.records = [...records, ...data.data.records]
+            console.log(data)
+            this.setState({ ...data.data })
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
         },
       )
     }
@@ -151,6 +167,34 @@ export default class Index extends Component {
     this.setState({isOpenedCancel:false,isOpened:true,curItem,tradeId:item.id})
   }
 
+  deleteOrder(item){
+    Request(
+      {
+        url: 'api/wxDelTrade',
+        method: 'POST',
+        data: { tradeId:item.id },
+        //isToken:false
+      },
+      (data) => {
+        if(data.code === 200){
+          Taro.showToast({
+            title: '删除成功',
+            icon: 'success',
+            mask: true,
+          })
+          this.fetchOrder()
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
+       
+      },
+    )
+  }
+
 
 
   render() {
@@ -159,7 +203,7 @@ export default class Index extends Component {
     
     const {currentState,isOpened,curItem,isOpenedCancel,records,tradeId} = this.state
 
-    const stateName = ['取消订单','待支付','预约中','确认摄影师','','享受拍摄服务','支付尾款','已完成'] 
+    const stateName = ['取消订单','待支付','预约中','确认摄影师','已完成','已提交成片'] 
    
     return (
       <View className="index">
@@ -200,19 +244,19 @@ export default class Index extends Component {
                   </View>
                 ))}</View>:''}
                 
-               {item.state >= 0 &&  <View className="foot" onClick={e => e.stopPropagation()}>
+                <View className="foot" onClick={e => e.stopPropagation()}>
                   
-                  <View className="left"> 
+                <View className="left"> 
                     {item.state > 1 ? <View>实付：<text>￥{item.payAmount}</text></View> : 
-                    <View>{item.state === 0 ? '待' : '已'}付定金：<text>￥{item.payment}</text></View>}
+                    item.state >=0 ? <View>{item.state === 0 ? '待' : '已'}付定金：<text>￥{item.payment}</text></View> : ''}
                   </View>
                   <View className="btns">
                       {(item.state === 0 || item.state === 1 || item.state === 2) && <AtButton size="small" type="secondary" circle onClick={() => this.cancelOrder(item)}>取消{item.state === 1 ? '预约': '订单'}</AtButton>}
                       {item.state === 0 &&  <AtButton size="small" type="primary" circle onClick={() => this.payOrder(item)}>支付定金</AtButton>}
-                      {(item.state === -1 || item.state === 6)  &&  <AtButton size="small" type="secondary" circle onClick={() => this.deleteOrder(item)}>删除订单</AtButton>}
-                      {(item.state === 6)  &&  <AtButton size="small" type="secondary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
+                      {(item.state === -1)  &&  <AtButton size="small" type="secondary" circle onClick={() => this.deleteOrder(item)}>删除订单</AtButton>}
+                      {(item.state > 2)  &&  <AtButton size="small" type="secondary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
                   </View>
-                </View>}
+                </View>
               </View>
             
           ))): (

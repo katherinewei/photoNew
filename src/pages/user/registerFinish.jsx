@@ -1,6 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
-import Request from '../../utils/request';
 import './register.scss'
 import {getImageUrl,setUserInfo} from '../../utils/help';
 import { AtSteps, AtInput ,AtButton,AtActivityIndicator,AtImagePicker } from "taro-ui"

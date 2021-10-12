@@ -51,11 +51,18 @@ export default class Index extends Component {
         //isToken:false
       },
       (data) => {
-      
+        if(data.code === 200){
         console.log(data)
-       // this.setState({ data:data.data,curState: data.data.state})
-       data.data.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
-       this.setState({ data:data.data,curState: 1})
+        this.setState({ data:data.data,curState: data.data.state})
+      // data.data.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
+      // this.setState({ data:data.data,curState: 1})
+      }else {
+        Taro.showToast({
+          title: data.msg,
+          icon:'none',
+          mask: true
+        });
+      }
       },
     )
 

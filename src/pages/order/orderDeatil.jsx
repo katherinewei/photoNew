@@ -52,11 +52,19 @@ export default class Index extends Component {
         //isToken:false
       },
       (data) => {
-      
+        if(data.code === 200){
         console.log(data)
         this.setState({ data:data.data,curState: data.data.state})
       // data.data.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk',id:1}]
        //this.setState({ data:data.data,curState: 1})
+        }
+        else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
     
@@ -107,9 +115,9 @@ export default class Index extends Component {
   render() {
     const {curState,isOpenedCancel,data} = this.state
     const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
-    const stateName = ['待支付定金','预约中','客户回电','确认摄影师','预约成功','支付尾款','已完成']
+    const stateName = ['待支付','预约中','确认摄影师','已完成','已提交成片'] 
 
-    // 1 取消订单 0:确认下单(待支付) 1:支付定金(已支付) 2.客户回电确认信息 3.确认摄影师 4.享受拍摄服务 5.支付尾款 6.收到成片
+
     return (
       <View className={curState > 1 ? 'state1' : ''}>
         <View className={`body`}>
@@ -200,12 +208,12 @@ export default class Index extends Component {
            <AtButton size="small" type="primary" circle  onClick={() => this.submitOrder()}>提交订单</AtButton>
          </View>}
          
-         {(curState === 2 || curState === 3 ) && <View>
+         {(curState === 2 || curState === 1 ) && <View>
            
            <AtButton size="small" type="primary" circle onClick={this.cancelOrder.bind(this)}>取消订单</AtButton>
          </View>
          }
-         {curState === 6 && <View>
+         {curState > 3 && <View>
            
            <AtButton size="small" type="primary" circle onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${data.id}`})}>立即评价</AtButton>
          </View>

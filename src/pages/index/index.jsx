@@ -35,6 +35,21 @@ export default class Index extends Component {
     navigationStyle: 'custom',
   }
 
+  state={
+    loading: true,
+    currentId: 1,  // 一级id
+    subCur:0,  // 二级index
+    value: '',
+    visible:false,
+    index:0,// 一级index
+    tabs:[ ],
+    city:'',
+    province:'',
+    typeBarHeight:''  ,
+    containerHeight:'',
+    pages:1, current:1, records:[]
+  }
+
   componentWillMount() {
     // let areas = [[],[]]
     // Area[0].children.map(province => {
@@ -44,7 +59,6 @@ export default class Index extends Component {
 
     const { top, height } = wx.getMenuButtonBoundingClientRect()
     const { statusBarHeight, platform } = wx.getSystemInfoSync()
-  //  console.log(top, height,statusBarHeight,platform,9632145)
     let navigationBarHeight;
     if (top && top !== 0 && height && height !== 0) {
       navigationBarHeight = (top - statusBarHeight) * 2 + height
@@ -58,20 +72,10 @@ export default class Index extends Component {
 
 
     this.setState({
-      loading: true,
-      currentId: 1,  // 一级id
-      subCur:0,  // 二级index
-      value: '',
-      visible:false,
-      index:0,// 一级index
-      tabs:[ ],
+     
       statusBarHeight:statusBarHeight,
       barHeight:navigationBarHeight,
-      city:'',
-      province:'',
-      typeBarHeight:''  ,
-      containerHeight:'',
-      pages:1, current:1, records:[]
+      
     })
        
     Taro.showShareMenu({
@@ -83,7 +87,9 @@ export default class Index extends Component {
 
 
   componentDidMount() {
-    
+
+    this.setState({loading:false})
+
     getToken(() => {
 
       // 获取个人信息
@@ -97,41 +103,50 @@ export default class Index extends Component {
 
       },(data) => {
 
-          
+        if(data.code === 200){
           setUserInfo(data.data)
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
+
+          
          
       })
 
     }, true)
-    this.getLocation()
+    this.fetchCate()
     
+      ///创建节点选择器
+      var query = wx.createSelectorQuery();
+      var c = wx.createSelectorQuery();
+      //选择id
+      query.select('.tab').boundingClientRect()
+      query.exec((res) => {
+          //res就是 所有标签为mjltest的元素的信息 的数组
+          // //取高度
+           console.log(res[0].height,987878787);
+          this.setState({typeBarHeight:res[0].height})
+      })
 
 
-    ///创建节点选择器
-        var query = wx.createSelectorQuery();
-        var c = wx.createSelectorQuery();
-        //选择id
-        query.select('.tab').boundingClientRect()
-        query.exec((res) => {
-            //res就是 所有标签为mjltest的元素的信息 的数组
-            // console.log(res);
-            // //取高度
-            // console.log(res[0].height,987878787);
-            this.setState({typeBarHeight:res[0].height})
-        })
-
-        //container
-        c.select('.container').boundingClientRect()
-        c.exec((res) => {
-            //res就是 所有标签为mjltest的元素的信息 的数组
-            // console.log(res);
-            // //取高度
-             console.log(res[0].height,987878787);
-            this.setState({containerHeight:res[0].height})
-        })
+      //container
+      c.select('.container').boundingClientRect()
+      c.exec((res) => {
+          //res就是 所有标签为mjltest的元素的信息 的数组
+          // console.log(res);
+          // //取高度
+           console.log(res[0].height,987878787);
+          this.setState({containerHeight:res[0].height})
+      })
+    
   }
 
   fetchCate(){
+  
     // 品类
     Request(
       {
@@ -139,13 +154,23 @@ export default class Index extends Component {
         method: 'GET',
         //isToken:false
       },
-      (res) => {
-      //  console.log(res.data,11110000)
-        this.setState({ tabs:res.data,currentId:res.data[0].id },() => {
+      (data) => {
+       
+        if(data.code === 200){
+     
+        this.setState({ tabs:data.data,currentId:data.data[0].id },() => {
           // 获取返片
+          this.getLocation()
          
-          this.fetchNotePage()
         })
+      }
+        else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }
@@ -167,18 +192,26 @@ export default class Index extends Component {
     
     const {current,currentId,province,city,tabs,subCur,index} = this.state
     
-    const data = {page:current,typeId:currentId,tagId:tabs[index].child[subCur].id,province:encodeURI(province),city:encodeURI(city)}
+    const data = {page:current,typeId:currentId,tagId:tabs[index].child[subCur].id,province,city}
     
     // 获取返片列表
     Request(
       {
         url: 'api/notePage',
-        method: 'GET',
+        method: 'POST',
         data,
         //isToken:false
       },
       (data) => {
+        if(data.code === 200){
         this.setState({ ...data.data, loading: false })
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       },
     )
   }
@@ -194,20 +227,28 @@ export default class Index extends Component {
 
   //上拉刷新
   onScrollToLower() {
-    const { pages, current, records } = this.state
-
+    const { pages, current, records,currentId,province,city,tabs,subCur,index } = this.state
     if (pages > current) {
       Request(
         {
           url: 'api/notePage',
-          method: 'GET',
-          data: { page: current + 1,typeId:currentId },
+          method: 'POST',
+          data: { page: current + 1,typeId:currentId ,tagId:tabs[index].child[subCur].id,province,city},
           //isToken:false
         },
         (data) => {
+          if(data.code === 200){
           data.data.records = [...records, ...data.data.records]
-         // console.log(data)
           this.setState({ ...data.data })
+          }
+          else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
+
         },
       )
     }
@@ -249,10 +290,9 @@ export default class Index extends Component {
             //isToken:false
           },
           (data) => {
-          console.log(data.result.address_component,222)
           const address  = data.result.address_component;
 
-            this.setState({city:address.city,province:address.province },() => {this.fetchCate()})
+            this.setState({city:address.city,province:address.province },() => { this.fetchNotePage()})
 
             const addr = [address.nation,address.province,address.city,address.district]
             Taro.setStorageSync('curAddr', JSON.stringify(addr))   // 保存地址
@@ -287,10 +327,13 @@ export default class Index extends Component {
       
     } = this.state
 
-    // console.log(tabs[index].child,index)
     return (
+      
       <View className="index">
-        <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
+       {loading &&  <AtActivityIndicator mode='center' content='加载中...'></AtActivityIndicator>}
+       <View style={{display:loading?'none':'block'}}>
+
+       <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
           <View className="addr">{city}</View>
           <View className="service" onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>分享返片,获取创作模特资格</View>
 
@@ -336,7 +379,7 @@ export default class Index extends Component {
               scrollY
               scrollWithAnimation
               scrollTop={0}
-              style={{height: (Taro.getSystemInfoSync().windowHeight) - containerHeight - typeBarHeight - barHeight - statusBarHeight +  'px'}}
+              style={{height: (Taro.getSystemInfoSync().windowHeight) - barHeight - statusBarHeight +  'px'}}
               lowerThreshold={20}
               upperThreshold={20}
               onScrollToLower={this.onScrollToLower.bind(this)}
@@ -394,6 +437,9 @@ export default class Index extends Component {
          <Text   onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} >招募 \n 摄影师</Text>
           
           </View>       
+      
+       </View>
+        
       </View>
     )
   }

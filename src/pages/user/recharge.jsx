@@ -47,6 +47,12 @@ export default class Recharge extends Component {
           if(data.code === 200){
             this.setState({prices: data.data})
            
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
           }
           
         },
@@ -61,13 +67,13 @@ export default class Recharge extends Component {
 
     onsubmit(){
 
-      const {index,prices} = this.state
+      const {index,prices,price} = this.state
 
       Request(
         {
           url: 'api/wxDepositSave',
           method: 'POST',
-          data:{amount:prices[index].amount}
+          data:{amount:price ? price : prices[index].amount}
         },
         (data) => {
           if(data.code === 200){
@@ -82,6 +88,12 @@ export default class Recharge extends Component {
               })
             }, 1000)
            
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
           }
           
         },
@@ -115,8 +127,8 @@ export default class Recharge extends Component {
                 placeholder="输入其他金额"
                 value={this.state.price}
                 name="price"
-                onInput={(e) => {
-                  this.setState({ price: e.target.value })
+                onChange={(e) => {
+                  this.setState({ price: e })
                 }}
               />
               </View>

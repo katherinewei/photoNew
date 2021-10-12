@@ -40,10 +40,16 @@ export default class MyPhoto extends Component {
             },
   
           },(data) => {
-  
+            if(data.code === 200){
             this.setState ({
               ...data})
-  
+            }else {
+              Taro.showToast({
+                title: data.msg,
+                icon:'none',
+                mask: true
+              });
+            }
              
           })
         

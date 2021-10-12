@@ -143,10 +143,20 @@ export default class Index extends Component {
         //isToken:false
       },
       (res) => {
-      //  console.log(res.data,11110000)
-        this.setState({ tabs:res.data,currentId:res.data[0].id },() => {
-        Taro.setStorageSync('tabs', JSON.stringify(res.data))   // 保存地址
-        })
+        if(res.code === 200){
+        //  console.log(res.data,11110000)
+          this.setState({ tabs:res.data,currentId:res.data[0].id },() => {
+          Taro.setStorageSync('tabs', JSON.stringify(res.data))   // 保存地址
+          })
+        }
+        else {
+          Taro.showToast({
+            title: res.msg,
+            icon:'none',
+            mask: true
+          });
+        }
+
       },
     )
   }
@@ -166,10 +176,12 @@ export default class Index extends Component {
             //isToken:false
           },
           (data) => {
+           
           //  console.log(data.result.address_component.city,222)
             this.setState({curAddr:data.result.address_component.city + ' ' + data.result.address_component.district })
             const addr = [data.result.address_component.nation,data.result.address_component.province,data.result.address_component.city,data.result.address_component.district]
             Taro.setStorageSync('curAddr', JSON.stringify(addr))   // 保存地址
+            
           },
         )
     })
@@ -371,6 +383,14 @@ export default class Index extends Component {
       })
       return false
     }
+    if(!contact){
+      Taro.showToast({
+        title: '请输入手机号码',
+        icon: 'none',
+        mask: true,
+      })
+      return false
+    }
 
    const typeId = tabs[index].id 
    const tagId = tabs[index].child[subCur].id
@@ -390,12 +410,20 @@ export default class Index extends Component {
         data:payload,
       },
       (data) => {
+        if(data.code === 200){
+          Taro.showToast({
+            title: '提交成功',
+            icon: 'success',
+            mask: true,
+          })
+          this.setState({tradeId:data.data.id,isOpened:true,curItem:{price:'200.00'}})
+      }else {
         Taro.showToast({
-          title: '提交成功',
-          icon: 'success',
-          mask: true,
-        })
-        this.setState({tradeId:data.data.id,isOpened:true,curItem:{price:'200.00'}})
+          title: data.msg,
+          icon:'none',
+          mask: true
+        });
+      }
 
 
       //  return data.data.id

@@ -1,7 +1,7 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text,Swiper, SwiperItem } from '@tarojs/components'
 import Request from '../../utils/request';
-import './photo.scss'
+import '../user/photo.scss'
 import {getToken} from '../../utils/help';
 import { AtAvatar  } from "taro-ui"
 import Tabs from '../../components/tab'
@@ -37,8 +37,15 @@ export default class MyPhoto extends Component {
           },
   
         },(data) => {
-  
+          if(data.code === 200){
            this.setState({data:data.data})
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
         })
       })
     }

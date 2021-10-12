@@ -60,6 +60,12 @@ export default class Register extends Component {
               if(data.code === 200){
                 Taro.redirectTo({url: `/pages/user/registerFinish`})
                
+              } else {
+                Taro.showToast({
+                  title: data.msg,
+                  icon:'none',
+                  mask: true
+                });
               }
               
             },

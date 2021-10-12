@@ -39,8 +39,15 @@ export default class MyPhoto extends Component {
         },
 
       },(data) => {
-
+        if(data.code === 200){
          this.setState({...data.data})
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
       })
 
     }
@@ -63,8 +70,16 @@ export default class MyPhoto extends Component {
           //isToken:false
         },
         (data) => {
+          if(data.code === 200){
           data.data.records = [...records, ...data.data.records]
           this.setState({ ...data.data })
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
         },
       )
     }
