@@ -1,28 +1,12 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker,ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View, ScrollView ,Image} from '@tarojs/components'
+import { AtButton,AtAvatar,AtTabs, AtTabsPane} from 'taro-ui'
 import Request from '../../utils/request'
-import {
-  timeString,
-  setAccessToken,
-  getImageUrl,
-  typeS,
-  setUserId,
-  getToken,
-  setUserInfo,
-  validateLogin
-} from '../../utils/help'
-import { ImageUrl } from '../../config'
 import './photographer.scss'
-import {
-  AtTabBar,AtIcon,AtButton,AtAvatar,AtFloatLayout,AtTabs, AtTabsPane
 
-} from 'taro-ui'
-import NavBar from '../../components/Navbar/index'
 export default class Index extends Component {
-  config = {
-    navigationBarTitleText: '摄影师详情',
-    navigationBarTextStyle: 'white',
-  }
+
 
   state = {
     currentTab:0,
@@ -32,19 +16,18 @@ export default class Index extends Component {
 
   componentWillMount() {
 
-    
+    const $instance = Taro.getCurrentInstance()
     //根据摄影师 ID 获取摄影师详情内容
     Request(
       {
         url: 'api/getWxPhotoerInfo',
         method: 'GET',
-        data: { id:1},
+        data: { id:$instance.router.params.id},
         //isToken:false
       },
       (data) => {
         if(data.code === 200){
        // data.data.records = [...records, ...data.data.records]
-        console.log(data)
         this.setState({ ...data.data })
         }else {
           Taro.showToast({
@@ -61,7 +44,7 @@ export default class Index extends Component {
       {
         url: 'api/wxCommentPage',
         method: 'GET',
-        data: { id:1},
+        data: {page:1, id:$instance.router.params.id},
         //isToken:false
       },
       (data) => {
@@ -107,13 +90,13 @@ export default class Index extends Component {
   //上拉刷新
   onScrollToLower() {
     const { pages, current, records } = this.state
-
+    const $instance = Taro.getCurrentInstance()
     if (pages > current) {
       Request(
         {
-          url: 'api/notePage',
+          url: 'api/wxCommentPage',
           method: 'GET',
-          data: { page: current + 1,typeId:currentId },
+          data: {page:current + 1, id:$instance.router.params.id},
           //isToken:false
         },
         (data) => {
@@ -135,38 +118,43 @@ export default class Index extends Component {
     }
   }
 
+  selectIt(){
+    const $instance = Taro.getCurrentInstance()
+    Taro.navigateTo({url: `/pages/order/orderDeatil?id=${$instance.router.params.tradeId}&recordId=${$instance.router.params.id}`})
+  }
+
   
 
   render() {
     const {photoerVO,tradeRecordVO,records,total} = this.state
-   
-    const list = []
     const tabList = [{ title: '样片' }, { title: '评价' }]
     return (
-      <View className="index" >
-        <View className="contain">
-        <View className="header" >
+      <View className='index photographer' >
+        <View className='contain'>
+        <View className='header' >
          
-          <View className="bg" style={{backgroundImage:"url("+photoerVO.headPic+")"}}></View>
-          <View className="mask"></View>
-          <View className="top">
+          <View className='bg' style={{backgroundImage:"url("+photoerVO.headPic+")"}}></View>
+          <View className='mask'></View>
+          <View className='top'>
             <AtAvatar  circle  image={photoerVO.headPic}   ></AtAvatar>
-            <View className="right">
-              <View className="name">{photoerVO.userName}</View>
-              <View className="i"><text>{photoerVO.sex === 1 ? '女' :'男'}</text><text>高级摄影师</text><text>从业12年</text><text>服务客户<text class="number">{photoerVO.serviceNum}</text></text></View>
-              <View className="o">诚信服务</View>
+            <View className='right'>
+              <View className='name'>{photoerVO.userName}</View>
+              <View className='i'><text>{photoerVO.sex === 1 ? '女' :'男'}</text>
+              {/* <text>高级摄影师</text><text>从业12年</text> */}
+              <text>服务客户<text class='number'>{photoerVO.serviceNum}</text></text></View>
+              <View className='o'>诚信服务</View>
             </View>
           </View>
          
         </View>
-        <View className="intro">
+        <View className='intro'>
           <text>简介：</text>{photoerVO.introduction}
         </View>
-        <View className="content intro">
-          <View className="price">报价：<text>￥</text>{tradeRecordVO.amount}</View>
-          <View className="detail">
-            <View className="price">套餐详情</View>
-            <View className="con">
+        <View className='content intro'>
+          <View className='price'>报价：<text>￥</text>{tradeRecordVO.amount}</View>
+          <View className='detail'>
+            <View className='price'>套餐详情</View>
+            <View className='con'>
               <View><text>拍摄时长：</text>{tradeRecordVO.photoTime}小时</View>
               <View><text>服装造型：</text>{tradeRecordVO.dressNum}套</View>
               <View><text>底片数量：</text>{tradeRecordVO.plateNum}张</View>
@@ -178,11 +166,11 @@ export default class Index extends Component {
         </View>
 
 
-        <AtTabs className={top>130 ? 'topnav' : ''} current={this.state.currentTab} tabList={tabList} onClick={this.handleClick.bind(this)}>
+        <AtTabs  current={this.state.currentTab} tabList={tabList} onClick={this.handleClick.bind(this)}>
           <AtTabsPane current={this.state.currentTab} index={0}>
-            <View  className="images">
-              {tradeRecordVO.rushImgUrlList && tradeRecordVO.rushImgUrlList.length > 0 && tradeRecordVO.rushImgUrlList.map(pic => (
-                <Image src={pic} mode="widthFix"></Image>
+            <View  className='images'>
+              {tradeRecordVO.rushImgUrlList && tradeRecordVO.rushImgUrlList.length > 0 && tradeRecordVO.rushImgUrlList.map((pic,k) => (
+                <Image key={k} src={pic} mode='widthFix'></Image>
               ))}
              
             
@@ -190,40 +178,40 @@ export default class Index extends Component {
             
            
           </AtTabsPane>
-          <AtTabsPane current={this.state.currentTab} index={1} className="evaluation">
-            <View  className="evaluation">
-              <View  className="title">用户评价({total})</View>
+          <AtTabsPane current={this.state.currentTab} index={1} className='evaluation'>
+            <View  className='evaluation'>
+              <View  className='title'>用户评价({total})</View>
               <ScrollView
-              className='scrollview'
-              scrollY
-              scrollWithAnimation
-              scrollTop={0}
-              style={{height: (Taro.getSystemInfoSync().windowHeight) - 500 +  'px'}}
-              lowerThreshold={20}
-              upperThreshold={20}
-              onScrollToLower={this.onScrollToLower.bind(this)}
-               >
+                className='scrollview'
+                scrollY
+                scrollWithAnimation
+                scrollTop={0}
+                style={{height: (Taro.getSystemInfoSync().windowHeight) - 500 +  'px'}}
+                lowerThreshold={20}
+                upperThreshold={20}
+                onScrollToLower={this.onScrollToLower.bind(this)}
+              >
 
-                <View className="box">
-                  {records && records.length > 0 ? records.map(item => (
-                    <View className="item">
+                <View className='box'>
+                  {records && records.length > 0 ? records.map((item,i) => (
+                    <View key={i} className='item'>
                     <AtAvatar  circle  image={item.headPic}   ></AtAvatar>
-                    <View className="cRight">
-                      <View className="n">{item.userName}</View>
-                      <View className="t">{item.time}</View>
-                      <View className="c">{item.content}</View>
-                      <View className="i">
-                        {item.commentImgUrlList && item.commentImgUrlList.length > 0 && item.commentImgUrlList.map(pic=> (
-                            <Image src={pic} mode="widthFix"></Image>
+                    <View className='cRight'>
+                      <View className='n'>{item.userName}</View>
+                      <View className='t'>{item.time}</View>
+                      <View className='c'>{item.content}</View>
+                      <View className='i'>
+                        {item.commentImgUrlList && item.commentImgUrlList.length > 0 && item.commentImgUrlList.map((pic,j)=> (
+                            <Image key={j} src={pic} mode='widthFix'></Image>
                         ))}
                       </View>
                     </View>
                   
                   </View>
                   
-                  )): <View className="noData" style={{ marginTop: '30px' }}>
+                  )): <View className='noData' style={{ marginTop: '30px' }}>
                   <Image
-                    mode="widthFix"
+                    mode='widthFix'
                     src={require('../../images/icon/noData.png')}
                   ></Image>
                   <View>暂无数据</View>
@@ -236,8 +224,8 @@ export default class Index extends Component {
          
         </AtTabs>
         </View>
-        <View className="foot">
-          <AtButton size="small" type="primary" circle>选TA服务</AtButton>
+        <View className='foot'>
+          <AtButton size='small' type='primary' circle onClick={() => this.selectIt()}>选TA服务</AtButton>
       
         </View>
         

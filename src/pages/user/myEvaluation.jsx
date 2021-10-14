@@ -1,27 +1,26 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text,Swiper, SwiperItem, ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View, ScrollView,Image } from '@tarojs/components'
+import { AtAvatar  } from "taro-ui"
 import Request from '../../utils/request';
 import '../order/photographer.scss'
-import {getImageUrl,getToken,getUserInfo} from '../../utils/help';
-import { AtAvatar  } from "taro-ui"
-import Tabs from '../../components/tab'
+import {getToken,getUserInfo} from '../../utils/help';
 
 export default class MyPhoto extends Component {
 
-    config = {
-        navigationBarTitleText: '我的评价',
-        navigationBarBackgroundColor: '#fff',
-    }
 
 
 
     constructor () {
       super(...arguments)
       this.setState ({
-        records: [],
+        
       
 
       })
+    }
+    state = {
+      records: []
     }
 
 
@@ -77,31 +76,33 @@ export default class MyPhoto extends Component {
       } = this.state
         return (
           <ScrollView
-          className='scrollview'
-          scrollY
-          scrollWithAnimation
-          scrollTop={0}
-          style={{height: (Taro.getSystemInfoSync().windowHeight) +  'px'}}
-          lowerThreshold={20}
-          upperThreshold={20}
-          onScrollToLower={this.onScrollToLower.bind(this)}>
+            className='scrollview'
+            scrollY
+            scrollWithAnimation
+            scrollTop={0}
+            style={{height: (Taro.getSystemInfoSync().windowHeight) +  'px'}}
+            lowerThreshold={20}
+            upperThreshold={20}
+            onScrollToLower={this.onScrollToLower.bind(this)}
+          >
           <View className='evaluation userEvaluation'>
-            <View className="box">
-              {records.length > 0 ? records.map(item => (
-                <View className="item" onClick={() => {
+            <View className='box'>
+              {records.length > 0 ? records.map((item,i) => (
+                <View key={i} className='item' onClick={() => {
                         Taro.navigateTo({
                           url: `/pages/user/evaluateDetail?id=${item.id}`,
                         })
                     }
-                    }>
+                    }
+                >
                   <AtAvatar  circle  image={item.headPic}   ></AtAvatar>
-                  <View className="cRight">
-                    <View className="n">{getUserInfo().nickName}</View>
-                    <View className="t">{item.time}</View>
-                    <View className="c">{item.content}</View>
-                    <View className="i">
-                      {item.commentImgUrlList.length > 0 && item.commentImgUrlList.map(pic => (
-                        <Image src={pic} mode="widthFix"></Image>
+                  <View className='cRight'>
+                    <View className='n'>{getUserInfo().nickName}</View>
+                    <View className='t'>{item.time}</View>
+                    <View className='c'>{item.content}</View>
+                    <View className='i'>
+                      {item.commentImgUrlList.length > 0 && item.commentImgUrlList.map((pic,j) => (
+                        <Image key={j} src={pic} mode='widthFix'></Image>
                       ))}
                       
                      
@@ -110,9 +111,9 @@ export default class MyPhoto extends Component {
                  
                 </View>
                 
-              )) : <View className="noData" style={{ padding: '110px 0' }}>
+              )) : <View className='noData' style={{ padding: '110px 0' }}>
                     <Image
-                      mode="widthFix"
+                      mode='widthFix'
                       src={require('../../images/icon/noData.png')}
                     ></Image>
                     <View>暂无数据</View>

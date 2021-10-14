@@ -1,4 +1,5 @@
-import Taro, { Component } from '@tarojs/taro';
+//import Taro from '@tarojs/taro'
+import { Component } from 'react'
 // import PropTypes from 'prop-types';
 import { AtIcon } from 'taro-ui';
 import { View, Text, PickerView, PickerViewColumn, } from '@tarojs/components';
@@ -7,6 +8,7 @@ import './index.scss';
 
 
 export default class DateTimePicker extends Component {
+    // eslint-disable-next-line react/sort-comp
     static externalClasses = ['wrap-class', 'select-item-class'];
 
     state = {
@@ -19,6 +21,7 @@ export default class DateTimePicker extends Component {
         fmtInitValue: "", //初始值
         current: '', //当前选择的数据
         visible: false, //是否可见
+        // eslint-disable-next-line react/no-unused-state
         hasChange: false, //是否更改
         year: '',  //时间值
         month: '',
@@ -26,6 +29,14 @@ export default class DateTimePicker extends Component {
         hour: '',
         minute: '',
     };
+    
+
+    componentDidMount() {
+        const { initValue } = this.props;
+        const fmtInitValue = getDate(initValue);
+        this.setState({ fmtInitValue });
+    }
+
     // 打开时间选择的模态框 - 根据当前时间初始化picker-view的数据
     openModal = () => {
         const { current, fmtInitValue } = this.state;
@@ -66,6 +77,7 @@ export default class DateTimePicker extends Component {
     cancelHandel = () => {
         this.setState({
             visible: false,
+            // eslint-disable-next-line react/no-unused-state
             hasChange: false,
         });
 
@@ -81,6 +93,7 @@ export default class DateTimePicker extends Component {
 
         this.setState({
             current,
+            // eslint-disable-next-line react/no-unused-state
             hasChange: false,
             visible: false,
         });
@@ -112,6 +125,7 @@ export default class DateTimePicker extends Component {
             day,
             hour,
             minute,
+            // eslint-disable-next-line react/no-unused-state
             hasChange: true,
         });
     };
@@ -123,72 +137,66 @@ export default class DateTimePicker extends Component {
         this.props.onClear && this.props.onClear({ current: '' });
     };
 
-    componentDidMount() {
-        const { initValue } = this.props;
-        const fmtInitValue = getDate(initValue);
-        this.setState({ fmtInitValue });
-    }
-
     render() {
         const { visible, current, yearList, monthLsit, dayList, hourList, minuteList, selectIndexList } = this.state;
-        const { placeholder = '请选择时间' } = this.props;
+        const { placeholder = '请选择时间',selectItemClass, wrapClass} = this.props;
         return (
-            <View className="datetime-picker-wrap wrap-class">
-                <View className="selector-wrap">
-                    <View className="select-item select-item-class" onClick={this.openModal}>
-                        {current || initValue || placeholder}
+            <View className={`datetime-picker-wrap wrap-class ${wrapClass}`}>
+                <View className='selector-wrap'>
+                    <View className={`select-item select-item-class ${selectItemClass}`} onClick={this.openModal}>
+                        {current  || placeholder}
                     </View>
                     {
-                        current && <View className="clear-icon">
-                            <AtIcon value="close-circle" size="14" onClick={this.clear} />
+                        current && <View className='clear-icon'>
+                            <AtIcon value='close-circle' size='14' onClick={this.clear} />
                         </View>
                     }
                 </View>
                 {visible
-                && <View className="wrapper">
+                && <View className='wrapper'>
                     {/*日期模态框 */}
-                    <View className="model-box-bg"></View>
-                    <View className="model-box">
-                        <View className="model-picker">
-                            <View className="button-model">
-                                <Text class="btn-txt" onClick={this.cancelHandel}>取消</Text>
-                                <Text class="btn-txt" onClick={this.okHandel}>确定</Text>
+                    <View className='model-box-bg'></View>
+                    <View className='model-box'>
+                        <View className='model-picker'>
+                            <View className='button-model'>
+                                <Text class='btn-txt' onClick={this.cancelHandel}>取消</Text>
+                                <Text class='btn-txt' onClick={this.okHandel}>确定</Text>
                             </View>
-                            <View className="cont_model">
-                                <PickerView className="pick-view" indicatorStyle="height: 50px;" value={selectIndexList} onChange={this.changeHandel}>
+                            <View className='cont_model'>
+                                <PickerView className='pick-view' indicatorStyle='height: 50px;' value={selectIndexList} onChange={this.changeHandel}>
                                     {/*年*/}
-                                    <PickerViewColumn className="picker-view-column">
+                                    <PickerViewColumn className='picker-view-column'>
                                         {
                                             yearList.length && yearList.map((item, index) =>
-                                                <View key={String(index)} className="pick-view-column-item">{item}</View>)
+                                                <View key={String(index)} className='pick-view-column-item'>{item}</View>)
                                         }
                                     </PickerViewColumn>
                                     {/*月*/}
-                                    <PickerViewColumn className="picker-view-column">
+                                    <PickerViewColumn className='picker-view-column'>
                                         {
                                             monthLsit.length && monthLsit.map((item, index) =>
-                                                <View key={String(index)} className="pick-view-column-item">{item}</View>)
+                                                <View key={String(index)} className='pick-view-column-item'>{item}</View>)
                                         }
                                     </PickerViewColumn>
                                     {/*日*/}
-                                    <PickerViewColumn className="picker-view-column">
+                                    <PickerViewColumn className='picker-view-column'>
                                         {
                                             dayList.length && dayList.map((item, index) =>
-                                                <View key={String(index)} className="pick-view-column-item">{item}</View>)
+                                                <View key={String(index)} className='pick-view-column-item'>{item}</View>)
                                         }
                                     </PickerViewColumn>
                                     {/*时*/}
-                                    <PickerViewColumn className="picker-view-column">
+                                    <PickerViewColumn className='picker-view-column'>
                                         {
                                             hourList.length && hourList.map((item, index) =>
-                                                <View key={String(index)} className="pick-view-column-item">{item}</View>)
+                                                <View key={String(index)} className='pick-view-column-item'>{item}</View>)
                                         }
                                     </PickerViewColumn>
                                     {/*分*/}
-                                    <PickerViewColumn className="picker-view-column">
+                                    <PickerViewColumn className='picker-view-column'>
                                         {
                                             minuteList.length && minuteList.map((item, index) =>
-                                                <View key={String(index)} className="pick-view-column-item">{item}</View>)
+                                                <View key={String(index)} className='pick-view-column-item'>{item}</View>)
                                         }
                                     </PickerViewColumn>
                                 </PickerView>

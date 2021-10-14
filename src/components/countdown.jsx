@@ -1,14 +1,16 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View } from '@tarojs/components'
 import Request from '../utils/request'
+
 export default class Countdown extends Component {
 
     constructor (props) {
       super(props)
-      this.setState ({
-        sended:false,
-        second:60
-      })
+    }
+    state = {
+      sended:false,
+      second:60
     }
 
 
@@ -21,7 +23,7 @@ export default class Countdown extends Component {
 
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps() {
   
     }
 
@@ -60,7 +62,7 @@ export default class Countdown extends Component {
           method: 'POST',
           data,
         },
-        (data) => {
+        () => {
           // Taro.showToast({
           //   title: '已发送',
           //   icon: 'success',
@@ -91,7 +93,7 @@ export default class Countdown extends Component {
         const {sended,second} = this.state
         return (
           
-          sended ? <View className="showSecond" >{second}秒后重新发送</View> : <View className="sendCode" onClick={()=>this.showSend()}>发送验证码</View>
+          sended ? <View className='showSecond' >{second}秒后重新发送</View> : <View className='sendCode' onClick={()=>this.showSend()}>发送验证码</View>
         )
     }
 }

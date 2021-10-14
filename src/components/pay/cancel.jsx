@@ -1,19 +1,22 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
-import Request from '../../utils/request';
-import {baseUrl} from '../config';
+// import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View } from '@tarojs/components'
 import { AtFloatLayout,AtButton } from "taro-ui"
-import './index.scss';
-export default class Pay extends Component {
+import Request from '../../utils/request';
 
+import './index.scss';
+
+export default class Pay extends Component {
     constructor (props) {
       super(props)
       this.setState ({
-        isOpenedCancel: props.visible,
+        isOpenedCancel: props.isOpenedCancel,
 
       })
     }
-
+    state = {
+      isOpenedCancel:false
+    }
 
     componentWillMount () {
 
@@ -26,7 +29,7 @@ export default class Pay extends Component {
 
     componentWillReceiveProps(nextProps) {
       
-     
+     console.log(nextProps)
       if(nextProps.isOpenedCancel){
         //this.showArea()
         this.setState({isOpenedCancel:true})
@@ -64,17 +67,20 @@ export default class Pay extends Component {
       )
     }
 
+    onClose(){
+      this.setState({isOpenedCancel:false})
+    }
+
 
     render () {
-      console.log(this.state.isOpened,222)
-        
+     console.log(this.state,6)
 
         return (
-          <AtFloatLayout isOpened={this.state.isOpenedCancel}  className="payLayout cancelL" onClose={() => this.setState({isOpenedCancel:false})}>
-          <View className="t">取消订单后将无法恢复</View>
-          <View className=" way p">取消订单请确保已与摄影师完成沟通，无责任取消订单后，支付金额将退回您充值账户，充值到期未消费将进行退款。</View>
+          this.state.isOpenedCancel && <AtFloatLayout isOpened={this.state.isOpenedCancel}  className='payLayout cancelL' onClose={() => this.onClose()}>
+          <View className='t'>取消订单后将无法恢复</View>
+          <View className=' way p'>取消订单请确保已与摄影师完成沟通，无责任取消订单后，支付金额将退回您充值账户，充值到期未消费将进行退款。</View>
          
-          <AtButton size="small" type="primary" circle onClick={() => this.onCancel()}>确定取消</AtButton>
+          <AtButton size='small' type='primary' circle onClick={() => this.onCancel()}>确定取消</AtButton>
       </AtFloatLayout>
   
         )

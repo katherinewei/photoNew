@@ -1,37 +1,22 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text,Swiper, SwiperItem } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View,ScrollView,Image} from '@tarojs/components'
 import Request from '../../utils/request';
 import './recharge.scss'
 import '../../components/common.scss'
-import {getImageUrl,setUserInfo} from '../../utils/help';
-import { AtInput,AtButton,AtIcon  } from "taro-ui"
-import Tabs from '../../components/tab'
 
-export default class Recharge extends Component {
+export default class Record extends Component {
 
-    config = {
-        navigationBarTitleText: '账单记录',
-        navigationBarBackgroundColor: '#fff',
-    }
-    state = {
-      prices: []
-    }
-
-
+   
 
     constructor () {
       super(...arguments)
-      this.setState ({
-        
-       
       
-
-      })
     }
 
 
-    componentWillMount () {
-
+    state = {
+      records:[]
     }
 
     componentDidMount () {
@@ -64,7 +49,7 @@ export default class Recharge extends Component {
 
 //上拉刷新
 onScrollToLower() {
-  const { pages, current, records, currentSearch } = this.state
+  const { pages, current, records } = this.state
 
   if (pages > current) {
     Request(
@@ -101,27 +86,27 @@ onScrollToLower() {
         return (
          
           <ScrollView
-              className='scrollview'
-              scrollY
-              scrollWithAnimation
-              scrollTop={0}
-              style={{height: (Taro.getSystemInfoSync().windowHeight) +  'px'}}
-              lowerThreshold={20}
-              upperThreshold={20}
-              onScrollToLower={this.onScrollToLower.bind(this)}
-               >
-              <View className="records">
-                 {records && records.length > 0 ? records.map(item => (
-                   <View className="box">
-                      <View className="left">
+            className='scrollview'
+            scrollY
+            scrollWithAnimation
+            scrollTop={0}
+            style={{height: (Taro.getSystemInfoSync().windowHeight) +  'px'}}
+            lowerThreshold={20}
+            upperThreshold={20}
+            onScrollToLower={this.onScrollToLower.bind(this)}
+          >
+              <View className='rechargeRecords'>
+                 {records && records.length > 0 ? records.map((item,i) => (
+                   <View key={i} className='box'>
+                      <View className='left'>
                       <View>  {type[item.type - 1]}</View>
                         <text>{item.createTime}</text>
                       </View>
-                      <View className="right">{item.type === 4 ? '+' : '-'}{item.amount}</View>
+                      <View className='right'>{item.type === 4 ? '+' : '-'}{item.amount}</View>
                    </View>
-                 )):<View className="noData" style={{ marginTop: '110px' }}>
+                 )):<View className='noData' style={{ marginTop: '110px' }}>
                  <Image
-                   mode="widthFix"
+                   mode='widthFix'
                    src={require('../../images/icon/noData.png')}
                  ></Image>
                  <View>暂无数据</View>

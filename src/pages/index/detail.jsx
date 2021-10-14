@@ -1,24 +1,19 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text,Swiper, SwiperItem } from '@tarojs/components'
+import { Component } from 'react'
+import Taro from '@tarojs/taro'
+import { View, Swiper, SwiperItem,Image } from '@tarojs/components'
+import { AtAvatar  } from "taro-ui"
 import Request from '../../utils/request';
 import '../user/photo.scss'
 import {getToken} from '../../utils/help';
-import { AtAvatar  } from "taro-ui"
-import Tabs from '../../components/tab'
+
+const $instance = Taro.getCurrentInstance()
 export default class MyPhoto extends Component {
 
-    config = {
-        navigationBarTitleText: '返片详情',
-        navigationBarBackgroundColor: '#fff',
-    }
 
 
-
-    constructor () {
-      super(...arguments)
-      this.setState ({
-        data:{}
-      })
+    
+    state = {
+      data:{}
     }
 
 
@@ -33,7 +28,7 @@ export default class MyPhoto extends Component {
           url: 'api/noteDetail',
           method: 'get',
           data: {
-            id:this.$router.params.id
+            id:$instance.router.params.id
           },
   
         },(data) => {
@@ -61,26 +56,27 @@ export default class MyPhoto extends Component {
         return (
          
          data.id &&  <View className='at-article'>
-            <View className="header" >
+            <View className='header' >
                   <AtAvatar  circle  image={data.headPic}   ></AtAvatar>
-                  <View className="right">
-                    <View className="name">{data.nickName}</View>
+                  <View className='right'>
+                    <View className='name'>{data.nickName}</View>
                    
                   </View>
                 </View>
               <View className='at-article__content'>
                 {data.imgUrlList && data.imgUrlList.length > 0 && 
               <Swiper
-                  className='myswipe'
-                  indicatorColor='#DCDCDC'
-                  indicatorActiveColor='#5299FB'
+                className='myswipe'
+                indicatorColor='#DCDCDC'
+                indicatorActiveColor='#5299FB'
                   
-                  circular
-                  indicatorDots
-                  autoplay>
-                    {data.imgUrlList.map(item =>(
-                      <SwiperItem>
-                        <View className='demo-text-1'><Image src={item} mode="widthFix"/></View>
+                circular
+                indicatorDots
+                autoplay
+              >
+                    {data.imgUrlList.map((item,i) =>(
+                      <SwiperItem key={i}>
+                        <View className='demo-text-1'><Image src={item} mode='widthFix' /></View>
                       </SwiperItem>
                     ))}
                   

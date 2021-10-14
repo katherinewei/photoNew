@@ -1,14 +1,13 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker, Input } from '@tarojs/components'
-import Request from '../../utils/request'
+import { Component } from 'react'
+import Taro from '@tarojs/taro'
+import { View } from '@tarojs/components'
 import { AtButton,AtInputNumber  } from 'taro-ui'
 import '../../components/common.scss'
 import './picker.scss'
-export default class publishService extends Component {
-  config = {
-    navigationBarTitleText: '预约条件',
-    navigationBarTextStyle: 'white',
-  }
+
+const $instance = Taro.getCurrentInstance()
+export default class Picker extends Component {
+
 
   state = {
     data:{selType1:[{id:0,label:'数码拍摄'},{id:1,label:'胶片拍摄'},{id:2,label:'视频拍摄'}],
@@ -30,8 +29,8 @@ export default class publishService extends Component {
   
  
   handleChange (item,e) {
-    const {isNumber} = this.$router.params
-    let {current,data} = this.state
+    const {isNumber} = $instance.router.params
+    let {data} = this.state
     console.log(e)
     if(isNumber){
       let sel = []
@@ -65,7 +64,7 @@ export default class publishService extends Component {
     }
    // console.log(this.$router)
 
-    bookSel[this.$router.params.type] = this.state.current
+    bookSel[$instance.router.params.type] = this.state.current
    
     Taro.setStorageSync('bookSel', JSON.stringify(bookSel));
     Taro.redirectTo({
@@ -77,19 +76,19 @@ export default class publishService extends Component {
 
   render() {
     const {current,data} = this.state
-    const {type,isNumber} = this.$router.params
+    const {type,isNumber} = $instance.router.params
     return (
-      <View className="PickSingle">
-        <View className="content">
-          {data[type] && data[type].map(item => (
-            <View className={`${isNumber ? 'isNumber ' : ''} ${current.id == item.id ? 'active': ''} item`} onClick={() => !isNumber && this.handleChange(item)}>
+      <View className='PickSingle'>
+        <View className='content'>
+          {data[type] && data[type].map((item,i) => (
+            <View key={i} className={`${isNumber ? 'isNumber ' : ''} ${current.id == item.id ? 'active': ''} item`} onClick={() => !isNumber && this.handleChange(item)}>
                 {item.label}
                 {isNumber && <AtInputNumber  min={0} step={1}  value={item.number} onChange={e => this.handleChange(item,e)}  />}
               </View>
           ))}
         </View>
-        <View className="foot">
-            <AtButton size="small" type="primary" circle  onClick={this.onComplete.bind(this)}>完成</AtButton>
+        <View className='foot'>
+            <AtButton size='small' type='primary' circle  onClick={this.onComplete.bind(this)}>完成</AtButton>
         </View>
       </View>
     )

@@ -1,5 +1,6 @@
 $color:#5299FB;
-.body{
+.orderDetail{
+  .body{
   overflow-y:auto;
   height: calc(100%-206px);
   padding-bottom: 206px;
@@ -105,19 +106,24 @@ $color:#5299FB;
 }
 .totalPrice{
   .title{
+    display: block;
    &:first-child{
     margin-bottom: 15px;
     padding-bottom: 15px;
     border-bottom: 1px solid #DCDCDC; 
     } 
-    
+    .unit{
+      font-size: 18px;
+      color: #333;
+    }
     .price{
       font-size: 28px;
       color: #CC0000;
+      .unit{
+        color: #CC0000;
+      }
     }
-    .unit{
-      font-size: 18px;
-    }
+    
   }
 }
 
@@ -142,7 +148,7 @@ $color:#5299FB;
 }
 
 
-.state1{
+&.state1{
   .body{
     padding-bottom: 98px;
   }
@@ -162,19 +168,27 @@ $color:#5299FB;
       margin-right: 48px;
       margin-top: 16px;
     }
+
+    .waitPay{
+      vertical-align: middle;
+     
+    
+      text.p{
+        font-size: 24px;
+        position: relative;
+        top: -25px;
+        margin-right: 20px;
+      }
+      
+      text.price{
+        font-size: 30px;
+      }
+    }
   }
 }
 
-.waitPay{
-  vertical-align: middle;
-  text.p{
-    font-size: 24px;
-    position: relative;
-    top: -25px;
-    margin-right: 20px;
-  }
+  // .footer{
+  //   height: 100px;
+  // }
   
-  text.price{
-    font-size: 30px;
-  }
 }

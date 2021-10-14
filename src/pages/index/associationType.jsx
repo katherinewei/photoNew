@@ -1,18 +1,15 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker, Input } from '@tarojs/components'
-import Request from '../../utils/request'
-import './publishService.scss'
+import { Component } from 'react'
+import Taro from '@tarojs/taro'
+import { View} from '@tarojs/components'
 import {
   AtRadio 
 } from 'taro-ui'
-import { ImageUrl } from '../../config'
-import { typeS } from '../../utils/help'
+import './publishService.scss'
 
-export default class publishService extends Component {
-  config = {
-    navigationBarTitleText: '关联类型',
-    navigationBarBackgroundColor: '#fff',
-  }
+
+
+export default class AssociationType extends Component {
+ 
 
   state = {
     value: '',
@@ -21,7 +18,8 @@ export default class publishService extends Component {
   }
 
   componentDidMount() {
-    this.setState({option:this.$router.params.data ? JSON.parse(this.$router.params.data) : [],isType:this.$router.params.type === '1'})
+    const $instance = Taro.getCurrentInstance()
+    this.setState({option:$instance.router.params.data ? JSON.parse($instance.router.params.data) : [],isType:$instance.router.params.type === '1'})
    // console.log(this.$router.params.data)
 
 
@@ -51,12 +49,12 @@ export default class publishService extends Component {
   render() {
     const {option} = this.state
     return (
-      <View className="Association">
+      <View className='Association'>
         <AtRadio
-        options={option}
-        value={this.state.value}
-        onClick={this.handleChange.bind(this)}
-      />
+          options={option}
+          value={this.state.value}
+          onClick={this.handleChange.bind(this)}
+        />
       </View>
     )
   }

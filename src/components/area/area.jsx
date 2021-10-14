@@ -1,12 +1,14 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
-import Request from '../utils/request';
-import './area.scss'
-import {baseUrl} from '../config';
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View,Picker,Button } from '@tarojs/components'
 import { AtModal,
   AtModalHeader,
   AtModalContent,
   AtModalAction, } from "taro-ui"
+import Request from '../../utils/request';
+
+import {baseUrl} from '../../config';
+import './area.scss'
 
 export default class Area extends Component {
 
@@ -14,16 +16,21 @@ export default class Area extends Component {
       super(props)
       this.setState ({
         isOpenedArea: props.visible,
-        country: [],
-        countryed: '',
-        province:[], 
-        provinceed: '',
-        city:[],
-        cityed: '',
-        districted:'',
-        showDistrict:false,
+       
 
       })
+    }
+
+    state = {
+      // eslint-disable-next-line react/no-unused-state
+      country: [],
+      countryed: '中国',
+      province:[], 
+      provinceed: '',
+      city:[],
+      cityed: '',
+      districted:'',
+      showDistrict:false,
     }
 
 
@@ -87,57 +94,23 @@ export default class Area extends Component {
   
     showArea(){
       this.setState({ isOpenedArea: true })
-      Request(
-        {
-          url: baseUrl+'area/country',
-          method: 'get',
-         
-        },
-        (data) => {
-          const countries = data.data;
-          const country = []
-          countries.map(item => {
-            country.push(item.zonename)
-          })
-         // this.setState({country:data.data})
-  
-          this.setState({
-            country, //地区数据
-            countryed:'',
-            sel_country: '',
-            provinceed: '',//北京市,北京市,东城区
-            cityed: '',
-            districted: '',
-            countries,
-          })
-  
-        // console.log(data)
-        },
-      )
+     this.onChangeCountry()
   
     }
   
   
-    onChangeCountry = (e) => {
+    onChangeCountry = () => {
       // if (e.target.value == 0) {
       //   this.setState({
       //     provinceed: '北京市,北京市,东城区',
       //   })
       // }
-      this.setState({
-        countryed: this.state.country[e.target.value],
-      })
-      let id = ''
-      this.state.countries.map((item,i) => {
-        if(i == e.target.value){
-            id = item.id
-        }
-      })
+      
       Request(
         {
           url: baseUrl+'area/province',
           method: 'get',
-          data:{id}
+          data:{id:1}
         },
         (data) => {
           const provinces = data.data;
@@ -151,6 +124,7 @@ export default class Area extends Component {
             province,
             provinces,
            
+            // eslint-disable-next-line react/no-unused-state
             provinced:'',
             cityed:'',
             districted:''
@@ -229,6 +203,7 @@ export default class Area extends Component {
             })
             this.setState({
               district,
+              // eslint-disable-next-line react/no-unused-state
               districts,
               districted:'',
               showDistrict:true
@@ -251,23 +226,14 @@ export default class Area extends Component {
 
 
         return (
-          <AtModal isOpened={this.state.isOpenedArea} closeOnClickOverlay={false} onClose={ () =>  this.onClose() }>
+          <AtModal isOpened={this.state.isOpenedArea} closeOnClickOverlay={false} onClose={() =>  this.onClose()}>
           <AtModalHeader>请选择地区</AtModalHeader>
             <AtModalContent>
-            <View className="p">国家地区</View>
-            <Picker
-              mode="selector"
-              range={this.state.country}
-              onChange={this.onChangeCountry}
-            >
-              <View className="pickerArea">
-                {this.state.countryed || '请选择国家'}
-              </View>
-            </Picker>
+            
               <View>
-                <View className="p">省份</View>
-                <Picker mode="selector" range={this.state.province} onChange={this.onChangeProvince}>
-                  <View className="pickerArea">{this.state.provinceed || '请选择省份'}</View>
+                <View className='p'>省份</View>
+                <Picker mode='selector' range={this.state.province} onChange={this.onChangeProvince}>
+                  <View className='pickerArea'>{this.state.provinceed || '请选择省份'}</View>
                 </Picker>
               </View>
              <View className='p'>城市</View>

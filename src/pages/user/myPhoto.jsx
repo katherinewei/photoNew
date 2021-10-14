@@ -1,29 +1,22 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View,ScrollView,Image } from '@tarojs/components'
 import Request from '../../utils/request';
 import './photo.scss'
-import {getImageUrl,setUserInfo} from '../../utils/help';
-import { AtAvatar,AtGrid  } from "taro-ui"
-import Tabs from '../../components/tab'
+
 
 export default class MyPhoto extends Component {
 
-    config = {
-        navigationBarTitleText: '我的写真',
-        navigationBarBackgroundColor: '#fff',
-    }
 
 
 
     constructor () {
       super(...arguments)
-      this.setState ({
-        records: [],
       
-
-      })
     }
-
+    state = {
+      records: []
+    }
 
     componentWillMount () {
 
@@ -94,19 +87,19 @@ export default class MyPhoto extends Component {
       } = this.state
         return (
           <ScrollView
-          className='scrollview'
-          scrollY
-          scrollWithAnimation
-          scrollTop={0}
-          style={{height: (Taro.getSystemInfoSync().windowHeight) - 120 +  'px'}}
-          lowerThreshold={20}
-          upperThreshold={20}
-          onScrollToLower={this.onScrollToLower.bind(this)}
-           >
-           <View className="list">
+            className='scrollview myPhotoPage'
+            scrollY
+            scrollWithAnimation
+            scrollTop={0}
+            style={{height: (Taro.getSystemInfoSync().windowHeight)  +  'px'}}
+            lowerThreshold={20}
+            upperThreshold={20}
+            onScrollToLower={this.onScrollToLower.bind(this)}
+          >
+           <View className='list'>
             {records && records.length > 0 ? (
               records.map((item, i) => (
-                <View className="item">
+                <View key={i} className='item'>
                   <View
                     onClick={() => {
                         Taro.navigateTo({
@@ -115,24 +108,24 @@ export default class MyPhoto extends Component {
                     }
                     }
                   >
-                    <View className="image">
+                    <View className='image'>
                       
-                      <View className="img">
+                      <View className='img'>
                         <Image
-                          mode="widthFix"
+                          mode='widthFix'
                           src={(item.imgUrl)}
                         ></Image>
                        
                       </View>
-                      <View className="text">{item.title}</View>
+                      <View className='text'>{item.title}</View>
                     </View>
                   </View>
                 </View>
               ))
             ) : (
-              <View className="noData" style={{ marginTop: '110px' }}>
+              <View className='noData' style={{ marginTop: '110px' }}>
                 <Image
-                  mode="widthFix"
+                  mode='widthFix'
                   src={require('../../images/icon/noData.png')}
                 ></Image>
                 <View>暂无数据</View>

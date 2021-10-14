@@ -1,43 +1,45 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text,Swiper, SwiperItem } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View,  } from '@tarojs/components'
+import { AtInput,AtButton,AtIcon  } from "taro-ui"
 import Request from '../../utils/request';
 import './recharge.scss'
 import '../../components/common.scss'
-import {getImageUrl,setUserInfo} from '../../utils/help';
-import { AtInput,AtButton,AtIcon  } from "taro-ui"
-import Tabs from '../../components/tab'
 
 export default class Recharge extends Component {
 
-    config = {
-        navigationBarTitleText: '充值中心',
-        navigationBarBackgroundColor: '#fff',
-    }
-    state = {
-      prices: []
-    }
-
+   
+ 
 
 
     constructor () {
       super(...arguments)
+     
+    }
+    state = {
+      prices: [],
+      curPrice:''
+    }
+
+    componentWillMount () {
+
+    }
+
+
+    componentDidMount () {
+      const $instance = Taro.getCurrentInstance()
+      console.log($instance.router.params.price,999)
       this.setState ({
         
-        curPrice:this.$router.params.price || '0.00',
+        curPrice:$instance.router.params.price || '0.00',
         price:'',
         index:0,
         check:true
       
 
       })
-    }
 
-
-    componentWillMount () {
-
-    }
-
-    componentDidMount () {
+      
       Request(
         {
           url: 'api/wxDepositList',
@@ -60,6 +62,8 @@ export default class Recharge extends Component {
 
     }
     componentWillUnmount () { }
+    
+
 
     componentDidShow () { }
 
@@ -104,29 +108,31 @@ export default class Recharge extends Component {
     render () {
         
       const {
-        prices,  curPrice,price ,index,check  
+        prices,  curPrice ,index,check  
       } = this.state
+
+      console.log(curPrice,9998877)
         return (
          
-         <View className="recharge">
-            <View className="current">
+         <View className='recharge'>
+            <View className='current'>
               <View>当前余额(元)
               <text>{curPrice}</text></View>
               <View onClick={() => Taro.navigateTo({url: `/pages/user/record`})}>账单记录</View>
             </View>
 
-            <View className="list">
+            <View className='list'>
               {prices && prices.map((item,i) => (
-                <View className={`${index === i ? 'active' :''} item`} onClick={() => this.setState({index:i})}>
+                <View key={i} className={`${index === i ? 'active' :''} item`} onClick={() => this.setState({index:i})}>
                  <View>{item.title}￥<text>{item.money}</text></View>
               </View>
               ))}
 
-              <View className="other">
+              <View className='other'>
               <AtInput
-                placeholder="输入其他金额"
+                placeholder='输入其他金额'
                 value={this.state.price}
-                name="price"
+                name='price'
                 onChange={(e) => {
                   this.setState({ price: e })
                 }}
@@ -134,12 +140,12 @@ export default class Recharge extends Component {
               </View>
               
             </View>
-              <View className="foot">
-                  <View className="agree" onClick={() => this.setState({check: !check})}>
-                    <View className="icon">{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
+              <View className='foot footer'>
+                  <View className='agree' onClick={() => this.setState({check: !check})}>
+                    <View className='icon'>{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
                     <View> 我已阅读并同意<text>《储蓄消费者协议》</text></View>
                     </View>
-                  <AtButton size="small" type="primary" circle  onClick={() => this.onsubmit()}>立即充值</AtButton>
+                  <AtButton size='small' type='primary' circle  onClick={() => this.onsubmit()}>立即充值</AtButton>
               </View>
          </View>
         )

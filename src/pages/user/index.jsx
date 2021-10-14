@@ -1,42 +1,24 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View,Image } from '@tarojs/components'
+import { AtAvatar  } from "taro-ui"
 import Request from '../../utils/request';
 import './index.scss'
-import { AtAvatar,AtGrid  } from "taro-ui"
-import Tabs from '../../components/tab'
+
+
 import {
-  timeString,
-  setAccessToken,
-  getImageUrl,
-  setUserId,
+
   getToken,
   setUserInfo,
-  validateLogin
+
 } from '../../utils/help'
+
 export default class UserComponent extends Component {
 
-    config = {
-        navigationBarTitleText: '个人中心',
-        navigationBarBackgroundColor: '#fff',
-    }
+    
 
-
-
-    constructor () {
-      super(...arguments)
-      this.setState ({
-        current: 0,
-        index:0,
-        nav:4,
-        user:{},
-        serviceList:{},
-        truthList:[],
-        speechList:{},
-        records:[],
-
-        
-
-      })
+    state = {
+      user: {}
     }
 
 
@@ -94,12 +76,20 @@ export default class UserComponent extends Component {
 
 
     getUser(){
+      
       let that = this;
       const callback = () => {
+
+
+      
+
+        
+        
             Taro.getUserProfile({
               lang:'zh_CN',
+              desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
               success: function(res) {
-                
+                console.log(res.userInfo)
 
                     var userInfo = res.userInfo
                     var nickName = userInfo.nickName
@@ -117,8 +107,8 @@ export default class UserComponent extends Component {
                       url: 'api/editUserInfo',
                       method: 'post',
                       data
-                    },(res) => {
-                      if(res.code === 200){
+                    },(res1) => {
+                      if(res1.code === 200){
                         Taro.showToast({
                           title: '获取成功',
                           icon: 'success',
@@ -128,7 +118,7 @@ export default class UserComponent extends Component {
                         that.setState({user:data.data})
                       }else {
                         Taro.showToast({
-                          title: res.msg,
+                          title: res1.msg,
                           icon:'none',
                           mask: true
                         });
@@ -137,7 +127,10 @@ export default class UserComponent extends Component {
 
                     })
 
-                  }
+              },
+              fail:(res) => {
+                console.log(res)
+              }    
                 })
           }
 
@@ -167,35 +160,35 @@ export default class UserComponent extends Component {
         const{user} = this.state
 
         return (
-            <View className='user'>
-                <View className="header" >
-                  <AtAvatar  circle  image={user.headPic}   ></AtAvatar>
-                  <View className="right">
-                    <View className="name">{user.nickName}</View>
-                    {/* <View className="wan">完善资料</View> */}
-                    <Button openType='getUserInfo' onGetUserInfo={this.getUser.bind(this)} className="wan">完善资料</Button>
+          user && <View className='user'>
+                <View className='header' >
+                  {user.headPic && <AtAvatar  circle  image={user.headPic}   ></AtAvatar>}
+                  <View className='right'>
+                    <View className='name'>{user.nickName}</View>
+                    <View className='wan' onClick={this.getUser.bind(this)}>完善资料</View>
+                    {/* <Button openType='getUserInfo' onGetUserInfo={this.getUser.bind(this)} className='wan'>完善资料</Button> */}
                   </View>
                 </View>
-                <View className="grid">
-                    <View className="item" onClick={() => Taro.navigateTo({url: `/pages/user/recharge?price=${user.remainAmount}`})}>
-                      <View className="t">{user.remainAmount}</View>
-                      <View className="b">余额</View>
+                <View className='grid'>
+                    <View className='item' onClick={() => Taro.navigateTo({url: `/pages/user/recharge?price=${user.remainAmount}`})}>
+                      <View className='t'>{user.remainAmount}</View>
+                      <View className='b'>余额</View>
                     </View>
-                    <View className="item"  onClick={() => Taro.navigateTo({url: `/pages/user/feedback`})}>
-                      <View className="t"><Image src={require('../../images/icon/u1.png')} mode="widthFix"/></View>
-                      <View className="b">意见反馈</View>
+                    <View className='item'  onClick={() => Taro.navigateTo({url: `/pages/user/feedback`})}>
+                      <View className='t'><Image src={require('../../images/icon/u1.png')} mode='widthFix' /></View>
+                      <View className='b'>意见反馈</View>
                     </View>
-                    <View className="item" onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} >
-                      <View className="t"><Image src={require('../../images/icon/u2.png')} mode="widthFix" /></View>
-                      <View className="b">招募摄影</View>
+                    <View className='item' onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} >
+                      <View className='t'><Image src={require('../../images/icon/u2.png')} mode='widthFix' /></View>
+                      <View className='b'>招募摄影</View>
                     </View>
-                    <View className="item" onClick={() => Taro.navigateTo({url: `/pages/user/myPhoto`})}>
-                      <View className="t"><Image src={require('../../images/icon/u3.png')} mode="widthFix" /></View>
-                      <View className="b">我的写真</View>
+                    <View className='item' onClick={() => Taro.navigateTo({url: `/pages/user/myPhoto`})}>
+                      <View className='t'><Image src={require('../../images/icon/u3.png')} mode='widthFix' /></View>
+                      <View className='b'>我的写真</View>
                     </View>
-                    <View className="item"  onClick={() => Taro.navigateTo({url: `/pages/user/myEvaluation`})}>
-                      <View className="t"><Image src={require('../../images/icon/u4.png')} mode="widthFix" /></View>
-                      <View className="b">我的评价</View>
+                    <View className='item'  onClick={() => Taro.navigateTo({url: `/pages/user/myEvaluation`})}>
+                      <View className='t'><Image src={require('../../images/icon/u4.png')} mode='widthFix' /></View>
+                      <View className='b'>我的评价</View>
                     </View>
                 </View>
           </View>

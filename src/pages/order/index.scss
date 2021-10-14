@@ -1,100 +1,108 @@
 
-.container{
-  padding: 20px;
-  .box{
-    border-radius: 20px;
-    background-color: #fff;
-    padding: 30px 30px 15px;
-    margin-bottom: 20px;
-  }
-  .state{
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    .position{
-      font-size: 30px;
-      color: #000;
+.Order{
+  .container{
+    padding: 20px;
+    .box{
+      border-radius: 20px;
+      background-color: #fff;
+      padding: 30px 30px 15px;
+      margin-bottom: 20px;
     }
-    .sta{
-      font-size: 26px;
-      color: #5299FB;
-    }
-  }
-  .time{
-    font-size: 26px;
-    color: #000;
-    .s{
-      font-size: 24px;
-    }
-  }
-  .replay{
-    font-size: 24px;
-    color: #999;
-    margin: 20px 0 15px;
-    .num{
-      color: #5299FB;
-    }
-  }
-
-  .list{
-    //  display: flex;
-    //  justify-content: center;
-    //  align-items: center;
-    font-size: 22rpx;
-    overflow-x: auto;
-    display: flex;
-    align-items: center;
-    overflow-y: hidden;
-    flex-wrap: nowrap;
-    margin:0 10rpx 0 10rpx;
-    border-bottom: 1rpx solid #EFEFEF;
-    padding: 20rpx 10rpx 20rpx 0;
-    
-      .item{
-        text-align: center;
-        margin-right: 22px;
-        list-style: none;
-        white-space: nowrap;
-        position: relative;
-        .at-avatar{
-          margin-bottom:15rpx;
-         // border:1rpx solid #ccc;
-          width: 90px;
-          height: 90px;
-    
-    
-        }
-       
+    .state{
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      .position{
+        font-size: 30px;
+        color: #000;
       }
-    }
-  .foot{
-    display: flex;
-    justify-content: space-between;
-   // border-top: 3px solid #DCDCDC;
-    line-height: 80px;
-    align-items: center;
-    .left{
-      color: #666;
-      font-size: 26px;
-      text{
-        font-size: 24px;
-        color: #333;
-      }
-    }
-    .btns{
-      position: relative;
-      top: 15px;
-      .at-button{
-        display: inline-block;
-        margin-left: 15px;
+      .sta{
         font-size: 26px;
-        &.at-button--secondary{
-          border-color: #DCDCDC;
-          color: #666;
+        color: #5299FB;
+      }
+    }
+    .time{
+      font-size: 26px;
+      color: #000;
+      .s{
+        font-size: 24px;
+      }
+    }
+    .replay{
+      font-size: 24px;
+      color: #999;
+      margin: 20px 0 15px;
+      .num{
+        color: #5299FB;
+      }
+    }
+  
+    .list{
+      //  display: flex;
+      //  justify-content: center;
+      //  align-items: center;
+      font-size: 22rpx;
+      overflow-x: auto;
+      display: flex;
+      align-items: center;
+      overflow-y: hidden;
+      flex-wrap: nowrap;
+      margin:0 10rpx 0 10rpx;
+      border-bottom: 1rpx solid #EFEFEF;
+      padding: 20rpx 10rpx 20rpx 0;
+      
+        .item{
+          text-align: center;
+          margin-right: 22px;
+          list-style: none;
+          white-space: nowrap;
+          position: relative;
+          .at-avatar{
+            margin-bottom:15rpx;
+           // border:1rpx solid #ccc;
+            width: 90px;
+            height: 90px;
+      
+      
+          }
+         
+        }
+      }
+    .footer{
+      display: flex;
+      justify-content: space-between;
+     // border-top: 3px solid #DCDCDC;
+      line-height: 80px;
+      align-items: center;
+      .left{
+        color: #666;
+        font-size: 26px;
+        flex: 1;
+        text{
+          font-size: 24px;
+          color: #333;
+        }
+      }
+      .btns{
+        position: relative;
+        top: 15px;
+
+        .at-button{
+          display: inline-block;
+          margin-left: 15px;
+          font-size: 26px;
+          width: 140px;
+          height: 50px;
+          line-height: 50px;
+          &.at-button--secondary{
+            border-color: #DCDCDC;
+            color: #666;
+          }
         }
       }
     }
+  
   }
-
 }
+
 

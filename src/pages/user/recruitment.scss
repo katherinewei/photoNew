@@ -34,7 +34,11 @@
             font-size: 28px; 
            
         }
-        .at-input__children {    
+        .at-input__children { 
+            .sendCode,.showSecond{
+                font-size: 24px;
+            }   
+           
             &::after{
               border-left-width:0 !important;
             }
@@ -106,7 +110,8 @@
             background-image: url(../../images/icon/doubt.png);
         }
     }
+    .foot{
+        height: 140px;
+    }
 }
-.foot{
-    height: 100px;
-}
+

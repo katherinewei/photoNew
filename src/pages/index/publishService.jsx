@@ -1,34 +1,28 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker, Input } from '@tarojs/components'
-import Request from '../../utils/request'
-import './publishService.scss'
+import { Component } from 'react'
+import Taro from '@tarojs/taro'
+import { View } from '@tarojs/components'
 import {
-  getToken
-
-} from '../../utils/help'
-import {
-  AtImagePicker,
   AtTextarea,
   AtButton,
   AtForm,
-  AtActivityIndicator,
   AtInput,
   AtIcon,AtTag
 } from 'taro-ui'
-import { baseUrl,ImageUrl } from '../../config'
+import Request from '../../utils/request'
+import './publishService.scss'
+import {getToken} from '../../utils/help'
 import ImageUpload from '../../components/imageUpload';
+
+const $instance = Taro.getCurrentInstance()
 export default class publishService extends Component {
-  config = {
-    navigationBarTitleText: '发布返片',
-    navigationBarBackgroundColor: '#fff',
-  }
+
+  
 
   state = {
     files: [],
     mobile: '',
     title:'',
     description:'',
-    loading: false,
     cates:[],
     typeSelect: {},
     tagSelect: {},
@@ -36,6 +30,8 @@ export default class publishService extends Component {
     limitSize: 5
     
   }
+
+  
   componentWillMount() {
    
   }
@@ -43,8 +39,8 @@ export default class publishService extends Component {
   componentDidMount() {
     getToken(() => {})
     this.fetchCate()
-    console.log(this.$router.params.hasChoose,33333)
-    if(!this.$router.params.hasChoose){
+   
+    if(!$instance.router.params.hasChoose){
       Taro.removeStorageSync('typeId'); 
       Taro.removeStorageSync('tagId');
 
@@ -125,14 +121,10 @@ export default class publishService extends Component {
     } = this.state
     let imgPath = []
     if (files.length > 0) {
-     
       files.map((item) => {
-        let url = item.url.replace(ImageUrl, '')
         imgPath.push(item.url)
       })
-
     }
-
     if(imgPath.length === 0){
       Taro.showToast({
         title: '请上传图片',
@@ -202,8 +194,8 @@ export default class publishService extends Component {
         method: 'POST',
         data,
       },
-      (data) => {
-        if(data.code === 200){
+      (res) => {
+        if(res.code === 200){
           Taro.showToast({
             title: '发布成功',
             icon: 'success',
@@ -217,7 +209,7 @@ export default class publishService extends Component {
           }, 1000)
         }else {
           Taro.showToast({
-            title: data.msg,
+            title: res.msg,
             icon:'none',
             mask: true
           });
@@ -255,7 +247,7 @@ export default class publishService extends Component {
     })
     Taro.removeStorageSync('tagId')
     
-    Taro.navigateTo({url: `/pages/index/associationType?type=1&data=${JSON.stringify(types)}`})
+    Taro.redirectTo({url: `/pages/index/associationType?type=1&data=${JSON.stringify(types)}`})
   }
 
   onClickTage(){
@@ -276,32 +268,33 @@ export default class publishService extends Component {
       }
     })
     console.log(tags,7777)
-    Taro.navigateTo({url: `/pages/index/associationType?type=2&data=${JSON.stringify(tags)}`})
+    Taro.redirectTo({url: `/pages/index/associationType?type=2&data=${JSON.stringify(tags)}`})
   }
   
  
   render() {
 
-    const {typeSelect,tagSelect,numShow,limitSize,cates,files} = this.state
+    const {typeSelect,tagSelect,numShow,limitSize} = this.state
 
     const nums = [0,5,10,15]
 
-    const {hasChoose} = this.$router.params
+    const {hasChoose} = $instance.router.params
     
     
 
     return (
-      <View className="publishService">
-        <AtForm onSubmit={this.onSubmit.bind(this)} className="form">
-          <View className="formCont">
+      <View className='publishService'>
+        <AtForm onSubmit={this.onSubmit.bind(this)} className='form'>
+          <View className='formCont'>
           <ImageUpload files={hasChoose ? Taro.getStorageSync('files') ? JSON.parse(Taro.getStorageSync('files')) : []:[]} onOk={e => {
             this.setState({files:e.files})
             Taro.setStorageSync('files', JSON.stringify(e.files));
-            }} />
+            }}
+          />
           <AtInput
-            placeholder="添加标题会吸引更多人哦"
+            placeholder='添加标题会吸引更多人哦'
             value={this.state.title}
-            name="title"
+            name='title'
             onChange={(e) => {
               this.setState({ title: e })
               Taro.setStorageSync('title',  e);
@@ -311,8 +304,8 @@ export default class publishService extends Component {
             //  value={this.state.value}
             //  onChange={this.handleChange.bind(this)}
             maxLength={300}
-            placeholder="添加正文"
-            name="description"
+            placeholder='添加正文'
+            name='description'
             value={this.state.description}
             onChange={(e) => {
               this.setState({ description: e })
@@ -320,11 +313,11 @@ export default class publishService extends Component {
             }}
           />
           <AtInput
-            className="input"
-            type="phone"
+            className='input'
+            type='phone'
             title='联系方式' 
-            placeholder="请输入电话"
-            name="mobile"
+            placeholder='请输入电话'
+            name='mobile'
             value={this.state.mobile}
             onBlur={(e) => {
               this.setState({ mobile: e })
@@ -332,28 +325,28 @@ export default class publishService extends Component {
             }}
           />
           </View>
-          <View className="formCont" style="margin-bottom:10px">
-          <View className="setNumber">
+          <View className='formCont' style='margin-bottom:10px'>
+          <View className='setNumber'>
             设置摄影师联系限量
-            <View className="number" onClick={() => this.expand()}>{limitSize}人<AtIcon value='chevron-down' size='10' color='#fff' ></AtIcon>
-            <View className={(numShow?'show' : '') + ` options`}>{nums.map(item=> (<View onClick={e => this.setNum(e,item)} className="option">{item}人</View>))}</View>
+            <View className='number' onClick={() => this.expand()}>{limitSize}人<AtIcon value='chevron-down' size='10' color='#fff' ></AtIcon>
+            <View className={(numShow?'show' : '') + ` options`}>{nums.map((item,i)=> (<View key={i} onClick={e => this.setNum(e,item)} className='option'>{item}人</View>))}</View>
             </View>
           </View>
-          <View className="tip">* 摄影师可在摄影师端联系约拍您，设置获取您联系方式的摄影师数量,免除过多打扰</View>
+          <View className='tip'>* 摄影师可在摄影师端联系约拍您，设置获取您联系方式的摄影师数量,免除过多打扰</View>
           </View>
-          <View className="formCont" style="margin-bottom:10px">
-            <View className="type">关联类型<View className="chooseType" onClick={() => this.onClickType()}>{typeSelect.value ? 
-            <AtTag  size="small" type='primary'  circle  >{typeSelect.label}<AtIcon value='close' size='8' color='#333' onClick={(e) => this.cancelSelect(e)}></AtIcon></AtTag> : '关联合适的类型获得更多曝光'}<AtIcon value='chevron-right' size='14' color='#333'></AtIcon></View></View>
+          <View className='formCont' style='margin-bottom:10px'>
+            <View className='type'>关联类型<View className='chooseType' onClick={() => this.onClickType()}>{typeSelect.value ? 
+            <AtTag  size='small' type='primary'  circle  >{typeSelect.label}<AtIcon value='close' size='8' color='#333' onClick={(e) => this.cancelSelect(e)}></AtIcon></AtTag> : '关联合适的类型获得更多曝光'}<AtIcon value='chevron-right' size='14' color='#333'></AtIcon></View></View>
           </View>
-          <View className="formCont">
-            <View className="type">关联标签<View className="chooseType" onClick={() => this.onClickTage()}>
+          <View className='formCont'>
+            <View className='type'>关联标签<View className='chooseType' onClick={() => this.onClickTage()}>
             {tagSelect.value ? 
-            <AtTag  size="small" type='primary'  circle  >{tagSelect.label}<AtIcon value='close' size='8' color='#333' onClick={(e) => this.cancelSelect(e)}></AtIcon></AtTag> : '去选择'}
+            <AtTag  size='small' type='primary'  circle  >{tagSelect.label}<AtIcon value='close' size='8' color='#333' onClick={(e) => this.cancelSelect(e)}></AtIcon></AtTag> : '去选择'}
             <AtIcon value='chevron-right' size='14' color='#333'></AtIcon></View></View>
-            <View className="tip">* 所有上传图片需向平台保证拥有合法版权，如因用户上传产生的相关纠纷，造成相关损失，平台将有权利进行处理。</View>
+            <View className='tip'>* 所有上传图片需向平台保证拥有合法版权，如因用户上传产生的相关纠纷，造成相关损失，平台将有权利进行处理。</View>
           </View>
          
-          <AtButton type="primary" formType="submit">
+          <AtButton type='primary' formType='submit'>
             发布
           </AtButton>
         </AtForm>

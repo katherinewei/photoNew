@@ -1,20 +1,26 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
-import Request from '../../utils/request';
-
-import {baseUrl,ImageUrl} from '../../config';
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View } from '@tarojs/components'
 import { AtActivityIndicator, AtImagePicker} from "taro-ui"
+import {baseUrl,ImageUrl} from '../../config';
+
 
 import './index.scss';
+
 export default class imageUpload extends Component {
 
     constructor (props) {
       super(props)
-      this.setState ({
-        files: [],
-        loading: false,
+      // this.setState ({
+      //   files: [],
+      //   loading: false,
 
-      })
+      // })
+    }
+
+    state = {
+      files: [],
+      loading: false,
     }
 
 
@@ -28,7 +34,7 @@ export default class imageUpload extends Component {
 
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps() {
       
      
       
@@ -107,12 +113,12 @@ export default class imageUpload extends Component {
         return (
           <View >
              <AtActivityIndicator
-              mode="center"
-              isOpened={this.state.loading}
-              content="上传中..."
-              ></AtActivityIndicator>
+               mode='center'
+               isOpened={this.state.loading}
+               content='上传中...'
+             ></AtActivityIndicator>
               <AtImagePicker
-               className="imageUpload"
+                className='imageUpload'
                 files={this.state.files}
                 onChange={this.onChangeFile.bind(this)}
                 showAddBtn={this.props.single ? this.state.files.length < 1 : this.state.files.length < 10}

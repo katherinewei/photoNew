@@ -1,44 +1,30 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text, ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View, Text, ScrollView,Image } from '@tarojs/components'
+import {  AtTabBar,AtIcon,AtButton,AtAvatar} from 'taro-ui'
 import Request from '../../utils/request'
-import {
-  timeString,
-  setAccessToken,
-  getImageUrl,
-  typeS,
-  setUserId,
-  getToken,
-  setUserInfo,
-  validateLogin
-} from '../../utils/help'
-import { ImageUrl } from '../../config'
+import { getToken} from '../../utils/help'
 import './index.scss'
 import './modal.scss'
-import {
-  AtTabBar,AtIcon,AtButton,AtAvatar,AtFloatLayout,AtCountdown
 
-} from 'taro-ui'
 import Pay from '../../components/pay/index'
 import PayCancel from '../../components/pay/cancel'
+
 export default class Index extends Component {
-  config = {
-    navigationBarTitleText: '订单列表',
-    navigationBarTextStyle: 'white',
+
+  state = {
+    current:1,
+    currentState:0,
+    curItem:null,
+    orderState:'',
+    isOpened:false, // 支付定金弹窗
+    isOpenedCancel:false, // 取消订单
+    tradeId:''//交易单号
   }
 
   componentWillMount() {
 
-    this.setState({
-      loading: true,
-      current:1,
-      currentState:0,
-      curItem:null,
-      orderState:'',
-      isOpened:false, // 支付定金弹窗
-      isOpenedCancel:false, // 取消订单
-      tradeId:''//交易单号
-      
-    })
+    
        
     Taro.showShareMenu({
       withShareTicket: true,
@@ -55,13 +41,20 @@ export default class Index extends Component {
 
   }
 
-  getPhoneNumber(e) {
-    
-  }
+
+
+
+
+  componentWillUnmount() {}
+
+  componentDidShow() {}
+
+  componentDidHide() {}
+
 
   // 获取订单
   fetchOrder(){
-    const { pages, current, records,orderState } = this.state
+    const { orderState } = this.state
     Request(
       {
         url: 'api/wxTradePage',
@@ -72,7 +65,7 @@ export default class Index extends Component {
       (data) => {
 
         // data.data.records.map(item => {
-        //   item.state = 0
+        //   item.state = 1
         //   item.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
         // })
         if(data.code === 200){
@@ -87,16 +80,6 @@ export default class Index extends Component {
       },
     )
   }
-
-
-  componentWillUnmount() {}
-
-  componentDidShow() {}
-
-  componentDidHide() {}
-
-
-
 
   //上拉刷新
   onScrollToLower() {
@@ -206,12 +189,12 @@ export default class Index extends Component {
     const stateName = ['取消订单','待支付','预约中','确认摄影师','已完成','已提交成片'] 
    
     return (
-      <View className="index">
+      <View className='Order'>
          <AtTabBar
-          tabList={tabs}
-          onClick={(e) => this.handleClick(e)}
-          current={currentState}
-        />
+           tabList={tabs}
+           onClick={(e) => this.handleClick(e)}
+           current={currentState}
+         />
         <ScrollView
           className='scrollview'
           scrollY
@@ -220,49 +203,50 @@ export default class Index extends Component {
           style={{height: (Taro.getSystemInfoSync().windowHeight) - 50 +  'px'}}
           lowerThreshold={20}
           upperThreshold={20}
-          onScrollToLower={this.onScrollToLower.bind(this)}>
-          <View className="container">
+          onScrollToLower={this.onScrollToLower.bind(this)}
+        >
+          <View className='container'>
           {records && records.length > 0 ? (
             records.map((item, i) => (
-              <View className="box" onClick={() => item.state !== -1 && item.state !== 0 &&  Taro.navigateTo({url: `/pages/order/orderDeatil?id=${item.id}`})}>
-                <View className="state">
-                  <View className="position"><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>{item.city} {item.area}</View>
-                  <View className="sta">{stateName[item.state + 1]}</View>
+              <View key={i} className='box' onClick={() => item.state !== -1 && item.state !== 0 &&  Taro.navigateTo({url: `/pages/order/orderDeatil?id=${item.id}`})}>
+                <View className='state'>
+                  <View className='position'><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>{item.city} {item.area}</View>
+                  <View className='sta'>{stateName[item.state + 1]}</View>
                 </View>
-                <text class="time">拍摄时间： <Text className="s">{item.startTime} - {item.endTime}</Text> \n
-                {item.typeDesc}：{item.adult ? item.adult + '成人' : ''} {item.adult ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</text>
-                {item.photoerList && item.photoerList.length > 0 && <View className="replay">
-                  {item.state === 0 ? <View>  已有<text class="num">{item.photoerList.length}</text>位摄影师回复， <text class="num">请支付定金查看&gt;</text></View> : item.state > 0 ? '已选定摄影师' : ''}
+                <View className='time'>拍摄时间： <Text className='s'>{item.startTime} - {item.endTime}</Text> </View>
+                <View  className='time'>{item.typeDesc}：{item.adult ? item.adult + '成人' : ''} {item.adult ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</View>
+                {item.photoerList && item.photoerList.length > 0 && <View className='replay'>
+                  {item.state === 0 ? <View>  已有<text class='num'>{item.photoerList.length}</text>位摄影师回复， <text class='num'>请支付定金查看&gt;</text></View> : item.state > 0 ? '已选定摄影师' : ''}
 
                   </View>}
                
-                {item.photoerList && item.photoerList.length > 0 ?  <View className="list"> {
-                  item.photoerList.map((photoer, i) => (
-                  <View className="item" >
+                {item.photoerList && item.photoerList.length > 0 ?  <View className='list'> {
+                  item.photoerList.map((photoer, j) => (
+                  <View key={j} className='item' >
                     <AtAvatar  circle  image={photoer.headPic}   ></AtAvatar>
                     {photoer.userName}
                   </View>
                 ))}</View>:''}
                 
-                <View className="foot" onClick={e => e.stopPropagation()}>
+                <View className='footer' onClick={e => e.stopPropagation()}>
                   
-                <View className="left"> 
+                <View className='left'> 
                     {item.state > 1 ? <View>实付：<text>￥{item.payAmount}</text></View> : 
                     item.state >=0 ? <View>{item.state === 0 ? '待' : '已'}付定金：<text>￥{item.payment}</text></View> : ''}
                   </View>
-                  <View className="btns">
-                      {(item.state === 0 || item.state === 1 || item.state === 2) && <AtButton size="small" type="secondary" circle onClick={() => this.cancelOrder(item)}>取消{item.state === 1 ? '预约': '订单'}</AtButton>}
-                      {item.state === 0 &&  <AtButton size="small" type="primary" circle onClick={() => this.payOrder(item)}>支付定金</AtButton>}
-                      {(item.state === -1)  &&  <AtButton size="small" type="secondary" circle onClick={() => this.deleteOrder(item)}>删除订单</AtButton>}
-                      {(item.state > 2)  &&  <AtButton size="small" type="secondary" circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
+                  <View className='btns'>
+                      {(item.state === 0 || item.state === 1 || item.state === 2) && <AtButton size='small' type='secondary' circle onClick={() => this.cancelOrder(item)}>取消{item.state === 1 ? '预约': '订单'}</AtButton>}
+                      {item.state === 0 &&  <AtButton size='small' type='primary' circle onClick={() => this.payOrder(item)}>支付定金</AtButton>}
+                      {(item.state === -1)  &&  <AtButton size='small' type='secondary' circle onClick={() => this.deleteOrder(item)}>删除订单</AtButton>}
+                      {(item.state > 2)  &&  <AtButton size='small' type='secondary' circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
                   </View>
                 </View>
               </View>
             
           ))): (
-            <View className="noData" style={{ marginTop: '110px' }}>
+            <View className='noData' style={{ marginTop: '110px' }}>
               <Image
-                mode="widthFix"
+                mode='widthFix'
                 src={require('../../images/icon/noData.png')}
               ></Image>
               <View>暂无数据</View>
@@ -274,8 +258,8 @@ export default class Index extends Component {
         </ScrollView>
 
         
-        <Pay isOpened={isOpened} curItem={curItem} tradeId={tradeId}  onOk={() => this.fetchOrder()}/>
-        <PayCancel isOpenedCancel={isOpenedCancel} tradeId={tradeId} onOk={() => this.fetchOrder()}/>
+        <Pay isOpened={isOpened} curItem={curItem} tradeId={tradeId}  onOk={() => this.fetchOrder()} />
+        <PayCancel isOpenedCancel={isOpenedCancel} tradeId={tradeId} onOk={() => this.fetchOrder()} />
         
        
 

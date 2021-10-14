@@ -1,44 +1,28 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker } from '@tarojs/components'
+import { Component } from 'react'
+import Taro from '@tarojs/taro'
+import { View, Text,ScrollView,Image } from '@tarojs/components'
+import {
+  AtButton,
+  AtIcon,
+  AtActivityIndicator
+} from 'taro-ui'
 import Request from '../../utils/request'
 import {
-  timeString,
-  setAccessToken,
-  getImageUrl,
-  setUserId,
   getToken,
-  setUserInfo,
-  validateLogin
+  setUserInfo
 } from '../../utils/help'
 import { mapKey } from '../../config'
 import './index.scss'
-import {
-  AtButton ,
-  AtIcon,
-  AtFab,
-  AtTabBar,
-  AtAvatar,
-  AtSearchBar,
-  AtInput,
-  AtActivityIndicator,
-  AtModal,
-  AtModalHeader,
-  AtModalContent,
-  AtModalAction,
-  AtRadio,
-  AtFloatLayout 
-} from 'taro-ui'
-import NavBar from '../../components/Navbar/index'
+
+
 export default class Index extends Component {
-  config = {
-    navigationBarTitleText: '首页',
-    navigationStyle: 'custom',
-  }
+
 
   state={
     loading: true,
     currentId: 1,  // 一级id
     subCur:0,  // 二级index
+    // eslint-disable-next-line react/no-unused-state
     value: '',
     visible:false,
     index:0,// 一级index
@@ -46,7 +30,8 @@ export default class Index extends Component {
     city:'',
     province:'',
     typeBarHeight:''  ,
-    containerHeight:'',
+    // eslint-disable-next-line react/no-unused-state
+   // containerHeight:'',
     pages:1, current:1, records:[]
   }
 
@@ -119,31 +104,65 @@ export default class Index extends Component {
 
     }, true)
     this.fetchCate()
+    const that = this
+
+    setTimeout(() => {
+      Taro.createSelectorQuery().select('.tab').boundingClientRect(function(rect){
+      // rect.id      // 节点的ID
+      // rect.dataset // 节点的dataset
+      // rect.left    // 节点的左边界坐标
+      // rect.right   // 节点的右边界坐标
+      // rect.top     // 节点的上边界坐标
+      // rect.bottom  // 节点的下边界坐标
+      // rect.width   // 节点的宽度
+      // rect.height  // 节点的高度
+    //  console.log(rect.height)
+      that.setState({typeBarHeight:rect.height})
+    }).exec()
+    }, 100);
     
-      ///创建节点选择器
-      var query = wx.createSelectorQuery();
-      var c = wx.createSelectorQuery();
-      //选择id
-      query.select('.tab').boundingClientRect()
-      query.exec((res) => {
-          //res就是 所有标签为mjltest的元素的信息 的数组
-          // //取高度
-           console.log(res[0].height,987878787);
-          this.setState({typeBarHeight:res[0].height})
-      })
 
-
-      //container
-      c.select('.container').boundingClientRect()
-      c.exec((res) => {
-          //res就是 所有标签为mjltest的元素的信息 的数组
-          // console.log(res);
-          // //取高度
-           console.log(res[0].height,987878787);
-          this.setState({containerHeight:res[0].height})
-      })
+    // Taro.nextTick(async () => {
+    //    ///创建节点选择器
+    //    var query = Taro.createSelectorQuery();
+    //   // var c = wx.createSelectorQuery();
+    //    //选择id
+    //    query.select('.tab').boundingClientRect()
+    //    query.exec((res) => {
+    //        //res就是 所有标签为mjltest的元素的信息 的数组
+    //        // //取高度
+    //         console.log(res[0].height,987878787);
+    //        this.setState({typeBarHeight:res[0].height})
+    //    })
+ 
+ 
+    //    //container
+    //    // c.select('.container').boundingClientRect()
+    //    // c.exec((res) => {
+    //    //     //res就是 所有标签为mjltest的元素的信息 的数组
+    //    //     // console.log(res);
+    //    //     // //取高度
+    //    //      console.log(res[0].height,987878787);
+    //    //     this.setState({containerHeight: res[0].height})
+    //    // })
+    // })
+    
+    
+     
     
   }
+
+
+
+  componentWillUnmount() {}
+
+  componentDidShow() {}
+
+  componentDidHide() {}
+
+
+   
+
 
   fetchCate(){
   
@@ -175,19 +194,6 @@ export default class Index extends Component {
     )
   }
 
-
-
-  getPhoneNumber(e) {
-    
-  }
-
-
-  componentWillUnmount() {}
-
-  componentDidShow() {}
-
-  componentDidHide() {}
-
   fetchNotePage(query, value) {
     
     const {current,currentId,province,city,tabs,subCur,index} = this.state
@@ -202,12 +208,12 @@ export default class Index extends Component {
         data,
         //isToken:false
       },
-      (data) => {
-        if(data.code === 200){
-        this.setState({ ...data.data, loading: false })
+      (res) => {
+        if(res.code === 200){
+        this.setState({ ...res.data, loading: false })
         }else {
           Taro.showToast({
-            title: data.msg,
+            title: res.msg,
             icon:'none',
             mask: true
           });
@@ -219,7 +225,8 @@ export default class Index extends Component {
 
   onChange(value) {
     this.setState({
-      value: value,
+      // eslint-disable-next-line react/no-unused-state
+      value,
     })
   }
 
@@ -314,80 +321,79 @@ export default class Index extends Component {
       records,
       loading,
       tabs,
-      user,
-      currentId,
       subCur,
       visible,
       city,
       barHeight,
       statusBarHeight,
       typeBarHeight,
-      containerHeight,
+      
       index
       
     } = this.state
 
     return (
       
-      <View className="index">
+      <View className='index'>
        {loading &&  <AtActivityIndicator mode='center' content='加载中...'></AtActivityIndicator>}
        <View style={{display:loading?'none':'block'}}>
 
        <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
-          <View className="addr">{city}</View>
-          <View className="service" onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>分享返片,获取创作模特资格</View>
+          <View className='addr'>{city}</View>
+          <View className='service' onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>分享返片,获取创作模特资格</View>
 
         </View>
          <View className='menu'>
           <View className='tab' style={{top:barHeight +statusBarHeight +"px"}}>
           <View className='p20 at-row '>
           {tabs && tabs.map((item,i) => (
-            <View onClick={() => this.changeTab(item,i)}  className={i === index ? 'active at-col' : 'at-col'}><text>{item.dictVal}</text></View>
+            <View key={i} onClick={() => this.changeTab(item,i)}  className={i === index ? 'active at-col' : 'at-col'}><text>{item.dictVal}</text></View>
           ))}
           </View></View>
           <View className='fixed' style={{height:(typeBarHeight + barHeight + statusBarHeight) +"px"}}></View>
-          <View className="container p20">
+          <View className='container p20'>
             <View className='content '>
-              <View className="title">
+              <View className='title'>
                 {tabs[index] && tabs[index].child && tabs[index].child.map((item,i) => (
-                  <View onClick={() => this.handleClick(i)}  className={i === subCur ? 'active sub' : 'sub'}><text>{item.dictVal}</text></View>
+                  <View key={i} onClick={() => this.handleClick(i)}  className={i === subCur ? 'active sub' : 'sub'}><text>{item.dictVal}</text></View>
                 ))}
               {index === 0 &&   <View  className='expand' onClick={() => this.expand()}></View>}
               </View>
-              <View className="subContent">
-                <View className="h3">· 服务流程是怎么样的？</View>
-                <View className="p">
-                <text>
-                  确认下单- -&gt;支付定金- -&gt;客服回电确认信息- -&gt;确定摄影师- -&gt;享受拍摄服务- -&gt;支付尾款- -&gt;收到成片 \n \n
+              <View className='subContent'>
+                <View className='h3'>· 服务流程是怎么样的？</View>
+                <View className='p'>
+                <Text user-select  dangerouslySetInnerHTML={{ __html: `确认下单- ->支付定金- ->客服回电确认信息- ->确定摄影师- ->享受拍摄服务- ->支付尾款- ->收到成片
 
-                  关于我的资金安全? \n
-                  在您享受完拍摄后收到成片并点击“收到成片”后，平台才会与摄影师进行结算打款，在此之前您的资金都将受到平台保护。\n \n
+                  关于我的资金安全? 
+                  在您享受完拍摄后收到成片并点击“收到成片”后，平台才会与摄影师进行结算打款，在此之前您的资金都将受到平台保护。
 
-                  拍摄需要提前多久预定? \n
-                  目前可支持预约1天后的拍摄服务，如遇拍摄旺季请您最好提前15天到30天以上预定，以免耽误您的拍摄 \n
-                </text>
+                  拍摄需要提前多久预定? 
+                  目前可支持预约1天后的拍摄服务，如遇拍摄旺季请您最好提前15天到30天以上预定，以免耽误您的拍摄`}}
+                >
+                  
+                </Text>
               </View>
             </View>
           
-            <AtButton type='primary' size='small' className="book" onClick={() => Taro.navigateTo({url: `/pages/index/bookPhotographer`})} >预约摄影师</AtButton>
+            <AtButton type='primary' size='small' className='book' onClick={() => Taro.navigateTo({url: `/pages/index/bookPhotographer`})} >预约摄影师</AtButton>
           
             </View>
           </View>
         </View>
         <ScrollView
-              className='scrollview'
-              scrollY
-              scrollWithAnimation
-              scrollTop={0}
-              style={{height: (Taro.getSystemInfoSync().windowHeight) - barHeight - statusBarHeight +  'px'}}
-              lowerThreshold={20}
-              upperThreshold={20}
-              onScrollToLower={this.onScrollToLower.bind(this)}
-               >
-               <View className="list">
+          className='scrollview'
+          scrollY
+          scrollWithAnimation
+          scrollTop={0}
+          style={{height: (Taro.getSystemInfoSync().windowHeight) - barHeight - statusBarHeight +  'px'}}
+          lowerThreshold={20}
+          upperThreshold={20}
+          onScrollToLower={this.onScrollToLower.bind(this)}
+        >
+               <View className='list'>
                 {records && records.length > 0 ? (
                   records.map((item, i) => (
-                    <View className="item">
+                    <View className='item' key={i}>
                       <View
                         onClick={() => {
                          
@@ -398,24 +404,24 @@ export default class Index extends Component {
                         }
                         }
                       >
-                        <View className="image">
+                        <View className='image'>
                           
-                          <View className="img">
+                          <View className='img'>
                             <Image
-                              mode="widthFix"
+                              mode='widthFix'
                               src={(item.imgUrl)}
                             ></Image>
                            
                           </View>
-                          <View className="text">{item.title}</View>
+                          <View className='text'>{item.title}</View>
                         </View>
                       </View>
                     </View>
                   ))
                 ) : (
-                  <View className="noData" style={{ marginTop: '110px' }}>
+                  <View className='noData' style={{ marginTop: '110px' }}>
                     <Image
-                      mode="widthFix"
+                      mode='widthFix'
                       src={require('../../images/icon/noData.png')}
                     ></Image>
                     <View>暂无数据</View>
@@ -425,16 +431,16 @@ export default class Index extends Component {
         </ScrollView>
      
         {visible && <View className={(visible ? 'show ' : '' ) +"moreType"}>
-          <View className="body">
-              <View className="h4">全部选项<AtIcon value='close' size='20' color='#F6F6F6' onClick={() => this.expand()}></AtIcon></View>
-              <View className="types"> {tabs[0].child && tabs[0].child.map((item,i) => (
-                 <View onClick={() => this.handleClick(i,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.dictVal}</text></View>
+          <View className='body'>
+              <View className='h4'>全部选项<AtIcon value='close' size='20' color='#F6F6F6' onClick={() => this.expand()}></AtIcon></View>
+              <View className='types'> {tabs[0].child && tabs[0].child.map((item,i) => (
+                 <View key={i} onClick={() => this.handleClick(i,true)}  className={item.value === subCur ? 'active subExpand' : 'subExpand'}><text>{item.dictVal}</text></View>
               ))}</View>
               </View>
         </View>}
      
-         <View  className="recruitmentBtn">
-         <Text   onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} >招募 \n 摄影师</Text>
+         <View  className='recruitmentBtn'>
+         <Text   onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} dangerouslySetInnerHTML={{ __html: '招募 \n 摄影师'}}></Text>
           
           </View>       
       
@@ -444,3 +450,4 @@ export default class Index extends Component {
     )
   }
 }
+

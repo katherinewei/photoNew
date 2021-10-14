@@ -1,34 +1,28 @@
-import Taro, { Component } from '@tarojs/taro'
-import { View, Text,Swiper, SwiperItem } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { Component } from 'react'
+import { View, Swiper, SwiperItem,Image } from '@tarojs/components'
+import { AtAvatar  } from "taro-ui"
 import Request from '../../utils/request';
 import './photo.scss'
 import {getToken,getUserInfo} from '../../utils/help';
-import { AtAvatar  } from "taro-ui"
-import Tabs from '../../components/tab'
 
 export default class MyPhoto extends Component {
-
-    config = {
-        navigationBarTitleText: '我的评价',
-        navigationBarBackgroundColor: '#fff',
-    }
-
 
 
     constructor () {
       super(...arguments)
-      this.setState ({
-        
-      })
+      
     }
-
+    state = {
+      data:{}
+    }
 
     componentWillMount () {
 
     }
 
     componentDidMount () {
-
+      const $instance = Taro.getCurrentInstance()
       getToken(() => {
         // 查看自己评价内容详情
         
@@ -36,7 +30,7 @@ export default class MyPhoto extends Component {
             url: 'api/wxSelfCommentDetail',
             method: 'get',
             data: {
-              commentId: this.$router.params.id
+              commentId: $instance.router.params.id
             },
   
           },(data) => {
@@ -72,33 +66,30 @@ export default class MyPhoto extends Component {
 
     render () {
         
-      const {
-        data,
-        
-        
-      } = this.state
+      const { data } = this.state
         return (
          
           <View className='at-article'>
-            <View className="header" >
+            <View className='header' >
                   <AtAvatar  circle  image={data.headPic}   ></AtAvatar>
-                  <View className="right">
-                    <View className="name">{getUserInfo().nickName}</View>
+                  <View className='right'>
+                    <View className='name'>{getUserInfo().nickName}</View>
                    
                   </View>
                 </View>
               <View className='at-article__content'>
              {data.commentImgUrlList.length > 0 &&  <Swiper
-                  className='myswipe'
-                  indicatorColor='#DCDCDC'
-                  indicatorActiveColor='#5299FB'
+               className='myswipe'
+               indicatorColor='#DCDCDC'
+               indicatorActiveColor='#5299FB'
                   
-                  circular
-                  indicatorDots
-                  autoplay>
-                    {data.commentImgUrlList.map(item => (
-                      <SwiperItem>
-                      <View className='demo-text-1'><Image src={item} mode="widthFix"/></View>
+               circular
+               indicatorDots
+               autoplay
+             >
+                    {data.commentImgUrlList.map((item,i) =>(
+                      <SwiperItem key={i}>
+                        <View className='demo-text-1'><Image src={item} mode='widthFix' /></View>
                       </SwiperItem>
                     ))}
                 </Swiper>}
