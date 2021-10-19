@@ -186,7 +186,7 @@ export default class OrderDetail extends Component {
                 <View className='tip'>
                 <text class='tt'>订单规则:</text>
                 <Text class='ccont' dangerouslySetInnerHTML={{ __html: `确认下单- >支付定金- >客服回电确认信息- >确定
-摄影师- &gt;享受拍摄服务- &gt;支付尾款- &gt;收到成片 
+摄影师- >享受拍摄服务- >支付尾款- >收到成片 
 
 关于我的资金安全? 
 在您享受完拍摄后收到成片并点击“收到成片”后，平台才会与摄影师进行结算打款，在此之前您的资金都将受到平台保护。`}}
@@ -203,7 +203,7 @@ export default class OrderDetail extends Component {
          {curState === 1 &&<View>
             <View className='agree' onClick={() => this.setState({check: !this.state.check})}>
              <View className='icon'>{this.state.check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
-             <View> 我已阅读并同意<text>《拍摄服务撮合协议》</text></View>
+             <View> 我已阅读并同意 <text onClick={() => Taro.navigateTo({url: `/pages/order/protocol`})}>《拍摄服务撮合协议》</text></View>
             </View>
            <AtButton size='small' type='primary' circle  onClick={() => this.submitOrder()}>提交订单</AtButton>
          </View>}

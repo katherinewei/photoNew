@@ -13,12 +13,14 @@ export default class Pay extends Component {
     constructor (props) {
       super(props)
       this.setState ({
-        create:props.create,
+       // create:props.create,
         // eslint-disable-next-line react/no-unused-state
         tradeId:props.tradeId,
         curItem:props.curItem,
         isOpened:props.isOpened,
       })
+
+      console.log(props)
     }
 
     state = {
@@ -31,7 +33,7 @@ export default class Pay extends Component {
       minutes:'',
       seconds:'',
       curItem:{},
-      create:'',
+      //create:false,
       // eslint-disable-next-line react/no-unused-state
       tradeId:''
     }
@@ -57,19 +59,20 @@ export default class Pay extends Component {
         //this.showArea()
         this.setState({isOpened:true,curItem:nextProps.curItem})
 
-        if(this.state.create){
+        if(nextProps.create){
           // eslint-disable-next-line react/no-unused-state
-          this.setState({hour:'24',minutes:'0',seconds:'0'})
+          this.setState({hours:23,minutes:59,seconds:59})
+          console.log(324234)
         } else {
-          const time = new Date(nextProps.curItem.tradeTime).getTime() + (1000  * 60 * 60 *24)  // 截止日期
+          const time = new Date(nextProps.curItem.createTime).getTime() + (1000  * 60 * 60 *24)  // 截止日期
           const curTime = new Date().getTime() 
 
         const diff = ( time - curTime) / 1000
 //console.log(new Date(nextProps.curItem.tradeTime).getTime(),curTime)
         
         // eslint-disable-next-line react/no-unused-state
-        this.setState({hour:diff / 60 / 60 ,minutes:diff / 60 ,seconds:diff})
-
+        this.setState({hours:diff / 60 / 60 ,minutes:diff / 60 ,seconds:diff})
+        console.log(4564645)
         }
 
         
@@ -124,35 +127,68 @@ export default class Pay extends Component {
      // const tradeId = (this.props.onSubmit && this.props.onSubmit()) || '';
           // 发送数据
 
-          let data = {tradeId:this.props.tradeId}
-          if(this.props.final){
-            data.recordId = this.state.curItem.recordId
-            data.diffAmount = this.state.curItem.price
+          const {isWX} = this.state
+
+          if(isWX){
+            const that = this
+            Request(
+              {
+                url: 'api/wxTradePay',
+                method: 'GET',
+                data:{tradeId:this.props.tradeId,type:this.props.final ? 2 : 1},
+              },
+              (res) => {
+                console.log(res.data)
+                if(res.code === 200){
+                 
+                  const re = res.data
+                  // 微信支付
+                  Taro.requestPayment({
+                    timeStamp: re.timeStamp,
+                    nonceStr: re.nonceStr,
+                    package: re.packageValue,
+                    signType: re.signType,
+                    paySign: re.paySign,
+                    success (res1) {
+  
+                      that.onClose()
+                      that.props.onOk && that.props.onOk()
+  
+                      console.log(res1)
+  
+                     },
+                    fail (res1) { console.log(res1)}
+                  })
+                }
+              })
           } else {
-            data.amount = this.state.curItem.price
-          }
-        Request(
-          {
-            url: this.props.final ? 'api/wxConfirmPayment' : 'api/wxDeposit',
-            method: 'POST',
-            data,
-          },
-          () => {
-            this.onClose()
-            this.props.onOk && this.props.onOk()
-            // 微信支付
-            // Taro.requestPayment({
-            //   timeStamp: '',
-            //   nonceStr: '',
-            //   package: '',
-            //   signType: 'MD5',
-            //   paySign: '',
-            //   success (res) { },
-            //   fail (res) { }
-            // })
-           
-          },
-        )
+
+            if(Number(getUserInfo().remainAmount) < Number(this.state.curItem.price)){
+              Taro.showToast({
+                title: '余额不足，请使用微信支付！',
+                icon:'none',
+                mask: true
+              });
+              return false
+            }
+            let data = {tradeId:this.props.tradeId}
+            if(this.props.final){
+              data.recordId = this.state.curItem.recordId
+              data.diffAmount = this.state.curItem.price
+            } else {
+              data.amount = this.state.curItem.price
+            }
+
+             Request({
+                url: this.props.final ? 'api/wxConfirmPayment' : 'api/wxDeposit',
+                method: 'POST',
+                data,
+              },
+              () => {
+                this.onClose()
+                this.props.onOk && this.props.onOk()
+              })
+          } 
     }
 
     onClose(){
@@ -164,13 +200,13 @@ export default class Pay extends Component {
      // console.log(this.state.isOpened,98989)
         const {isOpened,isWX,curItem,hours,minutes,seconds} = this.state
 
-        console.log(isOpened,9987)
+       // console.log(isOpened,create,hours,minutes,seconds,9987)
 
-        const {final} = this.props
+        const {final,create} = this.props
 
         return (
           <AtFloatLayout isOpened={isOpened}  className='payLayout' onClose={() => this.onClose()}>
-            {this.state.create || final ? <View className='wait' onClick={() => this.onClose()}>{final ? '线下支付' : '稍后支付'}</View> : 
+            {create || final ? <View className='wait' onClick={() => this.onClose()}>{final ? '线下支付' : '稍后支付'}</View> : 
 
               <View className='text'>请在
                 <AtCountdown
@@ -186,8 +222,8 @@ export default class Pay extends Component {
             <View className='price'><text>￥</text>{curItem.price}</View>
             <View className='way'>
               <View>支付方式</View>
-              <View className='payway'><View className='n'>微信</View><View className='icon' onClick={() => this.setState({isWX:true})}>{isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
-              <View className='payway'><View className='n'>账户余额：{getUserInfo().remainAmount}</View><View className='icon' onClick={() => this.setState({isWX:false})}>{!isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
+              <View className='payway'><View className='n'>微信</View><View className={`${isWX?'active' : ''} icon`} onClick={() => this.setState({isWX:true})}>{isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
+              <View className='payway balance'><View className='n'>账户余额：{getUserInfo().remainAmount}</View><View className={`${!isWX?'active' : ''} icon`}  onClick={() => this.setState({isWX:false})}>{!isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
             </View>
             <AtButton size='small' type='primary' circle onClick={() => this.payOrder(true)}>立即支付</AtButton>
         </AtFloatLayout>

@@ -1,5 +1,6 @@
 export default {
   pages: [
+   
     
     'pages/index/index',
     'pages/index/detail', 
@@ -12,6 +13,7 @@ export default {
     'pages/order/evaluation',
     'pages/order/confirmOrder',    
     'pages/order/orderDeatil', 
+    'pages/order/protocol',
     'pages/user/index',
     'pages/user/detail',
     'pages/user/myPhoto',
@@ -34,6 +36,7 @@ export default {
     navigationBarBackgroundColor: '#5299FB',
     navigationBarTitleText: '拍好照',
     navigationBarTextStyle: 'black',
+   // enablePullDownRefresh: true,
    // navigationStyle:'custom'
   },
   tabBar: {

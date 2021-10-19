@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
-import { View, Text, ScrollView,Image } from '@tarojs/components'
+import { View, Text, Image } from '@tarojs/components'
 import {  AtTabBar,AtIcon,AtButton,AtAvatar} from 'taro-ui'
 import Request from '../../utils/request'
 import { getToken} from '../../utils/help'
@@ -53,7 +53,7 @@ export default class Index extends Component {
 
 
   // 获取订单
-  fetchOrder(){
+  fetchOrder(refresh){
     const { orderState } = this.state
     Request(
       {
@@ -68,6 +68,9 @@ export default class Index extends Component {
         //   item.state = 1
         //   item.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
         // })
+        if(refresh){
+          Taro.stopPullDownRefresh()
+        }
         if(data.code === 200){
         this.setState({ ...data.data,isOpenedCancel:false,isOpened:false })
         }else {
@@ -177,6 +180,14 @@ export default class Index extends Component {
       },
     )
   }
+  onPullDownRefresh(){
+    
+    this.fetchOrder(true)
+   // Taro.stopPullDownRefresh()
+  }
+  onReachBottom (){
+    this.onScrollToLower()
+  }
 
 
 
@@ -195,16 +206,6 @@ export default class Index extends Component {
            onClick={(e) => this.handleClick(e)}
            current={currentState}
          />
-        <ScrollView
-          className='scrollview'
-          scrollY
-          scrollWithAnimation
-          scrollTop={0}
-          style={{height: (Taro.getSystemInfoSync().windowHeight) - 50 +  'px'}}
-          lowerThreshold={20}
-          upperThreshold={20}
-          onScrollToLower={this.onScrollToLower.bind(this)}
-        >
           <View className='container'>
           {records && records.length > 0 ? (
             records.map((item, i) => (
@@ -255,7 +256,7 @@ export default class Index extends Component {
 
           
           </View>
-        </ScrollView>
+       
 
         
         <Pay isOpened={isOpened} curItem={curItem} tradeId={tradeId}  onOk={() => this.fetchOrder()} />

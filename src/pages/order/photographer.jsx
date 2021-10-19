@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
-import { View, ScrollView ,Image} from '@tarojs/components'
+import { View, Image} from '@tarojs/components'
 import { AtButton,AtAvatar,AtTabs, AtTabsPane} from 'taro-ui'
 import Request from '../../utils/request'
 import './photographer.scss'
@@ -39,26 +39,9 @@ export default class Index extends Component {
       },
     )
 
-     //查看摄影师评论列表内容-分页
-     Request(
-      {
-        url: 'api/wxCommentPage',
-        method: 'GET',
-        data: {page:1, id:$instance.router.params.id},
-        //isToken:false
-      },
-      (data) => {
-        if(data.code === 200){
-        this.setState({ ...data.data })
-        }else {
-          Taro.showToast({
-            title: data.msg,
-            icon:'none',
-            mask: true
-          });
-        }
-      },
-    )
+    this.fetchRecord()
+
+    
 
 
 
@@ -117,6 +100,43 @@ export default class Index extends Component {
       )
     }
   }
+
+
+  fetchRecord(refresh){
+    const $instance = Taro.getCurrentInstance()
+    //查看摄影师评论列表内容-分页
+    Request(
+      {
+        url: 'api/wxCommentPage',
+        method: 'GET',
+        data: {page:1, id:$instance.router.params.id},
+        //isToken:false
+      },
+      (data) => {
+        if(refresh){
+          Taro.stopPullDownRefresh()
+        }
+        if(data.code === 200){
+        this.setState({ ...data.data })
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
+      },
+    )
+  }
+
+  onPullDownRefresh(){
+    this.fetchRecord(true)
+  }
+  onReachBottom (){
+    this.onScrollToLower()
+  }
+
+
 
   selectIt(){
     const $instance = Taro.getCurrentInstance()
@@ -181,16 +201,7 @@ export default class Index extends Component {
           <AtTabsPane current={this.state.currentTab} index={1} className='evaluation'>
             <View  className='evaluation'>
               <View  className='title'>用户评价({total})</View>
-              <ScrollView
-                className='scrollview'
-                scrollY
-                scrollWithAnimation
-                scrollTop={0}
-                style={{height: (Taro.getSystemInfoSync().windowHeight) - 500 +  'px'}}
-                lowerThreshold={20}
-                upperThreshold={20}
-                onScrollToLower={this.onScrollToLower.bind(this)}
-              >
+              
 
                 <View className='box'>
                   {records && records.length > 0 ? records.map((item,i) => (
@@ -218,7 +229,7 @@ export default class Index extends Component {
                 </View>}
                 
                 </View>
-              </ScrollView>
+              
             </View>
           </AtTabsPane>
          

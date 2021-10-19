@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
-import { View,ScrollView,Image} from '@tarojs/components'
+import { View,Image} from '@tarojs/components'
 import Request from '../../utils/request';
 import './recharge.scss'
 import '../../components/common.scss'
@@ -20,12 +20,25 @@ export default class Record extends Component {
     }
 
     componentDidMount () {
+      this.fetchRecord()
+
+    }
+    componentWillUnmount () { }
+
+    componentDidShow () { }
+
+    componentDidHide () { }
+
+    fetchRecord(refresh){
       Request(
         {
           url: 'api/wxWalletPage',
           method: 'GET'
         },
         (data) => {
+          if(refresh){
+            Taro.stopPullDownRefresh()
+          }
           if(data.code === 200){
             this.setState({...data.data})
            
@@ -39,42 +52,43 @@ export default class Record extends Component {
           
         },
       )
-
     }
-    componentWillUnmount () { }
 
-    componentDidShow () { }
+    //上拉刷新
+    onScrollToLower() {
+      const { pages, current, records } = this.state
 
-    componentDidHide () { }
+      if (pages > current) {
+        Request(
+          {
+            url: 'api/wxWalletPage',
+            method: 'GET',
+            data: { page: current + 1 },
+            //isToken:false
+          },
+          (data) => {
+            if(data.code === 200){
+            data.data.records = [...records, ...data.data.records]
+            this.setState({ ...data.data })
+            }
+            else {
+              Taro.showToast({
+                title: data.msg,
+                icon:'none',
+                mask: true
+              });
+            }
+          },
+        )
+      }
+    }
 
-//上拉刷新
-onScrollToLower() {
-  const { pages, current, records } = this.state
-
-  if (pages > current) {
-    Request(
-      {
-        url: 'api/wxWalletPage',
-        method: 'GET',
-        data: { page: current + 1 },
-        //isToken:false
-      },
-      (data) => {
-        if(data.code === 200){
-        data.data.records = [...records, ...data.data.records]
-        this.setState({ ...data.data })
-        }
-        else {
-          Taro.showToast({
-            title: data.msg,
-            icon:'none',
-            mask: true
-          });
-        }
-      },
-    )
-  }
-}
+    onPullDownRefresh(){
+      this.fetchRecord(true)
+    }
+    onReachBottom (){
+      this.onScrollToLower()
+    }
 
     render () {
         
@@ -84,18 +98,8 @@ onScrollToLower() {
 
       const type = ['支付定金', '签约保证金', '余额提现', '余额充值']
         return (
-         
-          <ScrollView
-            className='scrollview'
-            scrollY
-            scrollWithAnimation
-            scrollTop={0}
-            style={{height: (Taro.getSystemInfoSync().windowHeight) +  'px'}}
-            lowerThreshold={20}
-            upperThreshold={20}
-            onScrollToLower={this.onScrollToLower.bind(this)}
-          >
-              <View className='rechargeRecords'>
+        
+          <View className='rechargeRecords'>
                  {records && records.length > 0 ? records.map((item,i) => (
                    <View key={i} className='box'>
                       <View className='left'>
@@ -112,7 +116,7 @@ onScrollToLower() {
                  <View>暂无数据</View>
                </View>}
               </View>
-          </ScrollView>
+      
         )
     }
 }

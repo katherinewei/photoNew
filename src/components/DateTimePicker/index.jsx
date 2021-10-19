@@ -33,7 +33,9 @@ export default class DateTimePicker extends Component {
 
     componentDidMount() {
         const { initValue } = this.props;
-        const fmtInitValue = getDate(initValue);
+        
+        const fmtInitValue = initValue ? getDate(initValue) : null;
+
         this.setState({ fmtInitValue });
     }
 
@@ -56,7 +58,7 @@ export default class DateTimePicker extends Component {
         selectIndexList[3] = hourList.indexOf(arr[3] + '点');
         selectIndexList[4] = minuteList.indexOf(arr[4] + '分');
 
-        console.log(current,fmtInitValue,987,arr)
+
 
         this.setState({
             selectIndexList,
@@ -101,6 +103,7 @@ export default class DateTimePicker extends Component {
     };
     // 切换
     changeHandel = (e) => {
+       
         const selectIndexList = e.detail.value;
         const [yearIndex, monthIndex, dayIndex, hourIndex, minuteIndex] = selectIndexList;
         const { yearList, monthLsit, dayList, hourList, minuteList } = this.state;
@@ -119,6 +122,7 @@ export default class DateTimePicker extends Component {
         const newDayList = getDayList(year, month);
 
         this.setState({
+            selectIndexList,
             dayList: newDayList,
             year,
             month,

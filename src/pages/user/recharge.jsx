@@ -73,28 +73,63 @@ export default class Recharge extends Component {
 
       const {index,prices,price} = this.state
 
+      const amount = price ? price : prices[index].amount
+     // const that = this
       Request(
         {
-          url: 'api/wxDepositSave',
-          method: 'POST',
-          data:{amount:price ? price : prices[index].amount}
+          url: 'api/wxDeposit',
+          method: 'GET',
+          data:{amount}
         },
-        (data) => {
-          if(data.code === 200){
-            Taro.showToast({
-              title: '充值成功',
-              icon: 'success',
-              mask: true,
+        (res) => {
+          if(res.code === 200){
+                 
+            const re = res.data
+            // 微信支付
+            Taro.requestPayment({
+              timeStamp: re.timeStamp,
+              nonceStr: re.nonceStr,
+              package: re.packageValue,
+              signType: re.signType,
+              paySign: re.paySign,
+              success () {
+
+                 Request(
+                    {
+                      url: 'api/wxDepositSave',
+                      method: 'POST',
+                      data:{amount}
+                    },
+                    (data) => {
+                      if(data.code === 200){
+                        Taro.showToast({
+                          title: '充值成功',
+                          icon: 'success',
+                          mask: true,
+                        })
+                        setTimeout(() => {
+                          Taro.reLaunch({
+                            url: `/pages/user/index`,
+                          })
+                        }, 1000)
+                      
+                      }else {
+                        Taro.showToast({
+                          title: data.msg,
+                          icon:'none',
+                          mask: true
+                        });
+                      }
+                      
+                    },
+                  )
+
+               },
+              fail (res1) { console.log(res1)}
             })
-            setTimeout(() => {
-              Taro.reLaunch({
-                url: `/pages/user/index`,
-              })
-            }, 1000)
-           
           }else {
             Taro.showToast({
-              title: data.msg,
+              title: res.msg,
               icon:'none',
               mask: true
             });
@@ -102,6 +137,10 @@ export default class Recharge extends Component {
           
         },
       )
+
+
+
+     
 
     }
 

@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
-import { View, ScrollView,Image } from '@tarojs/components'
+import { View, Image } from '@tarojs/components'
 import { AtAvatar  } from "taro-ui"
 import Request from '../../utils/request';
 import '../order/photographer.scss'
@@ -33,27 +33,7 @@ export default class MyPhoto extends Component {
 
       getToken(() => {
         //  评价分页
-        Request({
-          url: 'api/wxSelfCommentList',
-          method: 'get',
-          data: {
-          //  code: res.code
-          //    id:10000
-          },
-
-        },(data) => {
-          if(data.code === 200){
-          this.setState ({
-            records:data.data})
-          }else {
-            Taro.showToast({
-              title: data.msg,
-              icon:'none',
-              mask: true
-            });
-          }
-           
-        })
+       this.fetchRecord()
       })
 
     }
@@ -63,9 +43,68 @@ export default class MyPhoto extends Component {
 
     componentDidHide () { }
 
-    onScrollToLower(){
+   
+     //上拉刷新
+  onScrollToLower() {
+    const { pages, current, records } = this.state
 
+    if (pages > current) {
+      Request(
+        {
+          url: 'api/wxSelfCommentList',
+          method: 'GET',
+          data: { page: current + 1 },
+          //isToken:false
+        },
+        (data) => {
+          if(data.code === 200){
+          data.data.records = [...records, ...data.data.records]
+          this.setState({ ...data.data })
+          }else {
+            Taro.showToast({
+              title: data.msg,
+              icon:'none',
+              mask: true
+            });
+          }
+        },
+      )
     }
+  }
+
+  fetchRecord(refresh){
+    Request({
+      url: 'api/wxSelfCommentList',
+      method: 'get',
+      data: {
+      //  code: res.code
+      //    id:10000
+      },
+
+    },(data) => {
+      if(refresh){
+        Taro.stopPullDownRefresh()
+      }
+      if(data.code === 200){
+      this.setState ({
+        records:data.data})
+      }else {
+        Taro.showToast({
+          title: data.msg,
+          icon:'none',
+          mask: true
+        });
+      }
+       
+    })
+  }
+
+  onPullDownRefresh(){
+    this.fetchRecord(true)
+  }
+  onReachBottom (){
+    this.onScrollToLower()
+  }
 
     render () {
         
@@ -75,16 +114,7 @@ export default class MyPhoto extends Component {
         
       } = this.state
         return (
-          <ScrollView
-            className='scrollview'
-            scrollY
-            scrollWithAnimation
-            scrollTop={0}
-            style={{height: (Taro.getSystemInfoSync().windowHeight) +  'px'}}
-            lowerThreshold={20}
-            upperThreshold={20}
-            onScrollToLower={this.onScrollToLower.bind(this)}
-          >
+          
           <View className='evaluation userEvaluation'>
             <View className='box'>
               {records.length > 0 ? records.map((item,i) => (
@@ -123,7 +153,7 @@ export default class MyPhoto extends Component {
               </View>
            
           </View>
-        </ScrollView>
+      
         
         )
     }

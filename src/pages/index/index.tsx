@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
-import { View, Text,ScrollView,Image } from '@tarojs/components'
+import { View, Text,Image } from '@tarojs/components'
 import {
   AtButton,
   AtIcon,
@@ -194,7 +194,7 @@ export default class Index extends Component {
     )
   }
 
-  fetchNotePage(query, value) {
+  fetchNotePage(refresh) {
     
     const {current,currentId,province,city,tabs,subCur,index} = this.state
     
@@ -209,6 +209,11 @@ export default class Index extends Component {
         //isToken:false
       },
       (res) => {
+
+        if(refresh){
+          Taro.stopPullDownRefresh()
+        }
+
         if(res.code === 200){
         this.setState({ ...res.data, loading: false })
         }else {
@@ -311,6 +316,15 @@ export default class Index extends Component {
   }
 
 
+  onPullDownRefresh(){
+    
+    this.fetchNotePage(true)
+  
+  }
+  onReachBottom (){
+    this.onScrollToLower()
+  }
+
 
 
 
@@ -380,17 +394,8 @@ export default class Index extends Component {
             </View>
           </View>
         </View>
-        <ScrollView
-          className='scrollview'
-          scrollY
-          scrollWithAnimation
-          scrollTop={0}
-          style={{height: (Taro.getSystemInfoSync().windowHeight) - barHeight - statusBarHeight +  'px'}}
-          lowerThreshold={20}
-          upperThreshold={20}
-          onScrollToLower={this.onScrollToLower.bind(this)}
-        >
-               <View className='list'>
+       
+        <View className='list'>
                 {records && records.length > 0 ? (
                   records.map((item, i) => (
                     <View className='item' key={i}>
@@ -428,7 +433,7 @@ export default class Index extends Component {
                   </View>
                 )}
               </View>
-        </ScrollView>
+        
      
         {visible && <View className={(visible ? 'show ' : '' ) +"moreType"}>
           <View className='body'>

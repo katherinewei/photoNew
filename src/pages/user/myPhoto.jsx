@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
-import { View,ScrollView,Image } from '@tarojs/components'
+import { View,Image } from '@tarojs/components'
 import Request from '../../utils/request';
 import './photo.scss'
 
@@ -23,25 +23,7 @@ export default class MyPhoto extends Component {
     }
 
     componentDidMount () {
-      Request({
-        url: 'api/wxNotePage',
-        method: 'get',
-        data: {
-        //  code: res.code
-        //    id:10000
-        },
-
-      },(data) => {
-        if(data.code === 200){
-         this.setState({...data.data})
-        }else {
-          Taro.showToast({
-            title: data.msg,
-            icon:'none',
-            mask: true
-          });
-        }
-      })
+      this.fetchRecord()
 
     }
     componentWillUnmount () { }
@@ -78,6 +60,39 @@ export default class MyPhoto extends Component {
     }
   }
 
+  fetchRecord(refresh){
+    Request({
+      url: 'api/wxNotePage',
+      method: 'get',
+      data: {
+      //  code: res.code
+      //    id:10000
+      },
+
+    },(data) => {
+      if(refresh){
+        Taro.stopPullDownRefresh()
+      }
+      if(data.code === 200){
+       this.setState({...data.data})
+      }else {
+        Taro.showToast({
+          title: data.msg,
+          icon:'none',
+          mask: true
+        });
+      }
+    })
+  }
+
+  onPullDownRefresh(){
+    this.fetchRecord(true)
+  }
+  onReachBottom (){
+    this.onScrollToLower()
+  }
+  
+
     render () {
         
       const {
@@ -86,17 +101,8 @@ export default class MyPhoto extends Component {
         
       } = this.state
         return (
-          <ScrollView
-            className='scrollview myPhotoPage'
-            scrollY
-            scrollWithAnimation
-            scrollTop={0}
-            style={{height: (Taro.getSystemInfoSync().windowHeight)  +  'px'}}
-            lowerThreshold={20}
-            upperThreshold={20}
-            onScrollToLower={this.onScrollToLower.bind(this)}
-          >
-           <View className='list'>
+          <View className='myPhotoPage' >
+           <View className='list '>
             {records && records.length > 0 ? (
               records.map((item, i) => (
                 <View key={i} className='item'>
@@ -132,7 +138,7 @@ export default class MyPhoto extends Component {
               </View>
             )}
           </View>
-    </ScrollView>
+          </View>
         )
     }
 }
