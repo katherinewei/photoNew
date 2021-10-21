@@ -1,17 +1,11 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text,Image } from '@tarojs/components'
-import {
-  AtButton,
-  AtIcon,
-  AtActivityIndicator
-} from 'taro-ui'
+import { AtButton, AtIcon, AtActivityIndicator} from 'taro-ui'
 import Request from '../../utils/request'
-import {
-  getToken,
-  setUserInfo
-} from '../../utils/help'
+import { getToken, setUserInfo} from '../../utils/help'
 import { mapKey } from '../../config'
+import Area from '../../components/area/area';
 import './index.scss'
 
 
@@ -32,7 +26,7 @@ export default class Index extends Component {
     typeBarHeight:''  ,
     // eslint-disable-next-line react/no-unused-state
    // containerHeight:'',
-    pages:1, current:1, records:[]
+    pages:1, current:1, records:[],isOpenedArea:false
   }
 
   componentWillMount() {
@@ -325,6 +319,18 @@ export default class Index extends Component {
     this.onScrollToLower()
   }
 
+    //省市选择
+    selectCity(e) {
+     
+      
+      this.setState({ isOpenedArea: false,city:e.data.city,province:e.data.province },()=>{
+        // 获取返片
+        this.fetchNotePage()
+      })
+      
+      
+    }
+
 
 
 
@@ -353,7 +359,7 @@ export default class Index extends Component {
        <View style={{display:loading?'none':'block'}}>
 
        <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
-          <View className='addr'>{city}</View>
+          <View className='addr' onClick={() => this.setState({isOpenedArea:true})}>{city}</View>
           <View className='service' onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>分享返片,获取创作模特资格</View>
 
         </View>
@@ -424,7 +430,7 @@ export default class Index extends Component {
                     </View>
                   ))
                 ) : (
-                  <View className='noData' style={{ marginTop: '110px' }}>
+                  <View className='noData' style={{ padding: '110px 0' }}>
                     <Image
                       mode='widthFix'
                       src={require('../../images/icon/noData.png')}
@@ -450,7 +456,7 @@ export default class Index extends Component {
           </View>       
       
        </View>
-        
+       <Area visible={this.state.isOpenedArea} hideDistrict onOk={e=>this.selectCity(e)} onClose={() => {this.setState({isOpenedArea:false})}}></Area>
       </View>
     )
   }

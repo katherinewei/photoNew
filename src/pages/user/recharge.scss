@@ -89,3 +89,46 @@
   }
   
 }
+
+.msgRecord{
+  height: 100vh;
+  background-color: #fff;
+  .box{
+    padding-bottom: 35px;
+    .left{
+      font-size: 30px;
+      font-weight: bold;
+      color: #000;
+      flex: 1;
+      view {
+        text{
+          width: 8px;
+          height: 8px;
+          background-color: #ff5454;
+          display: inline-block;
+          vertical-align: super;
+          border-radius: 100%;
+
+        }
+      }
+      .msg{
+        font-size: 24px;
+        font-weight: normal;
+        color: #666;
+        overflow: hidden;
+        text-overflow:ellipsis;
+        white-space: nowrap;
+        display: block;
+         width: 500px;
+      }
+    }
+    .right{
+      font-size: 24px;
+      color: #999999;
+      line-height: 48px;
+      font-weight: normal;
+  
+    }
+  }
+
+}

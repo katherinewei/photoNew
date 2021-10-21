@@ -38,6 +38,30 @@
     }
     
   }
+  .msg{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: rgba(0,0,0,0.6);
+    text-align: center;
+    line-height: 70px;
+    .num{
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 18px;
+      line-height: 18px;
+      background-color: #ff5454;
+      display: block;
+      padding: 5px 10px 8px;
+      border-radius: 40px;
+
+    }
+    
+  }
 }
 
 .grid{

@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
 import { View,Image } from '@tarojs/components'
-import { AtAvatar  } from "taro-ui"
+import { AtAvatar ,AtIcon  } from "taro-ui"
 import Request from '../../utils/request';
 import './index.scss'
 
@@ -18,7 +18,8 @@ export default class UserComponent extends Component {
     
 
     state = {
-      user: {}
+      user: {},
+      msgData:{}
     }
 
 
@@ -55,26 +56,11 @@ export default class UserComponent extends Component {
             });
           }
         })
+
+        this.fetchMsg()
       })
-    
-
-
-    
-
-
-
-
     }
-
-
-
-    componentWillUnmount () { }
-
-    componentDidShow () { }
-
-    componentDidHide () { }
-
-
+  
     getUser(){
       
       let that = this;
@@ -154,13 +140,36 @@ export default class UserComponent extends Component {
 
   }
 
+  fetchMsg(){
+    Request(
+      {
+        url: 'api/noticeInfo',
+        method: 'GET'
+      },
+      (data) => {
+        
+        if(data.code === 200){
+          this.setState({msgData:data.data})
+         
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
+        
+      },
+    )
+  }
+
 
 
     render () {
-        const{user} = this.state
+        const{user,msgData} = this.state
 
         return (
-          user && <View className='user'>
+          user.id ? <View className='user'>
                 <View className='header' >
                   {user.headPic && <AtAvatar  circle  image={user.headPic}   ></AtAvatar>}
                   <View className='right'>
@@ -168,6 +177,7 @@ export default class UserComponent extends Component {
                     <View className='wan' onClick={this.getUser.bind(this)}>完善资料</View>
                     {/* <Button openType='getUserInfo' onGetUserInfo={this.getUser.bind(this)} className='wan'>完善资料</Button> */}
                   </View>
+                  <View className='msg'>{msgData.redPoint&& <text class='num'>{msgData.unReadSize}</text>}<AtIcon value='message' size='20' color='#ffffff' onClick={() => Taro.navigateTo({url: `/pages/user/message`})}></AtIcon></View>
                 </View>
                 <View className='grid'>
                     <View className='item' onClick={() => Taro.navigateTo({url: `/pages/user/recharge?price=${user.remainAmount}`})}>
@@ -191,7 +201,7 @@ export default class UserComponent extends Component {
                       <View className='b'>我的评价</View>
                     </View>
                 </View>
-          </View>
+          </View>:<View></View>
         )
     }
 }

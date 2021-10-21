@@ -220,7 +220,7 @@ export default class Index extends Component {
                   
                   </View>
                   
-                  )): <View className='noData' style={{ marginTop: '30px' }}>
+                  )): <View className='noData' style={{ padding: '110px 0' }}>
                   <Image
                     mode='widthFix'
                     src={require('../../images/icon/noData.png')}

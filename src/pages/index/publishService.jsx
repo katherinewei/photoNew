@@ -110,6 +110,7 @@ export default class publishService extends Component {
 
   //提交
   onSubmit() {
+    console.log(232323)
     let {
       files,
       title,
@@ -284,7 +285,7 @@ export default class publishService extends Component {
 
     return (
       <View className='publishService'>
-        <AtForm onSubmit={this.onSubmit.bind(this)} className='form'>
+        <AtForm  className='form'>
           <View className='formCont'>
           <ImageUpload files={hasChoose ? Taro.getStorageSync('files') ? JSON.parse(Taro.getStorageSync('files')) : []:[]} onOk={e => {
             this.setState({files:e.files})
@@ -346,7 +347,7 @@ export default class publishService extends Component {
             <View className='tip'>* 所有上传图片需向平台保证拥有合法版权，如因用户上传产生的相关纠纷，造成相关损失，平台将有权利进行处理。</View>
           </View>
          
-          <AtButton type='primary' formType='submit'>
+          <AtButton type='primary' onClick={this.onSubmit.bind(this)} >
             发布
           </AtButton>
         </AtForm>

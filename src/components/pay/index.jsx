@@ -223,7 +223,7 @@ export default class Pay extends Component {
             <View className='way'>
               <View>支付方式</View>
               <View className='payway'><View className='n'>微信</View><View className={`${isWX?'active' : ''} icon`} onClick={() => this.setState({isWX:true})}>{isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
-              <View className='payway balance'><View className='n'>账户余额：{getUserInfo().remainAmount}</View><View className={`${!isWX?'active' : ''} icon`}  onClick={() => this.setState({isWX:false})}>{!isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
+              <View className='payway balance'><View className='n'>账户余额：{getUserInfo() && getUserInfo().remainAmount}</View><View className={`${!isWX?'active' : ''} icon`}  onClick={() => this.setState({isWX:false})}>{!isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
             </View>
             <AtButton size='small' type='primary' circle onClick={() => this.payOrder(true)}>立即支付</AtButton>
         </AtFloatLayout>

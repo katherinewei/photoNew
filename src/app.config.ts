@@ -1,6 +1,6 @@
 export default {
   pages: [
-   
+    
     
     'pages/index/index',
     'pages/index/detail', 
@@ -25,6 +25,8 @@ export default {
     'pages/user/recruitment',
     'pages/user/recharge',
     'pages/user/record',
+    'pages/user/message',
+    'pages/user/download'
   ],
   "permission": {
     "scope.userLocation": {
@@ -54,8 +56,6 @@ export default {
         iconPath:"./images/icon/tab2.png",
         text: "订单"
       },
-     
-     
       {
         pagePath: "pages/user/index",
         selectedIconPath: "./images/icon/tab3_active.png",  

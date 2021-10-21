@@ -16,6 +16,7 @@ export default class Area extends Component {
       super(props)
       this.setState ({
         isOpenedArea: props.visible,
+        showDistrict: !props.hideDistrict
        
 
       })
@@ -31,6 +32,7 @@ export default class Area extends Component {
       cityed: '',
       districted:'',
       showDistrict:false,
+
     }
 
 
@@ -78,7 +80,7 @@ export default class Area extends Component {
         
       }
 
-      if(!data.area){
+      if(!data.area && !this.props.hideDistrict){
         Taro.showToast({
           title: '请选择地区',
           icon: 'none',
@@ -222,7 +224,7 @@ export default class Area extends Component {
 
     render () {
      // console.log(this.state.isOpenedArea,98989)
-        console.log(this.state.provinceed,112222444)
+        console.log(this.state.provinceed,this.props.hideDistrict,112222444)
 
 
         return (
@@ -242,7 +244,7 @@ export default class Area extends Component {
                   {this.state.cityed || '请选择城市'}
                 </View>
               </Picker> 
-             {this.state.showDistrict && <View>
+             {this.state.showDistrict && !this.props.hideDistrict && <View>
                 <View className='p'>区/县</View>
                 <Picker mode='selector' range={this.state.district} onChange={(e) => this.setState({districted:this.state.district[e.target.value]})} >
                   <View className='pickerArea'>

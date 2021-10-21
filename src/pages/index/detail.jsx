@@ -55,7 +55,7 @@ export default class MyPhoto extends Component {
       const { data} = this.state
         return (
          
-         data.id &&  <View className='at-article'>
+         data.id ?  <View className='myPhotoPage'><View className='at-article'>
             <View className='header' >
                   <AtAvatar  circle  image={data.headPic}   ></AtAvatar>
                   <View className='right'>
@@ -93,7 +93,7 @@ export default class MyPhoto extends Component {
                  
                 </View>
               </View>
-          </View>
+          </View></View> : <View></View>
         )
     }
 }

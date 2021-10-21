@@ -1,6 +1,7 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
 import { View,Image } from '@tarojs/components'
+import Request from '../../utils/request'
 import './register.scss'
 import '../../components/common.scss'
 
@@ -8,10 +9,14 @@ export default class RegisterFinish extends Component {
 
 
 
-
     constructor () {
       super(...arguments)
       
+    }
+
+    state = {
+      url:'',
+      img:''
     }
 
 
@@ -41,13 +46,33 @@ export default class RegisterFinish extends Component {
 
     componentDidMount () {
 
+        Request(
+          {
+            url: 'api/wxDownloadDetail',
+            method: 'GET'
+          },
+          (data) => {
+           
+            if(data.code === 200){
+              this.setState({url:data.data.url,img:data.data.imgUrl})
+             
+            }else {
+              Taro.showToast({
+                title: data.msg,
+                icon:'none',
+                mask: true
+              });
+            }
+            
+          },
+        )
 
     }
 
     render () {
       const {
         barHeight,
-        statusBarHeight, 
+        statusBarHeight,url, img
       } = this.state
      
         return (
@@ -57,9 +82,13 @@ export default class RegisterFinish extends Component {
                 <View className='title' >注册成功</View>
 
               </View>
-              <View className='content'>
-                <Image src={require('../../images/icon/success.png')} mode='widthFix' />
-                您已完成注册，下载摄影师端APP开始接单</View>
+              <View className='content' >
+                <Image src={img} mode='widthFix' />
+                
+                <View >您已完成注册，下载摄影师端APP开始接单</View>
+                <View className='download'>下载地址:<text user-select>{url}</text>复制链接到浏览器进行APP下载</View>
+
+                </View>
           </View>
           
         )
