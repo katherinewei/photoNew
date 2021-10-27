@@ -49,11 +49,13 @@ export default class evaluation extends Component {
       })
      
     }
+
+    const $instance = Taro.getCurrentInstance()
     const data = {
       commentImgUrlList:imgPath,
       title,
       content,
-      tradeId:this.$router.params.id
+      tradeId:$instance.router.params.id
     }
     console.log(data)
     // 发送数据
@@ -71,7 +73,11 @@ export default class evaluation extends Component {
             mask: true,
           })
           setTimeout(() => {
-            Taro.navigateBack({delta: 1})
+            //Taro.navigateBack({delta: 1})
+            Taro.reLaunch({
+              // eslint-disable-next-line no-undef
+              url: `/pages/order/index`,
+            })
           
           }, 1000)
         }else {
@@ -93,7 +99,7 @@ export default class evaluation extends Component {
 
     return (
       <View className='publishService'>
-        <AtForm onSubmit={this.onSubmit.bind(this)} className='form'>
+        <AtForm  className='form'>
           <View className='formCont'>
 
           <ImageUpload  onOk={e => {
@@ -124,7 +130,7 @@ export default class evaluation extends Component {
           />
           
           </View>
-          <AtButton type='primary' formType='submit' className='evaluationBtn'>
+          <AtButton type='primary' onClick={this.onSubmit.bind(this)} className='evaluationBtn'>
             发布评论
           </AtButton>
         </AtForm>

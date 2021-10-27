@@ -20,7 +20,7 @@ export default class Pay extends Component {
         isOpened:props.isOpened,
       })
 
-      console.log(props)
+    //  console.log(props)
     }
 
     state = {
@@ -52,7 +52,7 @@ export default class Pay extends Component {
 
     componentWillReceiveProps(nextProps) {
 
-      console.log(nextProps,11122)
+     // console.log(nextProps,11122)
       
      // const nextProps = this.props
       if(nextProps.isOpened){
@@ -64,18 +64,37 @@ export default class Pay extends Component {
           this.setState({hours:23,minutes:59,seconds:59})
           console.log(324234)
         } else {
-          const time = new Date(nextProps.curItem.createTime).getTime() + (1000  * 60 * 60 *24)  // 截止日期
+          let createTime = nextProps.curItem.createTime
+          createTime = createTime.replace(/-/g,'/')
+          const time = new Date(createTime).getTime() + (24 * 3600 * 1000)  // 截止日期
           const curTime = new Date().getTime() 
+   
+       // const diff = ( time - curTime)  / 1000
 
-        const diff = ( time - curTime) / 1000
-//console.log(new Date(nextProps.curItem.tradeTime).getTime(),curTime)
+       const dateDiff = time - curTime;//时间差的毫秒数
+      // const dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000));//计算出相差天数
+       const leave1=dateDiff%(24*3600*1000)    //计算天数后剩余的毫秒数
+       const hours=Math.floor(leave1/(3600*1000))//计算出小时数
+       //计算相差分钟数
+       const leave2=leave1%(3600*1000)    //计算小时数后剩余的毫秒数
+       const minutes=Math.floor(leave2/(60*1000))//计算相差分钟数
+       //计算相差秒数
+       const leave3=leave2%(60*1000)      //计算分钟数后剩余的毫秒数
+       const seconds=Math.round(leave3/1000)
+
+       console.log(hours ,minutes ,seconds)
+
+
+//console.log(new Date(nextProps.curItem.createTime).getTime() / 1000,time,curTime,diff)
         
         // eslint-disable-next-line react/no-unused-state
-        this.setState({hours:diff / 60 / 60 ,minutes:diff / 60 ,seconds:diff})
-        console.log(4564645)
+        this.setState({hours ,minutes ,seconds})
+       // console.log(4564645)
         }
 
         
+      } else {
+        this.setState({isOpened:false,hours:0 ,minutes:0 ,seconds:0})
       }
      
     }
@@ -123,19 +142,23 @@ export default class Pay extends Component {
 
     }
 
-    payOrder(){
+    payOrder(offlinePayment){
      // const tradeId = (this.props.onSubmit && this.props.onSubmit()) || '';
           // 发送数据
 
           const {isWX} = this.state
 
-          if(isWX){
+          if(isWX && !offlinePayment){
             const that = this
+            let data = {tradeId:this.props.tradeId,type:this.props.final ? 2 : 1}
+            if(this.props.final){
+              data.recordId = this.state.curItem.recordId
+            }
             Request(
               {
                 url: 'api/wxTradePay',
                 method: 'GET',
-                data:{tradeId:this.props.tradeId,type:this.props.final ? 2 : 1},
+                data,
               },
               (res) => {
                 console.log(res.data)
@@ -162,16 +185,21 @@ export default class Pay extends Component {
                 }
               })
           } else {
-
-            if(Number(getUserInfo().remainAmount) < Number(this.state.curItem.price)){
-              Taro.showToast({
-                title: '余额不足，请使用微信支付！',
-                icon:'none',
-                mask: true
-              });
-              return false
-            }
             let data = {tradeId:this.props.tradeId}
+            if(offlinePayment){
+              data.offlinePayment = true
+            } else {
+              if(Number(getUserInfo().remainAmount) < Number(this.state.curItem.price)){
+                Taro.showToast({
+                  title: '余额不足，请使用微信支付！',
+                  icon:'none',
+                  mask: true
+                });
+                return false
+              }
+            }
+            
+           
             if(this.props.final){
               data.recordId = this.state.curItem.recordId
               data.diffAmount = this.state.curItem.price
@@ -195,9 +223,19 @@ export default class Pay extends Component {
       this.setState({isOpened:false})
     }
 
+    notPay(){
+      if(this.props.final){
+        this.payOrder(true)
+      } else {
+        this.onClose()
+        Taro.reLaunch({  url: `/pages/order/index` })
+      }
+      
+    }
+
 
     render () {
-     // console.log(this.state.isOpened,98989)
+      
         const {isOpened,isWX,curItem,hours,minutes,seconds} = this.state
 
        // console.log(isOpened,create,hours,minutes,seconds,9987)
@@ -206,26 +244,27 @@ export default class Pay extends Component {
 
         return (
           <AtFloatLayout isOpened={isOpened}  className='payLayout' onClose={() => this.onClose()}>
-            {create || final ? <View className='wait' onClick={() => this.onClose()}>{final ? '线下支付' : '稍后支付'}</View> : 
+            {create || final ? <View className='wait' onClick={() => this.notPay()}>{final ? '线下支付' : '稍后支付'}</View> : 
 
               <View className='text'>请在
-                <AtCountdown
-                  format={{ hours: ':', minutes: ':', seconds: '' }}
-                  hours={hours}
-                  minutes={minutes}
-                  seconds={seconds}
-                  onTimeUp={this.onTimeUp.bind(this)} 
-                />内支付{final ? '' : '定金'}，逾期将自动取消
+               {isOpened &&  <AtCountdown
+                 format={{ hours: ':', minutes: ':', seconds: '' }}
+                 hours={hours}
+                 minutes={minutes}
+                 seconds={seconds}
+                 onTimeUp={this.onTimeUp.bind(this)}
+               />}内支付{final ? '' : '定金'}，逾期将自动取消
               </View>
               
             }
-            <View className='price'><text>￥</text>{curItem.price}</View>
+            
+            <View className='price'><text>￥</text>{curItem.price && curItem.price.toFixed(2)}</View>
             <View className='way'>
               <View>支付方式</View>
               <View className='payway'><View className='n'>微信</View><View className={`${isWX?'active' : ''} icon`} onClick={() => this.setState({isWX:true})}>{isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
               <View className='payway balance'><View className='n'>账户余额：{getUserInfo() && getUserInfo().remainAmount}</View><View className={`${!isWX?'active' : ''} icon`}  onClick={() => this.setState({isWX:false})}>{!isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
             </View>
-            <AtButton size='small' type='primary' circle onClick={() => this.payOrder(true)}>立即支付</AtButton>
+            <AtButton size='small' type='primary' circle onClick={() => this.payOrder(false)}>立即支付</AtButton>
         </AtFloatLayout>
   
         )

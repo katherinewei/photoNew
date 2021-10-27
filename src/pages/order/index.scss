@@ -1,7 +1,32 @@
 
 .Order{
+  .at-tab-bar{
+    position: fixed;
+    height: 88px;
+    z-index: 9;
+    .at-tab-bar__item.at-tab-bar__item--active{
+      .at-badge{
+        color: #333;
+        position: relative;
+        &::after{
+          height: 10px;
+          content: '';
+          background-color: #99ccff;
+          width: 62px;
+          display: inline-block;
+          position: relative;
+          top: 16rpx;
+          // position: absolute;
+          // bottom: 0;
+          // left: -10px;
+
+        }
+      //  border-bottom: 5px solid #99ccff;
+      }
+    }
+  }
   .container{
-    padding: 20px;
+    padding:100px 20px 20px;
     .box{
       border-radius: 20px;
       background-color: #fff;

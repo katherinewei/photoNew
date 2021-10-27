@@ -37,6 +37,7 @@ export default class Index extends Component {
   componentDidMount() {
     getToken(() => {
       this.fetchOrder()
+     
     })
 
   }
@@ -54,6 +55,8 @@ export default class Index extends Component {
 
   // 获取订单
   fetchOrder(refresh){
+    
+
     const { orderState } = this.state
     Request(
       {
@@ -189,6 +192,24 @@ export default class Index extends Component {
     this.onScrollToLower()
   }
 
+  received(tradeId){
+    Request(
+      {
+        url: 'api/wxReceiveSlice',
+        method: 'POST',
+        data: { tradeId },
+        //isToken:false
+      },
+      (data) => {
+        Taro.showToast({
+          title: data.msg,
+          icon:'success',
+          mask: true
+        });
+        this.fetchOrder()
+      })
+  }
+
 
 
   render() {
@@ -197,7 +218,7 @@ export default class Index extends Component {
     
     const {currentState,isOpened,curItem,isOpenedCancel,records,tradeId} = this.state
 
-    const stateName = ['取消订单','待支付','预约中','确认摄影师','已完成','已提交成片'] 
+    const stateName = ['取消订单','待支付','预约中','已预约','等待成片','已提交成片'] 
    
     return (
       <View className='Order'>
@@ -214,10 +235,10 @@ export default class Index extends Component {
                   <View className='position'><AtIcon value='map-pin' size='20' color='#000' ></AtIcon>{item.city} {item.area}</View>
                   <View className='sta'>{stateName[item.state + 1]}</View>
                 </View>
-                <View className='time'>拍摄时间： <Text className='s'>{item.startTime} - {item.endTime}</Text> </View>
-                <View  className='time'>{item.typeDesc}：{item.adult ? item.adult + '成人' : ''} {item.adult ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</View>
+                <View className='time'>拍摄时间： <Text className='s'>{item.startTimeStr} - {item.endTimeStr}</Text> </View>
+                <View  className='time'>{item.typeDesc}：{item.adult ? item.adult + '成人' : ''} {item.child ? item.child + '儿童' : ''} {item.lover ? item.lover + '情侣' : ''}</View>
                 {item.photoerList && item.photoerList.length > 0 && <View className='replay'>
-                  {item.state === 0 ? <View>  已有<text class='num'>{item.photoerList.length}</text>位摄影师回复， <text class='num'>请支付定金查看&gt;</text></View> : item.state > 0 ? '已选定摄影师' : ''}
+                  {item.state === 0 || item.state === 1 ? <View>  已有<text class='num'>{item.photoerList.length}</text>位摄影师回复， {item.state === 0 && <text class='num'>请支付定金查看&gt;</text>}</View> : item.state > 0 ? '已选定摄影师' : ''}
 
                   </View>}
                
@@ -240,6 +261,7 @@ export default class Index extends Component {
                       {item.state === 0 &&  <AtButton size='small' type='primary' circle onClick={() => this.payOrder(item)}>支付定金</AtButton>}
                       {(item.state === -1)  &&  <AtButton size='small' type='secondary' circle onClick={() => this.deleteOrder(item)}>删除订单</AtButton>}
                       {(item.state > 2)  &&  <AtButton size='small' type='secondary' circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
+                      {(item.state === 4)  &&  <AtButton size='small' type='secondary' circle  onClick={() => this.received(item.id)}>收到成片</AtButton>}
                   </View>
                 </View>
               </View>

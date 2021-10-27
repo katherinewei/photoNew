@@ -327,6 +327,10 @@ export default class Index extends Component {
         // 获取返片
         this.fetchNotePage()
       })
+
+      const addr = [e.data.country,e.data.province,e.data.city,e.data.area]
+      Taro.setStorageSync('curAddr', JSON.stringify(addr))   // 保存地址
+
       
       
     }
@@ -360,7 +364,7 @@ export default class Index extends Component {
 
        <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
           <View className='addr' onClick={() => this.setState({isOpenedArea:true})}>{city}</View>
-          <View className='service' onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>分享返片,获取创作模特资格</View>
+          <View className='service' onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>写真分享，领红包，享免费</View>
 
         </View>
          <View className='menu'>
@@ -382,14 +386,7 @@ export default class Index extends Component {
               <View className='subContent'>
                 <View className='h3'>· 服务流程是怎么样的？</View>
                 <View className='p'>
-                <Text user-select  dangerouslySetInnerHTML={{ __html: `确认下单- ->支付定金- ->客服回电确认信息- ->确定摄影师- ->享受拍摄服务- ->支付尾款- ->收到成片
-
-                  关于我的资金安全? 
-                  在您享受完拍摄后收到成片并点击“收到成片”后，平台才会与摄影师进行结算打款，在此之前您的资金都将受到平台保护。
-
-                  拍摄需要提前多久预定? 
-                  目前可支持预约1天后的拍摄服务，如遇拍摄旺季请您最好提前15天到30天以上预定，以免耽误您的拍摄`}}
-                >
+                <Text user-select  dangerouslySetInnerHTML={{ __html: `确认下单- ->支付定金- ->客服回电确认信息- ->确定摄影师- ->享受拍摄服务- ->支付尾款- ->收到成片 `}}>
                   
                 </Text>
               </View>
@@ -451,7 +448,7 @@ export default class Index extends Component {
         </View>}
      
          <View  className='recruitmentBtn'>
-         <Text   onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} dangerouslySetInnerHTML={{ __html: '招募 \n 摄影师'}}></Text>
+         <Text   onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} dangerouslySetInnerHTML={{ __html: '成为 \n 摄影师'}}></Text>
           
           </View>       
       

@@ -95,7 +95,7 @@ export default class feedback extends Component {
   render() {
     return (
       <View className='feedback publishService'>
-        <AtForm onSubmit={this.onSubmit.bind(this)} className='form'>
+        <AtForm  className='form'>
           <View className='formCont '>
             <View className='txt-title'>问题描述</View>  
             <AtTextarea
@@ -147,7 +147,7 @@ export default class feedback extends Component {
           
          
           <View className='foot'>
-          <AtButton type='primary' formType='submit'>
+          <AtButton type='primary' onClick={this.onSubmit.bind(this)}>
             立即提交
           </AtButton>
           </View>

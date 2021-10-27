@@ -61,6 +61,7 @@ export default class imageUpload extends Component {
       //  this.setState({
       //    files
       //  })
+      const that = this
       if (operationType === 'add') {
         files.map((item, i) => {
           if (!item.url.startsWith(ImageUrl)) {
@@ -70,7 +71,7 @@ export default class imageUpload extends Component {
               //files
               loading: true,
             })
-            const that = this
+            
             Taro.uploadFile({
               url: baseUrl + 'api/img',
               filePath: file.url,
@@ -103,6 +104,8 @@ export default class imageUpload extends Component {
             })
           }
         })
+      } else {
+        that.props.onOk && that.props.onOk({ files });
       }
     }
 

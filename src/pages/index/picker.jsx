@@ -4,26 +4,43 @@ import { View } from '@tarojs/components'
 import { AtButton,AtInputNumber  } from 'taro-ui'
 import '../../components/common.scss'
 import './picker.scss'
+import {dataType} from '../../config'
 
 const $instance = Taro.getCurrentInstance()
 export default class Picker extends Component {
 
 
   state = {
-    data:{selType1:[{id:0,label:'数码拍摄'},{id:1,label:'胶片拍摄'},{id:2,label:'视频拍摄'}],
-          selType2:[{id:0,label:'成人',number:0},{id:1,label:'儿童',number:0},{id:2,label:'情侣',number:0}],
-          selType3:[{id:0,label:'我会化妆'},{id:1,label:'帮我化妆'}],
-          selType4:[{id:0,label:'自备服装'},{id:1,label:'帮我搭配'}],
-          selType5:[{id:1,label:'男摄影师'},{id:2,label:'女摄影师'},{id:0,label:'性别不限'}],
-          selType6:[{id:0,label:'室内/棚拍'},{id:1,label:'外景'},{id:2,label:'上门拍摄'}]
-  },
+    data:dataType,
     current:{},
+
    // type:this.$router.params.type
     
   }
 
   componentDidMount() {
-  
+    
+   let bookSel = Taro.getStorageSync('bookSel')
+      if(bookSel){
+        bookSel = JSON.parse(bookSel)
+      } 
+      const {type} = $instance.router.params
+      let current = {}
+      for(let item in bookSel){
+        if(item === type){
+          current = bookSel[item]
+        } 
+      }
+      dataType.selType2.map(item => {
+        item.number = 0
+        current.length > 0 && current.map(c => {
+          if(item.id === c.id){
+            item.number = c.number
+          }
+        })
+        
+      })
+      this.setState({current})
   }
 
   
@@ -43,6 +60,7 @@ export default class Picker extends Component {
         }
           
       })
+      
       this.setState({
         current:sel
       })
@@ -56,6 +74,45 @@ export default class Picker extends Component {
 
   onComplete(){
     //bookSel[this.$router.params.type]
+
+    const {isNumber} = $instance.router.params
+    const {current} = this.state
+    if(isNumber){
+      if(!current.length){
+        Taro.showToast({
+          title: '请选择人数',
+          icon:'none',
+          mask: true
+        });
+        return false
+      }
+      let valid = false
+      current.map(item =>{
+        if(item.number){
+          valid = true
+        }
+      })
+      if(!valid){
+        Taro.showToast({
+          title: '请选择人数',
+          icon:'none',
+          mask: true
+        });
+        return false
+      }
+
+    } else {
+     
+      if(!(current.id == 0 || current.id)){
+        Taro.showToast({
+          title: '请选择',
+          icon:'none',
+          mask: true
+        });
+        return false
+      }
+    }
+
     let bookSel = Taro.getStorageSync('bookSel')
     if(bookSel){
       bookSel = JSON.parse(bookSel)
@@ -84,8 +141,11 @@ export default class Picker extends Component {
             <View key={i} className={`${isNumber ? 'isNumber ' : ''} ${current.id == item.id ? 'active': ''} item`} onClick={() => !isNumber && this.handleChange(item)}>
                 {item.label}
                 {isNumber && <AtInputNumber  min={0} step={1}  value={item.number} onChange={e => this.handleChange(item,e)}  />}
-              </View>
+              </View> 
           ))}
+
+            {type === 'selType3' && current.id === 0 && <View className='pTip'>您选择了自备化妆，因此摄影师仅对拍摄与后期服务负责。因化妆对成片产生的影响，不会成为任何售后原因。</View>}
+            {type === 'selType4' && current.id === 0 && <View className='pTip'>您选择了自备服装，因此摄影师仅对拍摄与后期服务负责。因服装对成片产生的影响，不会成为任何售后原因。</View>}
         </View>
         <View className='foot'>
             <AtButton size='small' type='primary' circle  onClick={this.onComplete.bind(this)}>完成</AtButton>

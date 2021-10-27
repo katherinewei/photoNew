@@ -162,7 +162,7 @@ export default class Recharge extends Component {
 
             <View className='list'>
               {prices && prices.map((item,i) => (
-                <View key={i} className={`${index === i ? 'active' :''} item`} onClick={() => this.setState({index:i})}>
+                <View key={i} className={`${index === i ? 'active' :''} item`} onClick={() => this.setState({index:i,price:''})}>
                  <View>{item.title}￥<text>{item.money}</text></View>
               </View>
               ))}
@@ -173,7 +173,7 @@ export default class Recharge extends Component {
                 value={this.state.price}
                 name='price'
                 onChange={(e) => {
-                  this.setState({ price: e })
+                  this.setState({ price: e,index:-1 })
                 }}
               />
               </View>

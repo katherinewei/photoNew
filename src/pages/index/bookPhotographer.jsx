@@ -21,15 +21,15 @@ export default class BookPhotographer extends Component {
     loading: false,
     // eslint-disable-next-line react/no-unused-state
     current: 1,
-    subCur:0,
+    // eslint-disable-next-line react/no-unused-state
+    currentId: '',  // 一级id
+    subCur:0,  // 二级index
     // eslint-disable-next-line react/no-unused-state
     value: '',
     visible:false,
     check:true,
     tabs:[],
     index:0,
-    // eslint-disable-next-line react/no-unused-state
-    currentId: '',
     clothesImgUrl: [],
     customerImgUrlList: [],
     isOpenedArea: false,
@@ -83,6 +83,8 @@ export default class BookPhotographer extends Component {
         Taro.removeStorageSync('customerImgUrlList'); 
         Taro.removeStorageSync('clothesImgUrl'); 
         Taro.removeStorageSync('contact'); 
+        Taro.removeStorageSync('typeIndex');
+        Taro.removeStorageSync('tagIndex');
         
           
           
@@ -98,20 +100,28 @@ export default class BookPhotographer extends Component {
         currentId = tabs[0].id
        }
 
-        
+       const index =  Taro.getStorageSync('typeIndex') || 0   // 一级索引
+       const subCur = Taro.getStorageSync('tagIndex') || 0   // 二级索引
+       const clothesImgUrl = Taro.getStorageSync('clothesImgUrl') ? JSON.parse(Taro.getStorageSync('clothesImgUrl'))  : []
+       const customerImgUrlList = Taro.getStorageSync('customerImgUrlList') ? JSON.parse(Taro.getStorageSync('customerImgUrlList'))  : []
 
       this.setState({
         curAddr:currAddr,
         tabs:Taro.getStorageSync('tabs') ? JSON.parse(Taro.getStorageSync('tabs'))  : [],
         // eslint-disable-next-line react/no-unused-state
         currentId,
+        index,
+        subCur,
         startTime:Taro.getStorageSync('startTime') || '',
         endTime:Taro.getStorageSync('endTime') || '',
         skinState:Taro.getStorageSync('skinState') || '',
         contact:Taro.getStorageSync('contact') || '',
+        clothesImgUrl,
+        customerImgUrlList
 
       })
      }
+
 
    
 
@@ -142,6 +152,7 @@ export default class BookPhotographer extends Component {
           // eslint-disable-next-line react/no-unused-state
           this.setState({ tabs:res.data,currentId:res.data[0].id },() => {
           Taro.setStorageSync('tabs', JSON.stringify(res.data))   // 保存地址
+          
           })
         }
         else {
@@ -196,15 +207,22 @@ export default class BookPhotographer extends Component {
     this.setState({subCur:value })
     if(hide){
       this.setState({visible:!this.state.visible })
-    }
+    } 
+    Taro.setStorageSync('tagIndex', value)   // 二级索引
+
   }
 
-  changeTab(value){
+  changeTab(item,index){
     // eslint-disable-next-line react/no-unused-state
-    this.setState({current:value,subCur:1 })
+    console.log(2343432)
+    // eslint-disable-next-line react/no-unused-state
+    this.setState({currentId:item.id,subCur:0,index })
+    Taro.setStorageSync('typeIndex', index)   // 一级索引
+    Taro.setStorageSync('tagIndex', 0)   // 二级索引
   }
   expand(){
     this.setState({visible:!this.state.visible })
+
     
   }
 
@@ -235,10 +253,19 @@ export default class BookPhotographer extends Component {
 
   // 提交
   onSubmit(){
-    const {
-      tabs,index,subCur, clothesImgUrl,customerImgUrlList,startTime, endTime,bookSel,skinState,contact
+    let {
+      tabs, clothesImgUrl,customerImgUrlList,startTime, endTime,bookSel,skinState,contact
       
     } = this.state
+
+   const index =  Taro.getStorageSync('typeIndex') || 0   // 一级索引
+   const subCur = Taro.getStorageSync('tagIndex') || 0   // 二级索引
+
+    const typeId = tabs[index].id 
+   const tagId = tabs[index].child[subCur].id
+   const pos = JSON.parse(Taro.getStorageSync('curAddr')) 
+
+   console.log(typeId,tagId)
 
     let payload = {}
 
@@ -336,7 +363,7 @@ export default class BookPhotographer extends Component {
       })
       return false
     }
-    const serviceType = bookSel.selType6.id
+   const serviceType = bookSel.selType6.id
 
     let imgPath1 = []
     if (clothesImgUrl.length > 0) {
@@ -371,6 +398,9 @@ export default class BookPhotographer extends Component {
       })
       return false
     }
+
+    console.log(imgPath1.length,imgPath2.length,123)
+
     if(!contact){
       Taro.showToast({
         title: '请输入手机号码',
@@ -380,9 +410,10 @@ export default class BookPhotographer extends Component {
       return false
     }
 
-   const typeId = tabs[index].id 
-   const tagId = tabs[index].child[subCur].id
-   const pos = JSON.parse(Taro.getStorageSync('curAddr')) 
+   
+
+  //  startTime = startTime.replace(/\//g,'-')
+  //  endTime = endTime.replace(/\//g,'-')
 
     payload = {...payload,
       typeId,tagId,startTime:startTime + ':00',endTime:endTime + ':00',contact,//todo
@@ -404,7 +435,21 @@ export default class BookPhotographer extends Component {
             icon: 'success',
             mask: true,
           })
-          this.setState({tradeId:data.data.id,isOpened:true,curItem:{price:'200.00'}})
+           // 获取定金
+          Request(
+            {
+              url: 'api/wxDownPayment',
+              method: 'GET',
+              data:payload,
+            },
+            (price) => {
+              if(price.code === 200){
+                this.setState({tradeId:data.data.id,isOpened:true,curItem:{price:price.data.amount}})
+              } else {
+                this.setState({tradeId:data.data.id,isOpened:true,curItem:{price:'200.00'}})
+              }
+            })
+          
       }else {
         Taro.showToast({
           title: data.msg,
@@ -448,7 +493,7 @@ export default class BookPhotographer extends Component {
       { 'title': '结算费用' }
     ]
     let selType2  = []
-    if(bookSel && bookSel.selType2){
+    if(bookSel && bookSel.selType2 && bookSel.selType2.length > 0){
       bookSel.selType2.map(item => {
         selType2.push(item.number + item.label) 
       })
@@ -625,7 +670,7 @@ export default class BookPhotographer extends Component {
         <View className='foot'>
             <View className='agree' onClick={() => this.setState({check: !check})}>
               <View className='icon'>{check && <AtIcon value='check' size='10' color='#fff'></AtIcon>}</View>
-              <View> 我已阅读并同意<text>《拍摄服务撮合协议》</text></View>
+              <View> 我已阅读并同意<text onClick={() => Taro.navigateTo({url: `/pages/order/protocol`})}>《拍摄服务撮合协议》</text></View>
               </View>
             <AtButton size='small' type='primary' circle  onClick={() => {this.onSubmit()}}>立即预约</AtButton>
         </View>

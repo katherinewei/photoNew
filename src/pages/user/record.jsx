@@ -96,17 +96,17 @@ export default class Record extends Component {
         records
       } = this.state
 
-      const type = ['支付定金', '签约保证金', '余额提现', '余额充值']
+    //  const type = ['支付定金', '签约保证金', '余额提现', '余额充值']
         return (
         
           <View className='rechargeRecords'>
                  {records && records.length > 0 ? records.map((item,i) => (
                    <View key={i} className='box'>
                       <View className='left'>
-                      <View>  {type[item.type - 1]}</View>
+                      <View>  {item.content}</View>
                         <text>{item.createTime}</text>
                       </View>
-                      <View className='right'>{item.type === 4 ? '+' : '-'}{item.amount}</View>
+                      <View className='right'>{item.amount > 0 ? '+' : ''}{item.amount}</View>
                    </View>
                  )):<View className='noData' style={{ padding: '110px 0' }}>
                  <Image

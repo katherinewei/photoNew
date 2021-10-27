@@ -28,37 +28,8 @@ export default class UserComponent extends Component {
     }
 
     componentDidMount () {
-
-      getToken(() => {
-        //  个人信息
-        Request({
-          url: 'api/getUserInfo',
-          method: 'post',
-          data: {
-          //  code: res.code
-          //    id:10000
-          },
-
-        },(data) => {
-          if(data.code === 200){
-            this.setState({user:data.data})
-            setUserInfo(data.data)
-            console.log(data.data)
-
-            if(!data.data.head_pic){
-             // this.getUser()
-            }
-          }else {
-            Taro.showToast({
-              title: data.msg,
-              icon:'none',
-              mask: true
-            });
-          }
-        })
-
-        this.fetchMsg()
-      })
+      this.fetchInfo()
+     
     }
   
     getUser(){
@@ -163,6 +134,47 @@ export default class UserComponent extends Component {
     )
   }
 
+  fetchInfo(refresh){
+    getToken(() => {
+      //  个人信息
+      Request({
+        url: 'api/getUserInfo',
+        method: 'post',
+        data: {
+        //  code: res.code
+        //    id:10000
+        },
+
+      },(data) => {
+        if(refresh){
+          Taro.stopPullDownRefresh()
+        }
+
+        if(data.code === 200){
+          this.setState({user:data.data})
+          setUserInfo(data.data)
+          console.log(data.data)
+
+          if(!data.data.head_pic){
+           // this.getUser()
+          }
+        }else {
+          Taro.showToast({
+            title: data.msg,
+            icon:'none',
+            mask: true
+          });
+        }
+      })
+
+      this.fetchMsg()
+    })
+  }
+
+
+  onPullDownRefresh(){
+    this.fetchInfo(true)
+  }
 
 
     render () {

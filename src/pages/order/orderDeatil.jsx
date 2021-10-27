@@ -3,13 +3,14 @@ import { Component } from 'react'
 import { View,Image,Text} from '@tarojs/components'
 import {  AtIcon,AtButton} from 'taro-ui'
 import Request from '../../utils/request'
-
+import {dataType} from '../../config'
 import './detail.scss'
 import './modal.scss'
 import '../../components/common.scss'
 
 import PayCancel from '../../components/pay/cancel'
 
+const $instance = Taro.getCurrentInstance()
 export default class OrderDetail extends Component {
  
 
@@ -24,7 +25,7 @@ export default class OrderDetail extends Component {
 
 
   componentDidMount() {
-    const $instance = Taro.getCurrentInstance()
+  
 
     
 
@@ -39,6 +40,13 @@ export default class OrderDetail extends Component {
       (data) => {
         if(data.code === 200){
         console.log(data)
+
+        dataType.selType6.map(item => {
+          if(item.id === data.data.serviceType){
+            data.data.serviceType = item.label
+          }
+        })
+        
 
         if($instance.router.params.recordId){  // 已选定摄影师
           data.data.photoerList.map((item,i) => {
@@ -108,13 +116,35 @@ export default class OrderDetail extends Component {
 
   }
 
+  received(tradeId){
+    Request(
+      {
+        url: 'api/wxReceiveSlice',
+        method: 'POST',
+        data: { tradeId },
+        //isToken:false
+      },
+      (data) => {
+        Taro.showToast({
+          title: data.msg,
+          icon:'success',
+          mask: true
+        });
+        Taro.reLaunch({
+          // eslint-disable-next-line no-undef
+          url: `/pages/order/index`,
+        })
+      })
+  }
+
   
 
   render() {
     const {curState,isOpenedCancel,data} = this.state
    // const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
-    const stateName = ['待支付','预约中','确认摄影师','已完成','已提交成片'] 
+    const stateName = ['待支付','预约中','已预约','等待成片','已提交成片'] 
 
+const tradeId = $instance.router.params.id
 
     return (
       data.id ?  <View className={`${curState > 1 ? 'state1' : ''} orderDetail`}>
@@ -123,9 +153,9 @@ export default class OrderDetail extends Component {
          <View className='box cc'>
            <View className='title'>订单信息</View>
            <View className='content'>
-             <View className='p'><text>预约项目：</text>{data.imgType}</View>
-             <View className='p'><text>预约时间：</text>{data.startTime} - {data.endTime}</View>
-             <View className='p'><text>拍摄人数：</text>{data.adult ? data.adult + '成人' : ''} {data.adult ? data.child + '儿童' : ''} {data.lover ? data.lover + '情侣' : ''}</View>
+             <View className='p'><text>预约项目：</text>{data.typeDesc} {data.tagDesc}</View>
+             <View className='p'><text>预约时间：</text>{data.startTimeStr} - {data.endTimeStr}</View>
+             <View className='p'><text>拍摄人数：</text>{data.adult ? data.adult + '成人' : ''} {data.child ? data.child + '儿童' : ''} {data.lover ? data.lover + '情侣' : ''}</View>
              <View className='p'><text>拍摄方式：</text>{data.serviceType}</View>
            </View>
          </View>
@@ -161,12 +191,14 @@ export default class OrderDetail extends Component {
 
 
          <View className='box cc d'>
-           <View className='title'>{curState === 1 ? '已付定金:' : `实付:${data.payAmount}` }</View>
+           <View className='title'>{curState === 1 ? '已付定金' : `实付:${data.payAmount}` }</View>
            <View className='content'>
+            
              <View className='p'><text>订单号:</text>{data.tradeNo}</View>
              <View className='p'><text>手机号:</text>{data.contract}</View>
              <View className='p'><text>付款时间:</text>{data.payTime}</View>
              <View className='p'><text>下单时间:</text>{data.tradeTime}</View>
+             {curState > 1  && <View className='p'><text>支付类型:</text>{data.offlinePayState ===1 ? '线下支付' : '线上支付'}</View>}
              {curState === 1 && <View className='p'><text>定 金:</text>￥{data.payment}</View>}
              
            </View>
@@ -213,17 +245,19 @@ export default class OrderDetail extends Component {
            <AtButton size='small' type='primary' circle onClick={this.cancelOrder.bind(this)}>取消订单</AtButton>
          </View>
          }
-         {curState >= 3 && <View>
+         {curState >= 3 &&
            
            <AtButton size='small' type='primary' circle onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${data.id}`})}>立即评价</AtButton>
-         </View>
+         
          }
+
+          {(curState === 4)  &&  <AtButton size='small' type='primary' circle  onClick={() => this.received(data.id)}>收到成片</AtButton>}
 
           </View>
 
          
 
-        <PayCancel isOpenedCancel={isOpenedCancel} />
+        <PayCancel isOpenedCancel={isOpenedCancel} tradeId={tradeId} />
 
       </View> : <View></View>
     )

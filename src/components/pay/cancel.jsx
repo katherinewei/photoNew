@@ -29,11 +29,11 @@ export default class Pay extends Component {
 
     componentWillReceiveProps(nextProps) {
       
-     console.log(nextProps)
-      if(nextProps.isOpenedCancel){
-        //this.showArea()
-        this.setState({isOpenedCancel:true})
-      }
+    // console.log(nextProps)
+
+    this.setState({isOpenedCancel:nextProps.isOpenedCancel})
+
+     
     }
 
 
@@ -73,7 +73,7 @@ export default class Pay extends Component {
 
 
     render () {
-     console.log(this.state,6)
+  //   console.log(this.state,6)
 
         return (
           this.state.isOpenedCancel && <AtFloatLayout isOpened={this.state.isOpenedCancel}  className='payLayout cancelL' onClose={() => this.onClose()}>

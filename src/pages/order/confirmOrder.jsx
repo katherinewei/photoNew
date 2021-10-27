@@ -3,6 +3,7 @@ import { Component } from 'react'
 import { View,Image } from '@tarojs/components'
 import { AtButton} from 'taro-ui'
 import Request from '../../utils/request'
+import {dataType} from '../../config'
 import './detail.scss'
 import './modal.scss'
 
@@ -18,7 +19,8 @@ export default class Index extends Component {
     curState:2,
     isOpened:false,
     curItem:null,
-    data:{}
+    data:{},
+    tradeId:''
   }
 
   componentWillMount() {
@@ -42,8 +44,13 @@ export default class Index extends Component {
       (data) => {
         if(data.code === 200){
         console.log(data)
+        dataType.selType6.map(item => {
+          if(item.id === data.data.serviceType){
+            data.data.serviceType = item.label
+          }
+        })
         // eslint-disable-next-line react/no-unused-state
-        this.setState({ data:data.data,curState: data.data.state})
+        this.setState({ data:data.data,curState: data.data.state,tradeId:data.data.id})
       // data.data.photoerList = [{headPic:'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',userName:'kkk'}]
       // this.setState({ data:data.data,curState: 1})
       }else {
@@ -81,16 +88,16 @@ export default class Index extends Component {
   }
 
   callback(){
-    Taro.redirectTo({
+    Taro.reLaunch({
       // eslint-disable-next-line no-undef
-      url: `/pages/order/orderDeatil?id=${curItem.id}`,
+      url: `/pages/order/index`,
     })
   }
 
 
 
   render() {
-    const {isOpened,curItem,data } = this.state
+    const {isOpened,curItem,data,tradeId } = this.state
   //  const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
     
     return (
@@ -100,22 +107,22 @@ export default class Index extends Component {
          <View className='box cc'>
            <View className='title'>订单信息</View>
            <View className='content'>
-             <View className='p'><text>预约项目：</text>{data.imgType}</View>
+           <View className='p'><text>预约项目：</text>{data.typeDesc} {data.tagDesc}</View>
              <View className='p'><text>预约时间：</text>{data.startTime} - {data.endTime}</View>
-             <View className='p'><text>拍摄人数：</text>{data.adult ? data.adult + '成人' : ''} {data.adult ? data.child + '儿童' : ''} {data.lover ? data.lover + '情侣' : ''}</View>
+             <View className='p'><text>拍摄人数：</text>{data.adult ? data.adult + '成人' : ''} {data.child ? data.child + '儿童' : ''} {data.lover ? data.lover + '情侣' : ''}</View>
              <View className='p'><text>拍摄方式：</text>{data.serviceType}</View>
            </View>
          </View>
          <View className='box cc'>
            <View className='title'>摄影师 </View>
-           {data.photoerList && data.photoerList.length > 0 && <View className='content list'>
+           {data.photoerInfo && data.photoerInfo.id && <View className='content list'>
             
                <View className='item'>
               
-               <Image  src={data.photoerList[0].headPic} mode='widthFix' ></Image>
-               <View>{data.photoerList[0].userName}</View>
-               <View>{data.photoerList[0].title}</View>
-               <View>报价:￥{data.photoerList[0].amount}</View>
+               <Image  src={data.photoerInfo.headPic} mode='widthFix' ></Image>
+               <View>{data.photoerInfo.userName}</View>
+               <View>{data.photoerInfo.title}</View>
+               <View>报价:￥{data.photoerInfo.amount}</View>
              </View>
             
             
@@ -152,7 +159,7 @@ export default class Index extends Component {
           </View>
 
          
-        <Pay isOpened={isOpened} curItem={curItem} final onOk={() => this.callback()} />
+        <Pay isOpened={isOpened} curItem={curItem} tradeId={tradeId} final onOk={() => this.callback()} />
 
 
       </View> : <View></View>

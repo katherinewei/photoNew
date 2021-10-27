@@ -32,12 +32,16 @@ export default class DateTimePicker extends Component {
     
 
     componentDidMount() {
-        const { initValue } = this.props;
-        
-        const fmtInitValue = initValue ? getDate(initValue) : null;
-
-        this.setState({ fmtInitValue });
+        setTimeout(() => {
+            const { initValue } = this.props;
+           // console.log(initValue,87)
+            const fmtInitValue = initValue ? getDate(initValue) : null;
+           // console.log(fmtInitValue,87)
+            this.setState({ fmtInitValue }); 
+        }, 400);
+       
     }
+    
 
     // 打开时间选择的模态框 - 根据当前时间初始化picker-view的数据
     openModal = () => {
@@ -142,13 +146,13 @@ export default class DateTimePicker extends Component {
     };
 
     render() {
-        const { visible, current, yearList, monthLsit, dayList, hourList, minuteList, selectIndexList } = this.state;
+        const { visible, current, yearList, monthLsit, dayList, hourList, minuteList, selectIndexList,fmtInitValue } = this.state;
         const { placeholder = '请选择时间',selectItemClass, wrapClass} = this.props;
         return (
             <View className={`datetime-picker-wrap wrap-class ${wrapClass}`}>
                 <View className='selector-wrap'>
                     <View className={`select-item select-item-class ${selectItemClass}`} onClick={this.openModal}>
-                        {current  || placeholder}
+                        {current || fmtInitValue || placeholder}
                     </View>
                     {
                         current && <View className='clear-icon'>

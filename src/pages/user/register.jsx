@@ -25,7 +25,10 @@ export default class Register extends Component {
       name:'',
       sex:'',
       idcard:'', wxCode:'',cameraCode:'',cameraName:'',files1:[],files2:[],check:0,
-      ways: [{title:'诚信服务',text:'保证金签约',price:'300'},{title:'官方免费提供安卓设备，参与到功能改进中',text:'安卓测试官签约',price:'600'},{title:'凭实力证明自己',text:'先试用 ',price:''}]
+      ways: [
+        // {title:'诚信服务',text:'保证金签约',price:'300'},
+        // {title:'官方免费提供安卓设备，参与到功能改进中',text:'安卓测试官签约',price:'600'},
+        {title:'凭实力证明自己',text:'先试用 ',price:''}]
 
     }
 
@@ -268,7 +271,7 @@ export default class Register extends Component {
                   {current === 2 &&
                   <View>
                     <View className='content'>
-                      <View className='txt-title'>我们提供3种方式</View>  
+                      <View className='txt-title'>我们提供{ways && ways.length}种方式</View>  
                       {ways && ways.map((item,i) => (<View className='box' key={i}>
                         <View className='txt-subTitle'>· {item.title}</View>
                         <View className={`${check === i ? 'active' : ''} price`} onClick={() => this.setState({check:i})}>

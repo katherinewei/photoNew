@@ -115,7 +115,7 @@ export default class MyPhoto extends Component {
       } = this.state
         return (
           
-          <View className='evaluation userEvaluation'>
+          <View className='photographer'> <View className='evaluation userEvaluation'>
             <View className='box'>
               {records.length > 0 ? records.map((item,i) => (
                 <View key={i} className='item' onClick={() => {
@@ -152,7 +152,7 @@ export default class MyPhoto extends Component {
 
               </View>
            
-          </View>
+          </View> </View>
       
         
         )

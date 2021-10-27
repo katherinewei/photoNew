@@ -224,7 +224,7 @@ export default class Area extends Component {
 
     render () {
      // console.log(this.state.isOpenedArea,98989)
-        console.log(this.state.provinceed,this.props.hideDistrict,112222444)
+      //  console.log(this.state.provinceed,this.props.hideDistrict,112222444)
 
 
         return (
