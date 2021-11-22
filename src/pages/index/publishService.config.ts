@@ -1,4 +1,4 @@
 export default {
-  navigationBarTitleText: '发布返片',
+  navigationBarTitleText: '约拍笔记',
   navigationBarBackgroundColor: '#fff',
 }

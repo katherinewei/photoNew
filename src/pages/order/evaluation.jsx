@@ -48,7 +48,16 @@ export default class evaluation extends Component {
         imgPath.push(item.url)
       })
      
+    } else {
+      Taro.showToast({
+        title: '请上传图片',
+        icon:'none',
+        mask: true
+      });
+
+      return false
     }
+
 
     const $instance = Taro.getCurrentInstance()
     const data = {

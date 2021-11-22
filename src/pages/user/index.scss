@@ -88,4 +88,16 @@
     }
   } 
 }
+  .at-list{
+    margin: 30px 18px;
+    border-radius: 15px;
+   
+    .at-list__item {
+      font-size: 28px;
+      .item-extra__icon-arrow {
+        font-size: 32px;
+      }
+    }
+
+  }
 }

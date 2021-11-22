@@ -14,6 +14,7 @@ export default {
     'pages/order/confirmOrder',    
     'pages/order/orderDeatil', 
     'pages/order/protocol',
+    'pages/order/safeRule',
     'pages/user/index',
     'pages/user/detail',
     'pages/user/myPhoto',

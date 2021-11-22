@@ -1,6 +1,18 @@
 .PickSingle{
   height: 100vh;
   background-color: #fff;
+  .navbar{
+    text-align: center;
+    color: #fff;
+    .icon{
+      margin-left: 8px;
+    }
+    .title{
+      text-align: center;
+      width: 100%;
+      font-size: 28px;
+    }
+  }
   .content{
     padding: 0 45px;
     .item{

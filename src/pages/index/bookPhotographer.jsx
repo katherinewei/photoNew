@@ -72,6 +72,17 @@ export default class BookPhotographer extends Component {
   componentDidMount() {
      getToken(() => {})
 
+
+       const index =  Taro.getStorageSync('typeIndex') || 0   // 一级索引
+       const subCur = Taro.getStorageSync('tagIndex') || 0   // 二级索引
+
+
+       this.setState({
+        index,
+        subCur
+       })
+
+
      if(!$instance.router.params.hasChoose){   // 不是选择
         this.getLocation() 
         this.fetchCate()
@@ -83,8 +94,8 @@ export default class BookPhotographer extends Component {
         Taro.removeStorageSync('customerImgUrlList'); 
         Taro.removeStorageSync('clothesImgUrl'); 
         Taro.removeStorageSync('contact'); 
-        Taro.removeStorageSync('typeIndex');
-        Taro.removeStorageSync('tagIndex');
+        // Taro.removeStorageSync('typeIndex');
+        // Taro.removeStorageSync('tagIndex');
         
           
           
@@ -100,8 +111,7 @@ export default class BookPhotographer extends Component {
         currentId = tabs[0].id
        }
 
-       const index =  Taro.getStorageSync('typeIndex') || 0   // 一级索引
-       const subCur = Taro.getStorageSync('tagIndex') || 0   // 二级索引
+     
        const clothesImgUrl = Taro.getStorageSync('clothesImgUrl') ? JSON.parse(Taro.getStorageSync('clothesImgUrl'))  : []
        const customerImgUrlList = Taro.getStorageSync('customerImgUrlList') ? JSON.parse(Taro.getStorageSync('customerImgUrlList'))  : []
 
@@ -110,8 +120,7 @@ export default class BookPhotographer extends Component {
         tabs:Taro.getStorageSync('tabs') ? JSON.parse(Taro.getStorageSync('tabs'))  : [],
         // eslint-disable-next-line react/no-unused-state
         currentId,
-        index,
-        subCur,
+      
         startTime:Taro.getStorageSync('startTime') || '',
         endTime:Taro.getStorageSync('endTime') || '',
         skinState:Taro.getStorageSync('skinState') || '',
@@ -265,6 +274,10 @@ export default class BookPhotographer extends Component {
    const tagId = tabs[index].child[subCur].id
    const pos = JSON.parse(Taro.getStorageSync('curAddr')) 
 
+   const typeIndexFlag = index == 3 || index == 2 // 商业广告 需处理
+
+
+
    console.log(typeId,tagId)
 
     let payload = {}
@@ -306,53 +319,63 @@ export default class BookPhotographer extends Component {
     }
     const imgType = bookSel.selType1.id
 
-    if(!bookSel.selType2){
-      Taro.showToast({
-        title: '请选择人数',
-        icon: 'none',
-        mask: true,
-      })
-      return false
-    }
-    bookSel.selType2.map(item => {
-      if(item.id === 0){  // 成人
-        payload.adult = item.number
-      }
-      if(item.id === 1){  // 成人
-        payload.child = item.number
-      }
-      if(item.id === 2){  // 成人
-        payload.lover = item.number
-      }
-    })
-    if(!bookSel.selType3){
-      Taro.showToast({
-        title: '请选择化妆方式',
-        icon: 'none',
-        mask: true,
-      })
-      return false
-    }
-    const makeupType = bookSel.selType3.id
+    
+    let makeupType = ''
+    let clothesType = ''
+    if(!typeIndexFlag){   // 商业广告，无需填写
 
-    if(!bookSel.selType4){
-      Taro.showToast({
-        title: '请选择服装方式',
-        icon: 'none',
-        mask: true,
+      if(!bookSel.selType2){
+        Taro.showToast({
+          title: '请选择人数',
+          icon: 'none',
+          mask: true,
+        })
+        return false
+      }
+      bookSel.selType2.map(item => {
+        if(item.id === 0){  // 成人
+          payload.adult = item.number
+        }
+        if(item.id === 1){  // 成人
+          payload.child = item.number
+        }
+        if(item.id === 2){  // 成人
+          payload.lover = item.number
+        }
       })
-      return false
+
+
+      if(!bookSel.selType3){
+        Taro.showToast({
+          title: '请选择化妆方式',
+          icon: 'none',
+          mask: true,
+        })
+        return false
+      }
+       makeupType = bookSel.selType3.id
+  
+      if(!bookSel.selType4){
+        Taro.showToast({
+          title: '请选择服装方式',
+          icon: 'none',
+          mask: true,
+        })
+        return false
+      }
+       clothesType = bookSel.selType4.id
+
     }
-    const clothesType = bookSel.selType4.id
+
 
     if(!bookSel.selType5){
       Taro.showToast({
-        title: '请选择服装方式',
+        title: '请选择摄影师',
         icon: 'none',
         mask: true,
       })
       return false
-    }
+    } 
     const photographerType = bookSel.selType5.id
 
     if(!bookSel.selType6){
@@ -418,9 +441,14 @@ export default class BookPhotographer extends Component {
     payload = {...payload,
       typeId,tagId,startTime:startTime + ':00',endTime:endTime + ':00',contact,//todo
       country:pos[0], province:pos[1],city:pos[2], district:pos[3],  
-      imgType,makeupType,clothesType,photographerType,serviceType,
+      imgType,photographerType,serviceType,
       styleImgUrlList:imgPath1,customerImgUrlList:imgPath2,
       skinState}
+
+      if(!typeIndexFlag){ 
+        payload.makeupType = makeupType
+        payload.clothesType = clothesType
+      }
       // 发送数据
     Request(
       {
@@ -504,6 +532,9 @@ export default class BookPhotographer extends Component {
 
     const {hasChoose} = $instance.router.params
 
+    const typeIndexFlag = Taro.getStorageSync('typeIndex') == 3 || Taro.getStorageSync('typeIndex') == 2 // 商业广告 需处理
+    const indexSec = Taro.getStorageSync('typeIndex') == 2
+
     return (
       <View className='index bookPage'>
          <View className='menu'>
@@ -516,12 +547,12 @@ export default class BookPhotographer extends Component {
           <View className='fixed'></View>
           <View className='container p20'>
             <View className='content '>
-              <View className='title'> 
+              <scroll-view className='title' scroll-x='true'> 
               {tabs && tabs[index] && tabs[index].child && tabs[index].child.map((item,i) => (
                   <View key={i} onClick={() => this.handleClick(i)}  className={i === subCur ? 'active sub' : 'sub'}><text>{item.dictVal}</text></View>
                 ))}
-              {index === 0 &&  <View  className='expand' onClick={() => this.expand()}></View>}
-              </View>
+              
+              </scroll-view>
               <View className='subContent'>
                   
                   <View
@@ -542,20 +573,20 @@ export default class BookPhotographer extends Component {
                         <Text>数码/胶片/视频</Text> }
                       </View>
 
-                      <View  className='at-col picker'  onClick={() =>Taro.redirectTo({url: `/pages/index/picker?type=selType2&isNumber=1`})}>
+                      <View  className='at-col picker'  onClick={() => !typeIndexFlag && Taro.redirectTo({url: `/pages/index/picker?type=selType2&isNumber=1`})}>
                       {bookSel.selType2 ?  <Text className='selected'>{selType2}</Text> :
-                        <Text>人数</Text> }
+                        <Text>{typeIndexFlag ?'无需填写':'人数' }</Text> }
                       </View>
 
                   </View>
                   <View className='at-row pickerRow'>
-                      <View  className='at-col picker' onClick={() =>Taro.redirectTo({url: `/pages/index/picker?type=selType3`})}>
+                      <View  className='at-col picker' onClick={() =>!typeIndexFlag &&Taro.redirectTo({url: `/pages/index/picker?type=selType3`})}>
                        {bookSel.selType3 ?  <Text className='selected'>{bookSel.selType3.label}</Text> :
-                        <Text>化妆选择</Text> }
+                        <Text>{typeIndexFlag ?'无需填写':'化妆选择' }</Text> }
                       </View>
-                      <View  className='at-col picker' onClick={() =>Taro.redirectTo({url: `/pages/index/picker?type=selType4`})}>
+                      <View  className='at-col picker' onClick={() =>!typeIndexFlag &&Taro.redirectTo({url: `/pages/index/picker?type=selType4`})}>
                        {bookSel.selType4 ?  <Text className='selected'>{bookSel.selType4.label}</Text> :
-                        <Text>服装选择</Text> }
+                        <Text>{typeIndexFlag ?'无需填写':'服装选择' }</Text> }
                       </View>
                   </View>
                   <View className='at-row pickerRow'>
@@ -606,7 +637,7 @@ export default class BookPhotographer extends Component {
           <View className='content '>
               <View className='tit'> 以下资料可以快速匹配摄影师并为您制定初步方案 </View>
               <View className='con'>
-                <View className='p'>上传想拍的风格参考图，让摄影师确认风格。若选择自备服装，可在此上传服装样式。</View>
+                <View className='p'>上传想拍的风格参考图，让摄影师确认风格。{typeIndexFlag ? '' : '若选择自备服装，可在此上传服装样式。' }</View>
 
                 {/* <ImageUpload  onOk={e => {
                   this.setState({clothesImgUrl:e.files})
@@ -619,7 +650,7 @@ export default class BookPhotographer extends Component {
                 />
 
 
-                <View className='p'>上传顾客面容照片，让摄影师制定风格</View>
+                <View className='p'>{typeIndexFlag ? indexSec ? '补充拍摄资料（现场图片或其他资料）' : '补充产品资料（需拍摄的产品或其他资料）' : '上传顾客面容照片，让摄影师制定风格'}</View>
                 {/* <ImageUpload  onOk={e => {
                 this.setState({customerImgUrlList:e.files})
               
@@ -630,11 +661,11 @@ export default class BookPhotographer extends Component {
                   }}
                 />
 
-                <View className='tit' style={{color:'#333'}}> 如实描述皮肤状态</View>
+                <View className='tit' style={{color:'#333'}}> 增加需求描述</View>
                 <AtTextarea
                   count={false}
                   maxLength={300}
-                  placeholder='请输入你的肌肤状态'
+                  placeholder='您可以通过文字补充详细的拍摄需求'
                   name='skinState'
                   value={skinState}
                   onChange={(e) => {

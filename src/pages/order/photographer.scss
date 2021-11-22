@@ -185,5 +185,25 @@ $color:#5299FB;
       border-radius: 40px;
     }
   }
+
+  .ImageBig{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 9;
+    background-color: rgba(0,0,0,.5);
+    &.show{
+      display: block;
+    }
+    Image{
+      position: absolute;
+      top: 50%; 
+      width: 100%;
+      transform: translateY(-50%);
+    }
+  }
   
 }

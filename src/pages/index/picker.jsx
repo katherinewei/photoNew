@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { AtButton,AtInputNumber  } from 'taro-ui'
+import { AtButton,AtInputNumber,AtIcon  } from 'taro-ui'
 import '../../components/common.scss'
 import './picker.scss'
 import {dataType} from '../../config'
@@ -16,6 +16,30 @@ export default class Picker extends Component {
 
    // type:this.$router.params.type
     
+  }
+
+  componentWillMount () {
+
+    // eslint-disable-next-line no-undef
+    const { top, height } = wx.getMenuButtonBoundingClientRect()
+    // eslint-disable-next-line no-undef
+    const { statusBarHeight, platform } = wx.getSystemInfoSync()
+    console.log(top, height,statusBarHeight,platform,9632145)
+    let navigationBarHeight;
+    if (top && top !== 0 && height && height !== 0) {
+      navigationBarHeight = (top - statusBarHeight) * 2 + height
+    } else {
+    if(platform === 'android'){
+      navigationBarHeight = 48;
+    }else{
+      navigationBarHeight = 40;
+    }
+  }
+  this.setState({
+     statusBarHeight:statusBarHeight,
+     barHeight:navigationBarHeight,
+  })
+
   }
 
   componentDidMount() {
@@ -132,11 +156,17 @@ export default class Picker extends Component {
 
 
   render() {
-    const {current,data} = this.state
+    const {current,data, barHeight,  statusBarHeight} = this.state
     const {type,isNumber} = $instance.router.params
+    
     return (
       <View className='PickSingle'>
-        <View className='content'>
+        <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
+          <View className='icon' onClick={() => Taro.redirectTo({url: `/pages/index/bookPhotographer`})}><AtIcon value='chevron-left' size='26' color='#fff'></AtIcon></View>
+          <View className='title' >预约条件</View>
+
+        </View>
+        <View className='content' style={{paddingTop:statusBarHeight+barHeight+"px"}}>
           {data[type] && data[type].map((item,i) => (
             <View key={i} className={`${isNumber ? 'isNumber ' : ''} ${current.id == item.id ? 'active': ''} item`} onClick={() => !isNumber && this.handleChange(item)}>
                 {item.label}

@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro'
 import { Component } from 'react'
 import { View,Image } from '@tarojs/components'
-import { AtAvatar ,AtIcon  } from "taro-ui"
+import { AtAvatar ,AtIcon,AtList, AtListItem  } from "taro-ui"
 import Request from '../../utils/request';
 import './index.scss'
 
@@ -202,17 +202,21 @@ export default class UserComponent extends Component {
                     </View>
                     <View className='item' onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} >
                       <View className='t'><Image src={require('../../images/icon/u2.png')} mode='widthFix' /></View>
-                      <View className='b'>招募摄影</View>
+                      <View className='b'>成为摄影师</View>
                     </View>
                     <View className='item' onClick={() => Taro.navigateTo({url: `/pages/user/myPhoto`})}>
                       <View className='t'><Image src={require('../../images/icon/u3.png')} mode='widthFix' /></View>
-                      <View className='b'>我的写真</View>
+                      <View className='b'>约拍笔记</View>
                     </View>
                     <View className='item'  onClick={() => Taro.navigateTo({url: `/pages/user/myEvaluation`})}>
                       <View className='t'><Image src={require('../../images/icon/u4.png')} mode='widthFix' /></View>
                       <View className='b'>我的评价</View>
                     </View>
                 </View>
+                <AtList>
+                  <AtListItem title='服务撮合协议' arrow='right' onClick={() => Taro.navigateTo({url: `/pages/order/protocol`})} />
+                  <AtListItem title='安全规则' arrow='right'  onClick={() => Taro.navigateTo({url: `/pages/order/safeRule`})} />
+                </AtList>
           </View>:<View></View>
         )
     }

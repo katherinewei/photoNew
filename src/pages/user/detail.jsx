@@ -35,6 +35,11 @@ export default class MyPhoto extends Component {
         },(data) => {
           if(data.code === 200){
            this.setState({data:data.data})
+
+
+
+
+
           }else {
             Taro.showToast({
               title: data.msg,
@@ -50,6 +55,8 @@ export default class MyPhoto extends Component {
     componentDidShow () { }
 
     componentDidHide () { }
+
+              
 
     render () {
         
@@ -70,14 +77,13 @@ export default class MyPhoto extends Component {
                 className='myswipe'
                 indicatorColor='#DCDCDC'
                 indicatorActiveColor='#5299FB'
-                  
                 circular
-                indicatorDots
-                autoplay
+                indicatorDots   
               >
                     {data.imgUrlList.map((item,i) =>(
                       <SwiperItem key={i}>
-                        <View className='demo-text-1'><Image src={item} mode='widthFix' /></View>
+                        <View className='demo-text-1'style={{textAlign: 'center'}}><Image src={item} mode='heightFix' />
+                        </View>
                       </SwiperItem>
                     ))}
                   

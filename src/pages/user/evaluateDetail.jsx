@@ -85,11 +85,11 @@ export default class MyPhoto extends Component {
                   
                circular
                indicatorDots
-               autoplay
+              
              >
                     {data.commentImgUrlList.map((item,i) =>(
                       <SwiperItem key={i}>
-                        <View className='demo-text-1'><Image src={item} mode='widthFix' /></View>
+                         <View className='demo-text-1'style={{textAlign: 'center'}}><Image src={item} mode='heightFix' /></View>
                       </SwiperItem>
                     ))}
                 </Swiper>}

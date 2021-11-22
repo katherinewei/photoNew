@@ -49,6 +49,8 @@ export default class Index extends Component {
     }
   }
 
+   Taro.removeStorageSync('typeIndex');
+   Taro.removeStorageSync('tagIndex');
 
     this.setState({
      
@@ -269,14 +271,19 @@ export default class Index extends Component {
     if(hide){
       this.setState({visible:!this.state.visible })
     }
+
+    Taro.setStorageSync('tagIndex', value)   // 二级索引
     
   }
 
   changeTab(item,index){
     this.setState({currentId:item.id,subCur:0,index },() => {
       // 获取返片
-      this.fetchNotePage()
+      this.fetchNotePage() 
     })
+
+    Taro.setStorageSync('typeIndex', index)   // 一级索引
+    Taro.setStorageSync('tagIndex', 0)   // 二级索引
 
   }
   expand(){
@@ -364,7 +371,7 @@ export default class Index extends Component {
 
        <View className='navbar' style={{paddingTop:statusBarHeight+"px",lineHeight:barHeight+"px"}}>
           <View className='addr' onClick={() => this.setState({isOpenedArea:true})}>{city}</View>
-          <View className='service' onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>写真分享，领红包，享免费</View>
+          <View className='service' onClick={() => Taro.navigateTo({url: `/pages/index/publishService`})}>点我发布笔记，换福利</View>
 
         </View>
          <View className='menu'>
@@ -377,12 +384,12 @@ export default class Index extends Component {
           <View className='fixed' style={{height:(typeBarHeight + barHeight + statusBarHeight) +"px"}}></View>
           <View className='container p20'>
             <View className='content '>
-              <View className='title'>
+              <scroll-view className='title' scroll-x='true'>
                 {tabs[index] && tabs[index].child && tabs[index].child.map((item,i) => (
                   <View key={i} onClick={() => this.handleClick(i)}  className={i === subCur ? 'active sub' : 'sub'}><text>{item.dictVal}</text></View>
                 ))}
-              {index === 0 &&   <View  className='expand' onClick={() => this.expand()}></View>}
-              </View>
+              {/* {index === 0 &&   <View  className='expand' onClick={() => this.expand()}></View>} */}
+              </scroll-view>
               <View className='subContent'>
                 <View className='h3'>· 服务流程是怎么样的？</View>
                 <View className='p'>
@@ -391,9 +398,10 @@ export default class Index extends Component {
                 </Text>
               </View>
             </View>
-          
-            <AtButton type='primary' size='small' className='book' onClick={() => Taro.navigateTo({url: `/pages/index/bookPhotographer`})} >预约摄影师</AtButton>
-          
+            <View className='btnGroup'>
+              <AtButton type='primary' size='small' className='book' onClick={() => Taro.navigateTo({url: `/pages/index/bookPhotographer`})} >预约摄影师</AtButton>
+              <AtButton type='primary' size='small' className='book' onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} >成为摄影师</AtButton>
+            </View>
             </View>
           </View>
         </View>
@@ -416,7 +424,7 @@ export default class Index extends Component {
                           
                           <View className='img'>
                             <Image
-                              mode='widthFix'
+                              mode='aspectFit'
                               src={(item.imgUrl)}
                             ></Image>
                            
@@ -447,10 +455,10 @@ export default class Index extends Component {
               </View>
         </View>}
      
-         <View  className='recruitmentBtn'>
+         {/* <View  className='recruitmentBtn'>
          <Text   onClick={() => Taro.navigateTo({url: `/pages/user/recruitment`})} dangerouslySetInnerHTML={{ __html: '成为 \n 摄影师'}}></Text>
           
-          </View>       
+          </View>        */}
       
        </View>
        <Area visible={this.state.isOpenedArea} hideDistrict onOk={e=>this.selectCity(e)} onClose={() => {this.setState({isOpenedArea:false})}}></Area>

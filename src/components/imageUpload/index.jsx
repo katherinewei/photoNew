@@ -71,6 +71,14 @@ export default class imageUpload extends Component {
               //files
               loading: true,
             })
+
+          //   wx.compressImage({
+          //     src: that.data.tempFilePaths[0],
+          //     quality: 10,
+          //     success: function(res) {
+          //       console.log(res.tempFilePath)
+          //     }
+          //  })      
             
             Taro.uploadFile({
               url: baseUrl + 'api/img',

@@ -42,10 +42,11 @@ export default class feedback extends Component {
     if (files.length > 0) {
       imgUrlList = files.map(item => item.url )
     }
+    console.log(contract)
 
-    if (!/^1[3456789]\d{9}$/.test(contract)) {
+    if (!contract) {
       Taro.showToast({
-        title: '输入正确的手机号码',
+        title: '输入联系方式',
         icon: 'none',
         mask: true,
       })

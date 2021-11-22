@@ -23,7 +23,7 @@ export default class Recruitment extends Component {
     state = {
       phone:'',
       code:'',
-     
+      password:'',
       isOpenedArea:false,
       curAddr:'',
       province:'', 
@@ -64,8 +64,8 @@ export default class Recruitment extends Component {
      }
 
      join(){
-      const {phone,code,curAddr,province, city,district} = this.state
-      console.log(phone,code)
+      const {phone,code,curAddr,province, city,district,password} = this.state
+
        if(!phone){
         Taro.showToast({
           title: '请输入手机号',
@@ -82,6 +82,14 @@ export default class Recruitment extends Component {
         });
         return false
        }
+       if(!password){
+        Taro.showToast({
+          title: '请输入密码',
+          icon: 'none',
+          mask: true,
+        });
+        return false
+       }
        if(!curAddr){
         Taro.showToast({
           title: '请选择地区',
@@ -91,7 +99,7 @@ export default class Recruitment extends Component {
         return false
        }
 
-       const data = {province, city,district,mobile:phone,verificationCode:code,password:'a123456'}
+       const data = {province, city,district,mobile:phone,verificationCode:code,password}
 
        // 发送数据
       Request(
@@ -124,7 +132,7 @@ export default class Recruitment extends Component {
 
     render () {
         
-      const {phone,code,curAddr} = this.state
+      const {phone,code,curAddr,password} = this.state
         return (
             <View className='user recruitment'>
                 <View className='container'>
@@ -142,12 +150,13 @@ export default class Recruitment extends Component {
                   />
 
                   <AtInput
+                    name='code'
                     clear
                     title=''
-                    type='number'
+                    type='phone'
                     placeholder='验证码'
                     value={code}
-                    onChange={(e) => {this.setState({code:e})}}
+                    onBlur={(e) => {this.setState({code:e})}}
                     className='inputCustomize code'
                     placeholderClass='phcolor'
                   >
@@ -155,6 +164,18 @@ export default class Recruitment extends Component {
 
                     
                   </AtInput>
+                  <AtInput
+                    name='password'
+                    border={false}
+                    title=''
+                    type='password'
+                    placeholder='密码'
+                    value={password}
+                    onChange={(e) =>{this.setState({password:e})}} 
+                    className='inputCustomize password'
+                    placeholderClass='phcolor'
+                  />
+
                   <View className='inputCustomize area'  onClick={() => {this.setState({isOpenedArea:true})}}>
                  <Text className={curAddr ? 'active' : ''}> {curAddr?curAddr:'选择地区'}</Text>
                   </View>

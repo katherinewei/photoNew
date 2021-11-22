@@ -50,7 +50,7 @@ export default class OrderDetail extends Component {
 
         if($instance.router.params.recordId){  // 已选定摄影师
           data.data.photoerList.map((item,i) => {
-            if(item.id === $instance.router.params.recordId){
+            if(item.id == $instance.router.params.recordId){
               this.setState({current:i})
             }
           })
@@ -142,7 +142,7 @@ export default class OrderDetail extends Component {
   render() {
     const {curState,isOpenedCancel,data} = this.state
    // const list = [{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'},{img:require('../../images/icon/photo.png'),name:'kk',title:'高级摄影师',price:'1000'}]
-    const stateName = ['待支付','预约中','已预约','等待成片','已提交成片'] 
+    const stateName = ['待支付','预约中','已预约','等待收成片','已提交成片','收到成片','已完成'] 
 
 const tradeId = $instance.router.params.id
 
@@ -161,15 +161,17 @@ const tradeId = $instance.router.params.id
          </View>
           <View className='box cc'>
            <View className='title'>摄影师接单{ curState === 1 ? `(${data.photoerList.length})` : ''} {curState === 1 && <text>请选择</text>}</View>
+          {data.photoerList && data.photoerList.length > 0 &&  <View className='tip'>点击头像查看摄影师进一步查看服务详情</View>}
            <View className='content list'>
              { data.photoerList.map((item,i) => (
-               <View key={i} className='item' onClick={() => Taro.navigateTo({url: `/pages/order/photographer?id=${item.id}&tradeId=${data.id}`})}>
+               <View key={i} className='item' onClick={() => Taro.navigateTo({url: `/pages/order/photographer?id=${item.id}&tradeId=${data.id}&readonly=${curState === 1 ? 0:1}`})}>
                   <View >
                   <View onClick={e => e.stopPropagation()}> {curState === 1 && <View className={(this.state.current ===i ? `check` : '') + ` radio`} onClick={(e) => this.checked(e,i)}></View>}</View>
                     <Image  src={item.headPic} mode='widthFix' ></Image>
                     <View>{item.userName}</View>
                     <View>{item.title}</View>
                     <View>报价:￥{item.amount}</View>
+                    <View>性别:{item.sex === 1 ? '女' : '男'}</View>
                   </View>
              </View>
              ))}
@@ -215,7 +217,7 @@ const tradeId = $instance.router.params.id
                 >
                 </Text>
                 </View>
-                <View className='tip'>
+                {/* <View className='tip'>
                 <text class='tt'>订单规则:</text>
                 <Text class='ccont' dangerouslySetInnerHTML={{ __html: `确认下单- >支付定金- >客服回电确认信息- >确定
 摄影师- >享受拍摄服务- >支付尾款- >收到成片 
@@ -225,7 +227,7 @@ const tradeId = $instance.router.params.id
                 >
 
                   </Text>
-                </View>
+                </View> */}
 
            </View>
               
@@ -245,7 +247,7 @@ const tradeId = $instance.router.params.id
            <AtButton size='small' type='primary' circle onClick={this.cancelOrder.bind(this)}>取消订单</AtButton>
          </View>
          }
-         {curState >= 3 &&
+         {curState > 4  && !data.commentFlag && 
            
            <AtButton size='small' type='primary' circle onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${data.id}`})}>立即评价</AtButton>
          

@@ -57,7 +57,7 @@ export default class publishService extends Component {
         mobile:Taro.getStorageSync('mobile'),
         title:Taro.getStorageSync('title'),
         description:Taro.getStorageSync('description'),
-        limitSize:Taro.getStorageSync('limitSize') || 5,
+        limitSize:Taro.getStorageSync('limitSize') == 0 ? 0 : (Taro.getStorageSync('limitSize')  || 5),
         files:Taro.getStorageSync('files') ? JSON.parse(Taro.getStorageSync('files')) : []
 
       },() => {
@@ -135,11 +135,11 @@ export default class publishService extends Component {
       return false
     }
 
-   // console.log(222,limitSize,imgPath)
+    console.log(mobile,limitSize,imgPath)
 
-    if (!/^1[3456789]\d{9}$/.test(mobile)) {
+    if (!mobile && limitSize != 0) {
       Taro.showToast({
-        title: '输入正确的手机号码',
+        title: '输入联系方式',
         icon: 'none',
         mask: true,
       })
@@ -147,15 +147,15 @@ export default class publishService extends Component {
     }
 
 
-    let address = Taro.getStorageSync('curAddr')
-    let province = ''
-    let city = ''
-    if(address){
-      address = JSON.parse(address)
-      province = address[1]
-      city = address[2]
+   // let address = Taro.getStorageSync('curAddr')
+    // let province = ''
+    // let city = ''
+    // if(address){
+    //   address = JSON.parse(address)
+    //   province = address[1]
+    //   city = address[2]
 
-    }
+    // }
 
 
    
@@ -167,8 +167,8 @@ export default class publishService extends Component {
       limitSize,
       typeId:typeSelect.value,
       tagId:tagSelect.value,
-      province,
-      city
+      // province,
+      // city
     }
     if(!data.typeId){
       Taro.showToast({
@@ -304,7 +304,7 @@ export default class publishService extends Component {
           <AtTextarea
             //  value={this.state.value}
             //  onChange={this.handleChange.bind(this)}
-            maxLength={300}
+            count={false}
             placeholder='添加正文'
             name='description'
             value={this.state.description}
@@ -317,7 +317,7 @@ export default class publishService extends Component {
             className='input'
             type='phone'
             title='联系方式' 
-            placeholder='请输入电话'
+            placeholder='请输入电话、微信、邮箱等等'
             name='mobile'
             value={this.state.mobile}
             onBlur={(e) => {
@@ -334,6 +334,7 @@ export default class publishService extends Component {
             </View>
           </View>
           <View className='tip'>* 摄影师可在摄影师端联系约拍您，设置获取您联系方式的摄影师数量,免除过多打扰</View>
+          <View className='tip'>* 如不想接受摄影师的创作邀约，请选择“0人”，无需填写联系方式，仅作 为普通分享。</View>
           </View>
           <View className='formCont' style='margin-bottom:10px'>
             <View className='type'>关联类型<View className='chooseType' onClick={() => this.onClickType()}>{typeSelect.value ? 

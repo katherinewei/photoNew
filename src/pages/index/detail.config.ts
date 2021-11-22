@@ -1,4 +1,4 @@
 export default {
-  navigationBarTitleText: '返片详情',
+  navigationBarTitleText: '笔记详情',
   navigationBarBackgroundColor: '#fff',
 }

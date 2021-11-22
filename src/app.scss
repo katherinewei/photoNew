@@ -68,7 +68,17 @@ page{
 
  .cancelL{
   .at-float-layout__container{
-    height: 400px;
+    height: 490px;
     min-height: 100px;
+  }
+}
+
+.at-activity-indicator--center {
+z-index:99
+}
+
+.offLineVisible{
+  .at-modal__container{
+    top:-40%
   }
 }

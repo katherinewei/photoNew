@@ -67,10 +67,12 @@ $color:#5299FB;
    }
   }
   .title{
-    overflow: hidden;
+    // overflow: hidden;
     height: 46px;
     position: relative;
     z-index: 0;
+    width: 100%;
+    white-space: nowrap; // 不让它换行
   
     .sub{
       color: #666666;
@@ -78,6 +80,9 @@ $color:#5299FB;
       padding-right: 26px;
       display: inline-block;
       margin-right: 26px;
+      text{
+        border-bottom: 9px solid transparent;
+      }
       &.active{
         color: #000000;
         text{
@@ -141,6 +146,7 @@ $color:#5299FB;
        // margin-right:15px;
         Image{
           width: 100%;
+          // height: 280px; 
           //  border:1px dashed #999;
           // width: 133px;
           // height: 133px;
@@ -152,6 +158,9 @@ $color:#5299FB;
         font-size: 24px;
       }
     }
+  }
+  .btnGroup{
+    display: flex;
   }
 }
 
@@ -395,7 +404,7 @@ $color:#5299FB;
     background: #FFFFFF;
     border: 1px solid #E2E2E2;
     border-radius: 32px;
-   // width: 420px;
+    width: 360px;
     height: 63px;
     display: flex;
     color: #999999;
@@ -403,7 +412,8 @@ $color:#5299FB;
     font-size: 24px;
     padding-right: 30px;
     position: relative;
-      top: 7px;
+    top: 7px;
+
     &:before{
       content: '';
       width: 40px;

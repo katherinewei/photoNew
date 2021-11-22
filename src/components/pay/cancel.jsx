@@ -76,7 +76,7 @@ export default class Pay extends Component {
   //   console.log(this.state,6)
 
         return (
-          this.state.isOpenedCancel && <AtFloatLayout isOpened={this.state.isOpenedCancel}  className='payLayout cancelL' onClose={() => this.onClose()}>
+          this.state.isOpenedCancel && <AtFloatLayout title='确认取消订单吗？' isOpened={this.state.isOpenedCancel}  className='payLayout cancelL' onClose={() => this.onClose()}>
           <View className='t'>取消订单后将无法恢复</View>
           <View className=' way p'>取消订单请确保已与摄影师完成沟通，无责任取消订单后，支付金额将退回您充值账户，充值到期未消费将进行退款。</View>
          

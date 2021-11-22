@@ -278,6 +278,7 @@ export default class Register extends Component {
                           <View>{item.text}{item.price ? '￥' :''} <text>{item.price}</text></View>
                           </View>
                         </View>))}
+                        <View className='txt-tip'>下载 APP选择更多签约方式，获取更多福利。</View>
                     </View>
                   </View>}  
                 <View className='foot'>

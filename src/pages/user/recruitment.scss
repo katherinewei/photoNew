@@ -69,6 +69,12 @@
                 background-image: url(../../images/icon/safe.png);
             }
         }
+        &.password{
+            &:before{
+                background-image: url(../../images/icon/password.png);
+            }
+        }
+        
         &.area{
             justify-content: space-between;
             border-bottom: 0;

@@ -1,7 +1,7 @@
  import Taro from '@tarojs/taro'
 import { Component } from 'react'
 import { View } from '@tarojs/components'
-import { AtFloatLayout,AtCountdown,AtButton,AtIcon } from "taro-ui"
+import { AtFloatLayout,AtCountdown,AtButton,AtIcon, AtModal} from "taro-ui"
 import Request from '../../utils/request';
 import './index.scss';
 import {getUserInfo} from '../../utils/help';
@@ -35,7 +35,8 @@ export default class Pay extends Component {
       curItem:{},
       //create:false,
       // eslint-disable-next-line react/no-unused-state
-      tradeId:''
+      tradeId:'',
+      visible:false
     }
     
 
@@ -145,86 +146,108 @@ export default class Pay extends Component {
     payOrder(offlinePayment){
      // const tradeId = (this.props.onSubmit && this.props.onSubmit()) || '';
           // 发送数据
+          const that = this
 
-          const {isWX} = this.state
-
-          if(isWX && !offlinePayment){
-            const that = this
-            let data = {tradeId:this.props.tradeId,type:this.props.final ? 2 : 1}
-            if(this.props.final){
-              data.recordId = this.state.curItem.recordId
-            }
-            Request(
-              {
-                url: 'api/wxTradePay',
-                method: 'GET',
-                data,
-              },
-              (res) => {
-                console.log(res.data)
-                if(res.code === 200){
-                 
-                  const re = res.data
-                  // 微信支付
-                  Taro.requestPayment({
-                    timeStamp: re.timeStamp,
-                    nonceStr: re.nonceStr,
-                    package: re.packageValue,
-                    signType: re.signType,
-                    paySign: re.paySign,
-                    success (res1) {
-  
-                      that.onClose()
-                      that.props.onOk && that.props.onOk()
-  
-                      console.log(res1)
-  
-                     },
-                    fail (res1) { console.log(res1)}
-                  })
-                }
-              })
-          } else {
-            let data = {tradeId:this.props.tradeId}
-            if(offlinePayment){
-              data.offlinePayment = true
-            } else {
-              if(Number(getUserInfo().remainAmount) < Number(this.state.curItem.price)){
-                Taro.showToast({
-                  title: '余额不足，请使用微信支付！',
-                  icon:'none',
-                  mask: true
-                });
-                return false
-              }
-            }
-            
+          Request({
+            url: 'api/getWxTemplateId' ,
+            method: 'GET'
+          },
+          (res) => {
+            const tmplIds = res.data
            
-            if(this.props.final){
-              data.recordId = this.state.curItem.recordId
-              data.diffAmount = this.state.curItem.price
-            } else {
-              data.amount = this.state.curItem.price
-            }
+            wx.requestSubscribeMessage({
+              tmplIds: [tmplIds],
+              success () {
+                  const {isWX} = that.state
+  
+                  if(isWX && !offlinePayment){
+                        
+                        let data = {tradeId:that.props.tradeId,type:that.props.final ? 2 : 1}
+                        if(that.props.final){
+                          data.recordId = that.state.curItem.recordId
+                        }
+                        Request(
+                          {
+                            url: 'api/wxTradePay',
+                            method: 'GET',
+                            data,
+                          },
+                          (res) => {
+                            console.log(res.data)
+                            if(res.code === 200){
+                            
+                              const re = res.data
+                              // 微信支付
+                              Taro.requestPayment({
+                                timeStamp: re.timeStamp,
+                                nonceStr: re.nonceStr,
+                                package: re.packageValue,
+                                signType: re.signType,
+                                paySign: re.paySign,
+                                success (res1) {
+              
+                                  that.onClose()
+                                  that.props.onOk && that.props.onOk()
+              
+                                  console.log(res1)
+              
+                                },
+                                fail (res1) { console.log(res1)}
+                              })
+                            }
+                          })
+                      
+                    
+                  } else {
+                    let data = {tradeId:that.props.tradeId}
+                    if(offlinePayment){
+                      data.offlinePayment = true
+                    } else {
+                      if(Number(getUserInfo().remainAmount) < Number(that.state.curItem.price)){
+                        Taro.showToast({
+                          title: '余额不足，请使用微信支付或充值足额进行支付！',
+                          icon:'none',
+                          mask: true
+                        });
+                        return false
+                      }
+                    }
+                    
+                  
+                    if(that.props.final){
+                      data.recordId = that.state.curItem.recordId
+                      data.diffAmount = that.state.curItem.price
+                    } else {
+                      data.amount = that.state.curItem.price
+                    }
+  
+                    Request({
+                        url: that.props.final ? 'api/wxConfirmPayment' : 'api/wxDeposit',
+                        method: 'POST',
+                        data,
+                      },
+                      () => {
+                        that.onClose()
+                        that.props.onOk && that.props.onOk()
+                        
+                      })
+                }
+              } 
+            })
 
-             Request({
-                url: this.props.final ? 'api/wxConfirmPayment' : 'api/wxDeposit',
-                method: 'POST',
-                data,
-              },
-              () => {
-                this.onClose()
-                this.props.onOk && this.props.onOk()
-              })
-          } 
+          })
+
+
+         
     }
 
     onClose(){
       this.setState({isOpened:false})
+      this.hideModal()
     }
 
-    notPay(){
-      if(this.props.final){
+    notPay(flag){
+      if(flag){
         this.payOrder(true)
       } else {
         this.onClose()
@@ -233,10 +256,18 @@ export default class Pay extends Component {
       
     }
 
+    openModal(){
+      this.setState({visible:true})
+    }
+    hideModal(){
+      // eslint-disable-next-line react/no-unused-state
+      this.setState({visible:false})
+    }
+
 
     render () {
       
-        const {isOpened,isWX,curItem,hours,minutes,seconds} = this.state
+        const {isOpened,isWX,curItem,hours,minutes,seconds,visible} = this.state
 
        // console.log(isOpened,create,hours,minutes,seconds,9987)
 
@@ -244,7 +275,7 @@ export default class Pay extends Component {
 
         return (
           <AtFloatLayout isOpened={isOpened}  className='payLayout' onClose={() => this.onClose()}>
-            {create || final ? <View className='wait' onClick={() => this.notPay()}>{final ? '线下支付' : '稍后支付'}</View> : 
+            {create || final ? <View className='wait' onClick={() => final ? this.openModal() : this.notPay()}>{final ? '线下支付' : '稍后支付'}</View> : 
 
               <View className='text'>请在
                {isOpened &&  <AtCountdown
@@ -265,6 +296,19 @@ export default class Pay extends Component {
               <View className='payway balance'><View className='n'>账户余额：{getUserInfo() && getUserInfo().remainAmount}</View><View className={`${!isWX?'active' : ''} icon`}  onClick={() => this.setState({isWX:false})}>{!isWX && <AtIcon value='check' size='12' color='#fff'></AtIcon>}</View></View>
             </View>
             <AtButton size='small' type='primary' circle onClick={() => this.payOrder(false)}>立即支付</AtButton>
+
+            <AtModal
+              isOpened={visible}
+              title='线下支付'
+              cancelText='取消'
+              confirmText='确认'
+              onClose={() => this.notPay(false)}
+              onCancel={() => this.notPay(false)}
+              onConfirm={() => this.notPay(true)}
+              content='在拍摄当天自行与摄影师支付尾款，平台只保护线上定金部分。'
+              className='offLineVisible'
+            />
+
         </AtFloatLayout>
   
         )

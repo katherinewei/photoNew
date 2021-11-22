@@ -5,18 +5,20 @@ import { AtButton,AtAvatar,AtTabs, AtTabsPane} from 'taro-ui'
 import Request from '../../utils/request'
 import './photographer.scss'
 
+const $instance = Taro.getCurrentInstance()
 export default class Index extends Component {
 
 
   state = {
     currentTab:0,
     photoerVO:{},
-    tradeRecordVO:{}
+    tradeRecordVO:{},
+    currentImage:''
   }
 
   componentWillMount() {
 
-    const $instance = Taro.getCurrentInstance()
+    
     //根据摄影师 ID 获取摄影师详情内容
     Request(
       {
@@ -73,7 +75,7 @@ export default class Index extends Component {
   //上拉刷新
   onScrollToLower() {
     const { pages, current, records } = this.state
-    const $instance = Taro.getCurrentInstance()
+
     if (pages > current) {
       Request(
         {
@@ -103,7 +105,7 @@ export default class Index extends Component {
 
 
   fetchRecord(refresh){
-    const $instance = Taro.getCurrentInstance()
+
     //查看摄影师评论列表内容-分页
     Request(
       {
@@ -139,15 +141,18 @@ export default class Index extends Component {
 
 
   selectIt(){
-    const $instance = Taro.getCurrentInstance()
+
     Taro.navigateTo({url: `/pages/order/orderDeatil?id=${$instance.router.params.tradeId}&recordId=${$instance.router.params.id}`})
   }
 
   
 
+  
+
   render() {
-    const {photoerVO,tradeRecordVO,records,total} = this.state
+    const {photoerVO,tradeRecordVO,records,total,currentImage} = this.state
     const tabList = [{ title: '样片' }, { title: '评价' }]
+    const {readonly} = $instance.router.params
     return (
       <View className='index photographer' >
         <View className='contain'>
@@ -160,9 +165,9 @@ export default class Index extends Component {
             <View className='right'>
               <View className='name'>{photoerVO.userName}</View>
               <View className='i'><text>{photoerVO.sex === 1 ? '女' :'男'}</text>
-              {/* <text>高级摄影师</text><text>从业12年</text> */}
-              <text>服务客户<text class='number'>{photoerVO.serviceNum}</text></text></View>
-              <View className='o'>诚信服务</View>
+              <text></text><text>{photoerVO.mobile}</text>
+              <text>已拍摄<text class='number'>{photoerVO.serviceNum}</text></text></View>
+              <View className='o'>{photoerVO.qyFlag ? '已' :'未' }签约</View>
             </View>
           </View>
          
@@ -190,7 +195,7 @@ export default class Index extends Component {
           <AtTabsPane current={this.state.currentTab} index={0}>
             <View  className='images'>
               {tradeRecordVO.rushImgUrlList && tradeRecordVO.rushImgUrlList.length > 0 && tradeRecordVO.rushImgUrlList.map((pic,k) => (
-                <Image key={k} src={pic} mode='widthFix'></Image>
+                <Image key={k} src={JSON.parse(pic)[0]} mode='widthFix' onClick={() => this.setState({currentImage:JSON.parse(pic)[0]})}></Image>
               ))}
              
             
@@ -235,10 +240,17 @@ export default class Index extends Component {
          
         </AtTabs>
         </View>
-        <View className='foot'>
+        {readonly == '0' && <View className='foot'>
           <AtButton size='small' type='primary' circle onClick={() => this.selectIt()}>选TA服务</AtButton>
       
+        </View>}
+
+        <View className={(currentImage ? 'show' : ' ') + ' ImageBig'} onClick={() => this.setState({currentImage:''})}>
+              <Image src={currentImage} mode='widthFix' />
         </View>
+
+
+
         
       </View>
     )

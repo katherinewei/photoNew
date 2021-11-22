@@ -218,7 +218,7 @@ export default class Index extends Component {
     
     const {currentState,isOpened,curItem,isOpenedCancel,records,tradeId} = this.state
 
-    const stateName = ['取消订单','待支付','预约中','已预约','等待成片','已提交成片'] 
+    const stateName = ['取消订单','待支付','预约中','已预约','等待收成片','已提交成片','收到成片','已完成'] 
    
     return (
       <View className='Order'>
@@ -260,7 +260,7 @@ export default class Index extends Component {
                       {(item.state === 0 || item.state === 1 || item.state === 2) && <AtButton size='small' type='secondary' circle onClick={() => this.cancelOrder(item)}>取消{item.state === 1 ? '预约': '订单'}</AtButton>}
                       {item.state === 0 &&  <AtButton size='small' type='primary' circle onClick={() => this.payOrder(item)}>支付定金</AtButton>}
                       {(item.state === -1)  &&  <AtButton size='small' type='secondary' circle onClick={() => this.deleteOrder(item)}>删除订单</AtButton>}
-                      {(item.state > 2)  &&  <AtButton size='small' type='secondary' circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
+                      {(item.state > 4 && !item.commentFlag)  &&  <AtButton size='small' type='secondary' circle  onClick={() => Taro.navigateTo({url: `/pages/order/evaluation?id=${item.id}`})}>评价订单</AtButton>}
                       {(item.state === 4)  &&  <AtButton size='small' type='secondary' circle  onClick={() => this.received(item.id)}>收到成片</AtButton>}
                   </View>
                 </View>

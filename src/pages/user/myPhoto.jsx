@@ -118,7 +118,7 @@ export default class MyPhoto extends Component {
                       
                       <View className='img'>
                         <Image
-                          mode='widthFix'
+                          mode='aspectFit'
                           src={(item.imgUrl)}
                         ></Image>
                        

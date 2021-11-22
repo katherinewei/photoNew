@@ -14,6 +14,7 @@ export default class MyPhoto extends Component {
     
     state = {
       data:{}
+     
     }
 
 
@@ -50,6 +51,9 @@ export default class MyPhoto extends Component {
 
     componentDidHide () { }
 
+
+
+
     render () {
         
       const { data} = this.state
@@ -69,14 +73,14 @@ export default class MyPhoto extends Component {
                 className='myswipe'
                 indicatorColor='#DCDCDC'
                 indicatorActiveColor='#5299FB'
-                  
+               
                 circular
                 indicatorDots
-                autoplay
+              
               >
                     {data.imgUrlList.map((item,i) =>(
                       <SwiperItem key={i}>
-                        <View className='demo-text-1'><Image src={item} mode='widthFix' /></View>
+                        <View className='demo-text-1' style={{textAlign: 'center'}}><Image src={item} mode='heightFix'  /></View>
                       </SwiperItem>
                     ))}
                   
